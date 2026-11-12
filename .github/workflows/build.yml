@@ -12,11 +12,11 @@ jobs:
         with: { distribution: temurin, java-version: '17' }
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: '8.14.3' }
-      - name: Keystore
-        run: echo "${{ secrets.KS_B64 }}" | base64 -d > $RUNNER_TEMP/upload.jks
+      - name: Şifre kontrol
+        run: test -n "${{ secrets.KS_PASS }}" || (echo "KS_PASS secret eksik" && exit 1)
       - name: Build
         env:
-          KS_PATH: ${{ runner.temp }}/upload.jks
+          KS_PATH: ${{ github.workspace }}/keystore/upload.jks
           KS_PASS: ${{ secrets.KS_PASS }}
           KS_ALIAS: upload
           ADMOB_APP_ID: ${{ vars.ADMOB_APP_ID }}
