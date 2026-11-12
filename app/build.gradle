@@ -1,0 +1,36 @@
+plugins { id 'com.android.application' }
+
+def vCode = (System.getenv("VERSION_CODE") ?: "13") as int
+def admobAppId = System.getenv("ADMOB_APP_ID") ?: "ca-app-pub-3940256099942544~3347511713"   // Google test App ID (AdMob uygulaması açılınca değişecek)
+
+android {
+    namespace 'com.eavisionlabs.futbolkafasi'
+    compileSdk 36
+    defaultConfig {
+        applicationId "com.eavisionlabs.futbolkafasi"
+        minSdk 24
+        targetSdk 36
+        versionCode vCode
+        versionName "0.5.0"
+        manifestPlaceholders = [admobAppId: admobAppId]
+    }
+    signingConfigs {
+        release {
+            storeFile file(System.getenv("KS_PATH") ?: "upload.jks")
+            storePassword System.getenv("KS_PASS")
+            keyAlias System.getenv("KS_ALIAS") ?: "upload"
+            keyPassword System.getenv("KS_PASS")
+        }
+    }
+    buildTypes {
+        release { minifyEnabled false; signingConfig signingConfigs.release }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+
+dependencies {
+    implementation 'com.google.android.gms:play-services-ads:25.4.0'
+    implementation 'com.google.android.ump:user-messaging-platform:3.1.0'
+    implementation 'com.android.billingclient:billing:8.2.1'
+    implementation 'androidx.annotation:annotation:1.9.1'
+}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="fk_bg">#ff0b1426</color>
+    <style name="AppTheme" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/fk_bg</item>
+        <item name="android:statusBarColor">@color/fk_bg</item>
+        <item name="android:navigationBarColor">@color/fk_bg</item>
+        <item name="android:colorPrimary">@color/fk_bg</item>
+        <item name="android:colorAccent">#ff22c55e</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
