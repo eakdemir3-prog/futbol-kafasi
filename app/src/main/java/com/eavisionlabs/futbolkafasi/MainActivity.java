@@ -24,6 +24,7 @@ public class MainActivity extends Activity {
     FrameLayout root;
     Ads ads;
     Billing billing;
+    Cloud cloud;
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override protected void onCreate(Bundle b) {
@@ -66,6 +67,7 @@ public class MainActivity extends Activity {
         web.loadUrl("file:///android_asset/www/index.html");
 
         billing = new Billing(this);
+        cloud = new Cloud(this);
         ads = new Ads(this);
         ads.start();
 
@@ -89,7 +91,7 @@ public class MainActivity extends Activity {
     /** JS'e olay gönder: fkNative(ev,a,b) */
     void js(final String ev, final String a, final String b) {
         runOnUiThread(() -> web.evaluateJavascript(
-            "window.fkNative&&window.fkNative('" + ev + "','" + (a == null ? "" : a) + "','" + (b == null ? "" : b) + "')", null));
+            "window.fkNative&&window.fkNative(" + org.json.JSONObject.quote(ev) + "," + org.json.JSONObject.quote(a == null ? "" : a) + "," + org.json.JSONObject.quote(b == null ? "" : b) + ")", null));
     }
 
     void openExternal(String u) {
@@ -135,5 +137,13 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void privacyOptions() { runOnUiThread(() -> ads.privacyOptions()); }
         @JavascriptInterface public void setDark(final boolean dark) { runOnUiThread(() -> applyBars(dark)); }
         @JavascriptInterface public void openUrl(final String u) { runOnUiThread(() -> openExternal(u)); }
+        // ---- Google girişi + bulut kayıt ----
+        @JavascriptInterface public void signIn() { runOnUiThread(() -> cloud.signIn()); }
+        @JavascriptInterface public void signOut() { runOnUiThread(() -> cloud.signOut()); }
+        @JavascriptInterface public String authUser() { return cloud.userJson(); }
+        @JavascriptInterface public void cloudSave(String data, String meta) { cloud.save(data, meta); }
+        @JavascriptInterface public void cloudLoad() { cloud.load(); }
+        @JavascriptInterface public String cloudData() { return cloud.loaded == null ? "" : cloud.loaded; }
+        @JavascriptInterface public void deleteAccount() { runOnUiThread(() -> cloud.deleteAccount()); }
     }
 }

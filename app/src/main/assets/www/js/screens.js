@@ -21,7 +21,7 @@ S.welcome = el => {
    '<button class="btn btn-ghost" data-guest>'+t("guest")+'</button>'+
    '<p class="center small muted" style="margin:4px 0 0;line-height:1.5">'+t("guestNote")+'</p></div>';
   el.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{ FK.state.profile.lang=b.dataset.l; FK.save(); FK.render(); });
-  el.querySelector("[data-g]").onclick=()=>FK.modal('<div class="row" style="margin-bottom:10px;color:var(--yellow-l)">'+FK.ic("info",22)+'<b>Google</b></div><p style="margin:0 0 18px;line-height:1.55;font-size:15px">'+t("googleSoon")+'</p><button class="btn btn-primary" data-ok>'+t("guest")+'</button>',w=>w.querySelector("[data-ok]").onclick=()=>{ FK.closeModal(); FK.go("setup",{step:0}); });
+  el.querySelector("[data-g]").onclick=()=>{ FK.sfx("tap"); FK.signIn(); };
   el.querySelector("[data-guest]").onclick=()=>{ FK.sfx("tap"); FK.go("setup",{step:0}); };
 };
 
@@ -211,8 +211,7 @@ S.profile = el => {
     '<button class="setting" data-gopro>'+'<span style="font-size:18px;width:20px;text-align:center">👑</span><span class="grow">'+t("proT")+(FK.isPro()?'<span class="small" style="display:block;color:#FACC15;font-weight:600">'+t("proOwned")+'</span>':'')+'</span>'+FK.ic("right",18)+'</button>'+
     '<button class="setting" data-t="sound">'+FK.ic("sound",20)+'<span class="grow">'+t("sound")+'</span>'+sw("sound",s.settings.sound)+'</button>'+
     '<button class="setting" data-t="vib">'+FK.ic("vib",20)+'<span class="grow">'+t("vibration")+'</span>'+sw("vib",s.settings.vib)+'</button>'+
-    '<div class="setting">'+FK.ic("user",20)+'<span class="grow">'+t("account")+'<span class="small muted" style="display:block;font-weight:500">'+t("guestAcc")+'</span></span></div>'+
-    '<button class="setting" data-soon="googleSoon">'+FK.ic("link",20)+'<span class="grow">'+t("linkGoogle")+'</span>'+FK.ic("right",18)+'</button>'+
+    FK.accountRows()+
     '<button class="setting" data-url="gizlilik.html">'+FK.ic("doc",20)+'<span class="grow">'+t("privacy")+'</span>'+FK.ic("right",18)+'</button>'+
     '<button class="setting" data-url="kullanim-kosullari.html">'+FK.ic("doc",20)+'<span class="grow">'+t("terms")+'</span>'+FK.ic("right",18)+'</button>'+(window.FKAndroid&&FKAndroid.privacyRequired&&FKAndroid.privacyRequired()?'<button class="setting" data-privopt>'+FK.ic("shield",20)+'<span class="grow">'+t("privacyOpt")+'</span>'+FK.ic("right",18)+'</button>':'')+
     '<button class="setting" data-soon="soonMsg">'+FK.ic("help",20)+'<span class="grow">'+t("help")+'</span>'+FK.ic("right",18)+'</button>'+
@@ -224,6 +223,7 @@ S.profile = el => {
   el.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{ P.lang=b.dataset.l; FK.save(); FK.render(); });
   el.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{ const k=b.dataset.t; s.settings[k]=!s.settings[k]; FK.save(); b.querySelector(".switch").classList.toggle("on",s.settings[k]); if(k==="vib"&&s.settings.vib) FK.vib(40); if(k==="sound") FK.sfx("tap"); });
   el.querySelectorAll("[data-soon]").forEach(b=>b.onclick=()=>FK.toast(t(b.dataset.soon),"info",3500));
+  FK.bindAccount(el);
   el.querySelectorAll("[data-th]").forEach(b=>b.onclick=()=>{ s.settings.theme=b.dataset.th; FK.save(); FK.applyTheme(); FK.render(); });
   el.querySelectorAll("[data-url]").forEach(b=>b.onclick=()=>FK.openUrl(FK.LEGAL+b.dataset.url));
   const gp=el.querySelector("[data-gopro]"); if(gp) gp.onclick=()=>FK.go("pro");
