@@ -86,7 +86,7 @@ FK.screens.intro = (el,{mode}) => {
    '<div class="card-hero" style="background:linear-gradient(135deg,'+M.g[0]+','+M.g[1]+');color:'+M.fg+';min-height:170px;display:flex;flex-direction:column;justify-content:flex-end">'+FK.bgBall(190)+
     '<div style="width:64px;height:64px;border-radius:20px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;margin-bottom:auto">'+FK.ic(M.icon,36,2)+'</div>'+
     '<h1 class="h-display h1" style="margin-top:14px">'+FK.modeName(mode)+'</h1><div style="margin-top:4px;font-size:14px;font-weight:600;opacity:.9">'+t("m_"+mode+"S")+'</div></div>'+
-   '<div class="card"><div class="row" style="margin-bottom:8px;color:var(--yellow-l)">'+FK.ic("info",18)+'<b style="font-size:14px">'+t("howTo")+'</b></div><div style="font-size:14px;line-height:1.55;color:#CBD5E1">'+t("rules_"+mode)+'</div></div>'+
+   '<div class="card" style="position:relative"><div style="position:absolute;right:-6px;top:-30px">'+FK.kafa("bilge",70,"bob")+'</div><div class="row" style="margin-bottom:8px;color:var(--yellow-l)">'+FK.ic("info",18)+'<b style="font-size:14px">'+t("howTo")+'</b></div><div style="font-size:14px;line-height:1.55;color:#CBD5E1">'+t("rules_"+mode)+'</div></div>'+
    (mode==="guess"?eraPicker():'')+
    (M.diff?'<div><div class="label muted" style="margin-bottom:8px">'+t("diff")+'</div><div class="seg" style="grid-template-columns:repeat(4,1fr)">'+[1,2,3,4].map(d=>'<button data-d="'+d+'" class="'+(d===diff?"on":"")+'">'+t("d"+d)+'</button>').join("")+'</div></div>':'')+
    (best?'<div class="row" style="justify-content:center;color:var(--muted);font-size:13px">'+FK.ic("trophy",16)+t("best",{s:FK.fmtNum(best)})+'</div>':'')+
@@ -282,7 +282,7 @@ FK.screens.result = (el,{g,res}) => {
   el.classList.add("result-bg");
   el.innerHTML='<div class="scroll" style="padding-top:28px"><div class="stack" style="gap:16px;align-items:stretch">'+
    '<div class="center label" style="color:#FDE68A">'+FK.modeName(g.mode)+(g.diff?' · '+t("d"+g.diff):'')+'</div>'+
-   '<h1 class="h-display center" style="font-size:46px">'+title+'</h1>'+
+   '<h1 class="h-display center" style="font-size:46px">'+title+'</h1>'+FK.kafaResult(pct)+
    (res.record?'<div class="center"><span class="chip" style="background:#FACC15;color:#422006">'+FK.ic("trophy",14,2.4)+t("newRecord")+'</span></div>':'')+
    '<div class="score-ring" style="background:conic-gradient(var(--green) 0 '+Math.round(pct*100)+'%, var(--card2) '+Math.round(pct*100)+'% 100%)"><div><span class="big-num">'+FK.fmtNum(g.score)+'</span><span class="small muted" style="font-weight:600">'+t("points")+' · '+t("nCorrect",{a:g.correct,b:total})+'</span></div></div>'+
    '<div class="stat3"><div class="stat"><b style="color:var(--green-l)">'+g.correct+'</b><span>'+t("statCorrect")+'</span></div><div class="stat"><b style="color:#FDBA74">'+g.bestStreak+'</b><span>'+t("statStreak")+'</span></div><div class="stat"><b style="color:#7DD3FC">'+(g.timeSum&&g.correct?(g.timeSum/total).toFixed(1).replace(".",FK.lang()==="tr"?",":"."):"–")+'</b><span>'+t("statAvg")+'</span></div></div>'+
@@ -309,7 +309,7 @@ FK.screens.result = (el,{g,res}) => {
 FK.levelUpModal = lv => {
   const newAv=FK.AVATARS.filter(a=>a.lv===lv);
   FK.sfx("lvl"); FK.vib([40,40,80]);
-  FK.modal('<div style="position:relative;overflow:hidden;text-align:center;padding:10px 0"><div class="rays"></div><div style="position:relative"><div class="label" style="color:var(--yellow-l)">'+t("levelUp")+'</div><div class="levelup-num">'+lv+'</div><div style="font-weight:600;margin-top:4px">'+t("levelUpS",{n:lv})+'</div>'+
+  FK.modal('<div style="position:relative;overflow:hidden;text-align:center;padding:10px 0"><div class="rays"></div><div style="position:relative"><div style="display:flex;justify-content:center">'+FK.kafa("sampiyon",110,"bob")+'</div><div class="label" style="color:var(--yellow-l)">'+t("levelUp")+'</div><div class="levelup-num">'+lv+'</div><div style="font-weight:600;margin-top:4px">'+t("levelUpS",{n:lv})+'</div>'+
    (newAv.length?'<div style="margin-top:16px;display:flex;flex-direction:column;align-items:center;gap:8px">'+FK.avatar(FK.AVATARS.indexOf(newAv[0]),64)+'<span class="small" style="color:var(--green-xl);font-weight:700">'+t("unlocked")+'</span></div>':'')+
    '<button class="btn btn-primary" style="margin-top:20px" data-ok>'+t("done")+'</button></div></div>', w=>{ w.querySelector("[data-ok]").onclick=FK.closeModal; FK.confetti(w); });
 };

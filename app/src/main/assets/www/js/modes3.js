@@ -106,7 +106,7 @@ FK.streakModal = () => {
     return '<div class="wd'+(v==="p"?" p":v==="f"?" f":"")+(k===today?" today":"")+'"><i>'+(v==="p"?FK.flame(1,16):v==="f"?"❄":"")+'</i><span>'+lbl+'</span></div>'; }).join("");
   const draw=w=>{
     w.querySelector(".modal").innerHTML='<div class="center stack" style="gap:12px">'+
-     '<div class="big-flame">'+FK.flame(p.streak,74)+'</div>'+
+     '<div class="big-flame">'+(FK.kafa&&p.streak>0?FK.kafa(p.last===today?"atesli":"uykucu",110,"bob"):FK.flame(p.streak,74))+'</div>'+
      '<div><div class="h-display" style="font-size:40px;line-height:1">'+t("st_days",{n:p.streak})+'</div><div class="small muted" style="margin-top:4px">'+t("st_best",{n:p.best})+' · '+(p.last===today?t("st_today"):t("st_todo"))+'</div></div>'+
      '<div class="week">'+week+'</div>'+
      '<p class="small" style="margin:0;color:#CBD5E1;line-height:1.5">'+t("st_info")+'</p>'+
@@ -129,7 +129,7 @@ FK.streakNote = () => { const p=P(); if(p.note){ const n=p.note; p.note=null; FK
 function endCard(el,{title,big,sub,res,record,mode,again}){
   return '<div class="card center stack end-card" style="gap:10px">'+
     (record?'<span class="chip" style="align-self:center;background:#FACC15;color:#422006">'+FK.ic("star",12,2.6)+' '+t("newRecord")+'</span>':'')+
-    '<div class="h-display h2">'+title+'</div><div class="h-display" style="font-size:56px;line-height:1;color:var(--green-l)">'+big+'</div><div class="small muted">'+sub+'</div>'+
+    (FK.kafa?'<div style="display:flex;justify-content:center">'+FK.kafa(record?"sampiyon":(res&&res.xp>=30)?"taraftar":"uzgun",110,"bob")+'</div>':'')+'<div class="h-display h2">'+title+'</div><div class="h-display" style="font-size:56px;line-height:1;color:var(--green-l)">'+big+'</div><div class="small muted">'+sub+'</div>'+
     (res?'<div class="row" style="justify-content:center;gap:8px"><span class="chip chip-xp">+'+res.xp+' XP</span><span class="chip chip-gem">'+FK.gemIc(12)+'+'+res.gems+'</span></div>'+FK.doubleBtn(res):'')+
     '<button class="btn btn-primary" data-again>'+FK.ic("replay",22,2.4)+t("again")+'</button><button class="btn btn-ghost" data-exit>'+t("exitGame")+'</button></div>';
 }

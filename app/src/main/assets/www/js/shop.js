@@ -83,7 +83,7 @@ FK.notEnough = cost => FK.modal('<div class="center stack" style="gap:12px"><div
 FK.useBoost = (id,onUse,onCancel) => {
   if(FK.inv(id)>0){ inv()[id]--; FK.save(); FK.sfx("tap"); onUse(); return; }
   const b=B(id);
-  FK.modal('<div class="center stack" style="gap:12px"><div style="font-size:46px">'+b.e+'</div><div class="h-display h2">'+t("b_"+id)+'</div><div class="muted small">'+t("bd_"+id)+'</div>'+
+  FK.modal('<div class="center stack" style="gap:12px"><div style="display:flex;justify-content:center;align-items:flex-end;gap:6px">'+FK.kafa("kaleci",84,"bob")+'<span style="font-size:40px">'+b.e+'</span></div><div class="h-display h2">'+t("b_"+id)+'</div><div class="muted small">'+t("bd_"+id)+'</div>'+
     '<button class="btn btn-primary" data-buy>'+FK.gemIc(18)+' '+t("boostFor",{p:b.p})+'</button>'+
     (FK.boostAdLeft()>0?'<button class="btn btn-reward" data-ad>'+t("boostAdUse")+'</button>':'')+
     '<button class="btn btn-ghost btn-sm" data-c>'+t("cancel")+'</button></div>', w=>{ if(onCancel) w.dataset.lock=1;
@@ -138,7 +138,7 @@ FK.screens.shop = (el,params) => {
     const xl=FK.xp2Left();
     el.innerHTML='<div class="topbar"><button class="icon-btn" data-back aria-label="'+t("back")+'">'+FK.ic("left",22,2.4)+'</button><div class="grow"><h1 class="h-display" style="font-size:26px;margin:0">'+t("shop")+'</h1></div><span class="pill">'+FK.gemIc()+FK.fmtNum(s.gems)+'</span></div>'+
     '<div class="seg shop-tabs">'+["boost","style","gems"].map(k=>'<button class="'+(tab===k?"on":"")+'" data-tab="'+k+'">'+t(k==="boost"?"tabBoost":k==="style"?"tabStyle":"tabGems")+'</button>').join("")+'</div>'+
-    '<div class="scroll"><div class="stack" style="gap:14px">'+
+    '<div class="scroll"><div class="stack" style="gap:14px">'+FK.kafaSay("satici",t("k_shop"),80)+
     (tab==="boost" ? boostTab(xl) : tab==="style" ? styleTab() : gemsTab())+
     '</div></div>';
     el.querySelector("[data-back]").onclick=FK.back;

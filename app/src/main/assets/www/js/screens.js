@@ -11,8 +11,8 @@ S.welcome = el => {
   el.innerHTML='<svg class="pitch-lines" aria-hidden="true" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#22C55E" stroke-opacity=".14" stroke-width="2"><rect x="24" y="40" width="342" height="560" rx="6"/><line x1="24" y1="320" x2="366" y2="320"/><circle cx="195" cy="320" r="62"/><rect x="110" y="40" width="170" height="80"/><rect x="110" y="520" width="170" height="80"/></g></svg>'+
   '<div class="topbar" style="justify-content:flex-end;position:relative"><div class="seg" style="grid-template-columns:1fr 1fr;width:110px"><button data-l="tr" class="'+(FK.lang()==="tr"?"on":"")+'">TR</button><button data-l="en" class="'+(FK.lang()==="en"?"on":"")+'">EN</button></div></div>'+
   '<div class="scroll" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;position:relative">'+
-   '<div style="filter:drop-shadow(0 18px 30px rgba(34,197,94,.45))">'+FK.logoBall(130,true)+'</div>'+
-   '<div style="margin-top:-10px">'+FK.logoText(300)+'</div>'+
+   '<div style="filter:drop-shadow(0 18px 30px rgba(34,197,94,.45))">'+FK.kafa("kaptan",170,"bob")+'</div>'+
+   '<div style="margin-top:4px">'+FK.logoText(300)+'</div>'+
    '<div style="font-family:var(--display);font-weight:800;font-size:17px;letter-spacing:1.2px;color:var(--yellow-l);text-align:center;margin-top:4px">'+t("slogan")+'</div>'+
    '<div class="row" style="flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px"><span class="chip" style="background:rgba(34,197,94,.14);color:#86EFAC">'+t("tag1")+'</span><span class="chip" style="background:rgba(139,92,246,.18);color:#C4B5FD">'+t("tag2")+'</span><span class="chip" style="background:rgba(255,138,31,.16);color:#FDBA74">'+t("tag3")+'</span></div>'+
   '</div>'+
@@ -83,6 +83,7 @@ S.home = el => {
     '<div class="grow"><div class="row" style="gap:8px;align-items:baseline"><b style="font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+FK.esc(s.profile.name)+'</b><span class="small muted">'+t("level")+' '+li.level+'</span></div><div class="bar" style="margin-top:6px"><i style="width:'+li.pct+'%"></i></div></div>'+
     '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><button class="pill" data-go="shop">'+FK.gemIc()+FK.fmtNum(s.gems)+'<b style="color:var(--green-l);margin-left:2px">+</b></button>'+FK.streakPill()+'</div>'+
    '</div>'+
+   FK.kafaHome()+
    '<button class="row card tight" data-go="rank" style="width:100%;text-align:left;gap:12px;background:linear-gradient(90deg,'+L.c1+'29,'+L.c1+'08);border-color:'+L.c1+'59">'+FK.leagueBadge(s.league,32)+'<div class="grow"><div style="font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:.5px;color:'+L.txt+'">'+t("leagueLbl",{l:t(L.k)})+'</div><div class="small" style="color:#CBD5E1">'+t("leaguePos",{p:pos})+'</div></div><span class="small" style="font-weight:600;color:'+L.c2+'">'+t("leagueDays",{d:FK.daysLeftInWeek()})+'</span></button>'+
    '<div class="card-hero" style="background:linear-gradient(135deg,#16A34A,#0D9488);box-shadow:0 14px 30px rgba(22,163,74,.35)">'+FK.bgBall(170)+
     '<div class="label" style="color:#D1FAE5">'+t("challenge")+'</div><div class="h-display" style="font-size:34px;margin-top:4px">'+t("daily10")+'</div>'+

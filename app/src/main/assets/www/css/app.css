@@ -563,3 +563,20 @@ html[data-theme=light] button.card.tight[style*="border-color"] *, html[data-the
 .fr-pro::after{content:"👑";position:absolute;top:-22%;left:50%;transform:translateX(-50%);font-size:calc(var(--fs) * .32)}
 @keyframes frSpin{to{transform:rotate(360deg)}}
 html[data-theme=light] .bitem,html[data-theme=light] .gpack,html[data-theme=light] .cos,html[data-theme=light] .shop-free,html[data-theme=light] .boost{background:#fff}
+/* ===== maskot Kafa ===== */
+.kafa{display:block;overflow:visible;flex-shrink:0}
+.kafa.bob .kafa-in,.kafa-say .kafa .kafa-in{animation:kBob 2.4s ease-in-out infinite;transform-origin:0 200px}
+@keyframes kBob{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-14px) rotate(-2deg)}60%{transform:translateY(-4px) rotate(2deg)}}
+.k-sampiyon .kafa-in,.k-taraftar .kafa-in{animation:kJump 1.2s ease-in-out infinite!important}
+@keyframes kJump{0%,100%{transform:translateY(0) scale(1,1)}40%{transform:translateY(-26px) scale(.97,1.03)}70%{transform:translateY(0) scale(1.04,.96)}}
+.k-uzgun .kafa-in{animation:kSad 3s ease-in-out infinite!important}
+@keyframes kSad{50%{transform:translateY(6px) rotate(-3deg)}}
+.k-uykucu .kafa-in{animation:kSleep 3.4s ease-in-out infinite!important}
+@keyframes kSleep{50%{transform:scale(1.03,.97) translateY(4px)}}
+.kafa-say{display:flex;align-items:center;gap:10px}
+.kbubble{position:relative;flex:1;background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:12px 14px;font-weight:700;font-size:14px;line-height:1.4;animation:kPop .5s cubic-bezier(.3,1.6,.5,1) both}
+.kbubble::before{content:"";position:absolute;left:-9px;top:50%;margin-top:-8px;border:8px solid transparent;border-right-color:var(--line2);border-left:0}
+.kbubble::after{content:"";position:absolute;left:-7px;top:50%;margin-top:-7px;border:7px solid transparent;border-right-color:var(--card);border-left:0}
+@keyframes kPop{from{opacity:0;transform:scale(.7) translateX(-10px)}to{opacity:1;transform:none}}
+html[data-theme=light] .kbubble{background:#fff}
+html[data-theme=light] .kbubble::after{border-right-color:#fff}
