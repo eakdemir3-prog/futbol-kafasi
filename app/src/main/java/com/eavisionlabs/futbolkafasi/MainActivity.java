@@ -125,6 +125,8 @@ public class MainActivity extends Activity {
         @JavascriptInterface public String proFull() { return billing.fullPrice(); }
         @JavascriptInterface public void buyPro() { runOnUiThread(() -> billing.buy()); }
         @JavascriptInterface public void restore() { billing.refresh(); }
+        @JavascriptInterface public String gemPrice(String id) { return billing.gemPrice(id); }
+        @JavascriptInterface public void buyGems(final String id) { runOnUiThread(() -> billing.buyGems(id)); }
         @JavascriptInterface public boolean showInter() {
             if (billing.isPro() || !ads.interReady()) return false;
             runOnUiThread(() -> ads.showInter()); return true;

@@ -16,7 +16,7 @@ Object.assign(FK_I18N.tr,{
   xp2On:"2x XP aktif · {m} dk", xp2Started:"2x XP başladı! 15 dakika", xp2Already:"2x XP zaten aktif",
   avatars:"Avatarlar", frames:"Çerçeveler", animated:"Hareketli", noFrame:"Çerçevesiz", proOnly:"PRO'ya özel",
   gemPacks:"Elmas paketleri", soon:"Yakında", gemSoon:"Elmas satın alma, Google ile giriş ve bulut kayıtla birlikte açılacak. Böylece aldığın elmaslar hiç kaybolmaz.",
-  firstX2:"İlk alımda 2 kat elmas", popular:"En popüler", gp_200:"Avuç", gp_550:"Kese", gp_1200:"Sandık",
+  firstX2:"İlk alımda 2 kat elmas", proBonus:"PRO: her pakette +%20", bonus:"bonus", needLogin:"Giriş gerekli", thanksBuy:"Teşekkürler!", gemNote:"Elmaslar Google hesabına bağlı buluta yedeklenir; telefon değişse de kaybolmaz.", popular:"En popüler", gp_200:"Avuç", gp_550:"Kese", gp_1200:"Sandık",
   starter:"Hoş geldin hediyesi: her güçlendiriciden 1 tane + 100 elmas!", proBoost:"PRO hediyesi: {b} 🎁",
   peTitle:"Profili düzenle", peName:"Kullanıcı adı", tabAv:"Avatar", tabFr:"Çerçeve", tabCountry:"Ülke", tabClub:"Takım",
   discard:"Değişiklikler kaydedilmedi. Çıkılsın mı?", leave:"Çık", saved:"Profil kaydedildi", unlockLv:"Seviye {n}'de açılır", buyFor:"{p} elmasa al",
@@ -33,7 +33,7 @@ Object.assign(FK_I18N.en,{
   xp2On:"2x XP active · {m} min", xp2Started:"2x XP started! 15 minutes", xp2Already:"2x XP already active",
   avatars:"Avatars", frames:"Frames", animated:"Animated", noFrame:"No frame", proOnly:"PRO only",
   gemPacks:"Gem packs", soon:"Soon", gemSoon:"Gem purchases open with Google sign-in and cloud save, so purchased gems are never lost.",
-  firstX2:"Double gems on first purchase", popular:"Most popular", gp_200:"Handful", gp_550:"Pouch", gp_1200:"Chest",
+  firstX2:"Double gems on first purchase", proBonus:"PRO: +20% on every pack", bonus:"bonus", needLogin:"Sign-in needed", thanksBuy:"Thank you!", gemNote:"Gems are backed up to the cloud with your Google account, safe even if you change phones.", popular:"Most popular", gp_200:"Handful", gp_550:"Pouch", gp_1200:"Chest",
   starter:"Welcome gift: 1 of every booster + 100 gems!", proBoost:"PRO gift: {b} 🎁",
   peTitle:"Edit profile", peName:"Username", tabAv:"Avatar", tabFr:"Frame", tabCountry:"Country", tabClub:"Club",
   discard:"Changes not saved. Leave?", leave:"Leave", saved:"Profile saved", unlockLv:"Unlocks at level {n}", buyFor:"Buy for {p} gems",
@@ -128,6 +128,17 @@ FK.avatar = (idx,size=44,ring=null,frame) => {
   return h;
 };
 
+/* elmas satın alma: ilk alım 2x, PRO +%20; aynı satın alma iki kez verilmez */
+FK.gemGive = base => { const s=FK.state; let g=base; if(!s.gemFirst) g*=2; if(FK.isPro()) g+=Math.round(base*.2); return g; };
+const _nat2=window.fkNative;
+window.fkNative=(ev,a,b)=>{
+  if(ev==="gems"){ const s=FK.state; s.gemTok=s.gemTok||[]; if(b && s.gemTok.indexOf(b)>=0) return;
+    const base={gems_200:200,gems_550:550,gems_1200:1200}[a]; if(!base) return;
+    const give=FK.gemGive(base); s.gems+=give; s.gemFirst=true; if(b){ s.gemTok.push(b); if(s.gemTok.length>50) s.gemTok.shift(); }
+    FK.save(); FK.cloudPush&&FK.cloudPush(false); FK.sfx("win"); FK.confetti&&FK.confetti(document.body);
+    FK.toast("+"+FK.fmtNum(give)+" 💎 "+t("thanksBuy"),"gem",3600); FK.render&&FK.render(); return; }
+  if(_nat2) _nat2(ev,a,b);
+};
 /* ana sayfa kartı */
 FK.shopCard = () => '<button class="shop-card" data-go="shop"><span class="sc-ic">🛒</span><div class="grow" style="text-align:left"><div class="h-display" style="font-size:22px">'+t("shopCard")+'</div><div class="small" style="opacity:.9;font-weight:600">'+t("shopCardS")+'</div></div><span class="sc-free">🎬 +20 '+FK.gemIc(13)+'</span></button>';
 /* ---------------- MAĞAZA ---------------- */
@@ -152,6 +163,8 @@ FK.screens.shop = (el,params) => {
     el.querySelectorAll("[data-av]").forEach(b=>b.onclick=()=>buyAv(+b.dataset.av));
     el.querySelectorAll("[data-fr]").forEach(b=>b.onclick=()=>buyFr(b.dataset.fr));
     const pr=el.querySelector("[data-gopro]"); if(pr) pr.onclick=()=>FK.go("pro");
+    el.querySelectorAll("[data-gp]").forEach(b=>b.onclick=()=>{ FK.sfx("tap"); try{ N().buyGems("gems_"+b.dataset.gp); }catch(e){ FK.toast(t("proUnavailable"),"info"); } });
+    const gs=el.querySelector("[data-gsign]"); if(gs) gs.onclick=()=>FK.signIn(()=>draw());
   };
   const boostTab=xl=>
     '<div class="sec-title">'+t("freeSec")+'</div>'+
@@ -173,10 +186,15 @@ FK.screens.shop = (el,params) => {
     '<div class="sec-title">'+t("frames")+'</div>'+
     '<div class="cos-grid">'+FK.FRAMES.map(f=>'<button class="cos'+(FK.frameOf()===f.id?" on":"")+'" data-fr="'+f.id+'">'+FK.avatar(P.avatar,52,null,f.id)+'<span class="cp">'+(f.id==="none"?t("noFrame"):FK.ownsFr(f.id)?(FK.frameOf()===f.id?t("equipped"):t("equip")):f.pro?"👑 PRO":FK.gemIc(12)+f.cost)+'</span></button>').join("")+'</div>';
   };
-  const gemsTab=()=>
-    '<div class="gem-hero"><div style="font-size:40px">💎</div><div class="h-display" style="font-size:26px">'+t("gemPacks")+'</div><div class="small" style="opacity:.9">'+t("firstX2")+'</div></div>'+
-    PACKS.map(p=>'<div class="gpack'+(p.pop?" pop":"")+'">'+(p.pop?'<span class="gtag">'+t("popular")+'</span>':'')+'<span class="gic">'+p.ic+'</span><div class="grow"><b>'+t("gp_"+p.id)+'</b><div class="h-display" style="font-size:24px;color:#7DD3FC">'+FK.gemIc(18)+' '+FK.fmtNum(p.g)+'</div></div><div class="gprice"><s>'+p.p+'</s><b>'+p.d+'</b><span class="chip soon">'+t("soon")+'</span></div></div>').join("")+
-    '<div class="card small muted" style="line-height:1.5">'+FK.ic("info",16,2,'style="display:inline;vertical-align:-3px"')+' '+t("gemSoon")+'</div>';
+  const gemsTab=()=>{
+    const n=N(), live=!!(n&&n.gemPrice), signed=!!(FK.user&&FK.user()), first=!s.gemFirst;
+    return '<div class="gem-hero"><div style="font-size:40px">💎</div><div class="h-display" style="font-size:26px">'+t("gemPacks")+'</div><div class="small" style="opacity:.9">'+(first?t("firstX2"):'')+(FK.isPro()?(first?' · ':'')+t("proBonus"):'')+'</div></div>'+
+    PACKS.map(p=>{ let pr=null; if(live){ try{ pr=JSON.parse(n.gemPrice("gems_"+p.id)||"null"); }catch(e){} }
+      const now=pr&&pr.p?pr.p:p.d, was=pr&&pr.f&&pr.f!==pr.p?pr.f:(pr?'':p.p), give=FK.gemGive(p.g);
+      return '<div class="gpack'+(p.pop?" pop":"")+'">'+(p.pop?'<span class="gtag">'+t("popular")+'</span>':'')+'<span class="gic">'+p.ic+'</span><div class="grow"><b>'+t("gp_"+p.id)+'</b><div class="h-display" style="font-size:24px;color:#7DD3FC">'+FK.gemIc(18)+' '+FK.fmtNum(give)+'</div>'+(give>p.g?'<div class="small" style="color:var(--green-l);font-weight:800">'+FK.fmtNum(p.g)+' + '+FK.fmtNum(give-p.g)+' '+t("bonus")+'</div>':'')+'</div>'+
+        '<div class="gprice">'+(was?'<s>'+was+'</s>':'')+(live&&signed&&pr&&pr.p?'<button class="pbtn" data-gp="'+p.id+'" style="min-width:96px">'+now+'</button>':'<b>'+now+'</b><span class="chip soon">'+(live&&!signed?t("needLogin"):t("soon"))+'</span>')+'</div></div>'; }).join("")+
+    (live&&!signed?'<button class="btn btn-white" data-gsign style="color:#1E3A8A">'+t("acc_signin")+'</button>':'')+
+    '<div class="card small muted" style="line-height:1.5">'+FK.ic("info",16,2,'style="display:inline;vertical-align:-3px"')+' '+t(live?"gemNote":"gemSoon")+'</div>'; };
   const buyAv=i=>{ const a=FK.AVATARS[i]; if(FK.ownsAv(i)){ s.profile.avatar=i; FK.save(); FK.sfx("tap"); draw(); return; }
     FK.confirm(FK.avatar(i,72,null,"none").replace('class="av','style="margin:0 auto 12px" class="av')+t("buyFor",{p:a.cost}),"💎 "+a.cost,()=>FK.spend(a.cost,()=>{ own().av.push(i); s.profile.avatar=i; FK.save(); FK.confetti(el); FK.toast(t("bought"),"check"); draw(); })); };
   const buyFr=id=>{ const f=FK.FRAMES.find(x=>x.id===id); if(FK.ownsFr(id)){ s.profile.frame=id; FK.save(); FK.sfx("tap"); draw(); return; }

@@ -14,7 +14,7 @@ android {
         minSdk 24
         targetSdk 36
         versionCode vCode
-        versionName "0.7.0"
+        versionName "0.7.1"
         manifestPlaceholders = [admobAppId: admobAppId]
     }
     signingConfigs {
