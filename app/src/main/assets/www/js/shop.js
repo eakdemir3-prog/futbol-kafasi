@@ -135,7 +135,7 @@ window.fkNative=(ev,a,b)=>{
   if(ev==="gems"){ const s=FK.state; s.gemTok=s.gemTok||[]; if(b && s.gemTok.indexOf(b)>=0) return;
     const base={gems_200:200,gems_550:550,gems_1200:1200}[a]; if(!base) return;
     const give=FK.gemGive(base); s.gems+=give; s.gemFirst=true; if(b){ s.gemTok.push(b); if(s.gemTok.length>50) s.gemTok.shift(); }
-    FK.save(); FK.cloudPush&&FK.cloudPush(false); FK.sfx("win"); FK.confetti&&FK.confetti(document.body);
+    FK.save(); FK.cloudPush&&FK.cloudPush(false); FK.sfx("gem"); FK.confetti&&FK.confetti(document.body);
     FK.toast("+"+FK.fmtNum(give)+" 💎 "+t("thanksBuy"),"gem",3600); FK.render&&FK.render(); return; }
   if(_nat2) _nat2(ev,a,b);
 };

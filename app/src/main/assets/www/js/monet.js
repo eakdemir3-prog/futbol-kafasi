@@ -77,7 +77,7 @@ const _go=FK.go; FK.go=(name,params,opts)=>{
 /* ---------------- ücretsiz elmas (günde 5) ---------------- */
 FK.freeGemsLeft = () => { const s=FK.state, d=FK.dayKey(); if(s.fgDay!==d){ s.fgDay=d; s.fgN=0; } return 5-(s.fgN||0); };
 FK.freeGems = after => { if(FK.freeGemsLeft()<=0){ FK.toast(t("freeGemNone"),"info"); return; }
-  FK.rewarded("gems",ok=>{ if(!ok) return; const s=FK.state; s.fgN=(s.fgN||0)+1; s.gems+=20; FK.save(); FK.sfx("win"); FK.toast("+20 "+t("gems"),"gem"); after&&after(); }); };
+  FK.rewarded("gems",ok=>{ if(!ok) return; const s=FK.state; s.fgN=(s.fgN||0)+1; s.gems+=20; FK.save(); FK.sfx("gem"); FK.toast("+20 "+t("gems"),"gem"); after&&after(); }); };
 
 /* ---------------- PRO ekranı ---------------- */
 FK.proPrice = () => { try{ const p=N()&&N().proPrice&&N().proPrice(); if(p) return p; }catch(e){} return ""; };

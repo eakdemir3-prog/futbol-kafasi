@@ -228,7 +228,7 @@ FK.screens.tf = el => {
   const tick=()=>{ clearTimeout(tmr); const left=Math.max(0,DUR-(Date.now()-st)); const b=el.querySelector("[data-tbar]"), n=el.querySelector("[data-left]");
     if(b){ b.style.width=(left/DUR*100)+"%"; b.classList.toggle("warn",left<10000); } if(n) n.textContent=Math.ceil(left/1000);
     if(left<=0){ end(); return; } tmr=setTimeout(tick,100); };
-  const end=()=>{ over=true; clearTimeout(tmr); record=score>best()&&best()>0;
+  const end=()=>{ over=true; clearTimeout(tmr); FK.sfx("whistleEnd"); record=score>best()&&best()>0;
     res=FK.finishGame({mode:"tf",diff:0,correct:ok,total:ok+bad,score,bestStreak:bestC,timeSum:0}); draw(); if(record) FK.confetti(el); afterRes(res); };
   const draw=()=>{
     el.innerHTML='<div class="game-head"><button class="icon-btn" data-quit aria-label="'+t("back")+'">'+FK.ic("left",22,2.4)+'</button><div class="grow"><div class="h-display" style="font-size:22px">'+t("m_tf")+'</div><div class="small muted" style="margin-top:3px">'+t("best",{s:FK.fmtNum(best())})+'</div></div>'+(over?'':'<span class="pill tf-time">'+FK.ic("clock",14)+'<b data-left>60</b></span>')+'</div>'+

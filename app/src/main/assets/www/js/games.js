@@ -193,7 +193,7 @@ FK.screens.play = (el,{g}) => {
     '</div></div>';
     bindCommon();
     const used=runTimer(CT,left=>{ const e=CT-left; if(q.rev<4 && e>=q.rev*10){ q.rev++; drawClues(); } },()=>{
-      fb(false,t("timeUp")); el.querySelectorAll("[data-o]").forEach(x=>x.disabled=true); markAnswer(); finishQ(false,0,CT); },q.t0);
+      fb(false,t("timeUp")); FK.sfx("whistleEnd"); el.querySelectorAll("[data-o]").forEach(x=>x.disabled=true); markAnswer(); finishQ(false,0,CT); },q.t0);
     const rv=el.querySelector("[data-reveal]"); if(rv) rv.onclick=()=>{ FK.sfx("tap"); if(q.rev<4){ q.rev++; drawClues(); } };
     const wrong2=()=>{ const wrong=q.opts.map((o,k)=>k).filter(k=>q.opts[k]!==q.answer && !q.gone[k]); FK.shuffle(wrong).slice(0,Math.max(0,2-Object.keys(q.gone).length)).forEach(k=>q.gone[k]=1); };
     FK.bindBoosts(el,{ fifty:()=>{ g.extra.boost=1; const before=Object.keys(q.gone).length; if(before>=2){ const w=q.opts.map((o,k)=>k).filter(k=>q.opts[k]!==q.answer&&!q.gone[k]); if(w[0]!=null) q.gone[w[0]]=1; } else wrong2(); drawClues(); },
@@ -223,7 +223,7 @@ FK.screens.play = (el,{g}) => {
      (canBoost()?FK.boostBar(["fifty","time","pass"]):'')+
     '</div></div>';
     bindCommon();
-    const used=runTimer(SEC,null,()=>{ fb(false,t("timeUp")); el.querySelectorAll("[data-o]").forEach(x=>{x.disabled=true; if(x.textContent===q.answer) x.classList.add("ok");}); finishQ(false,0,SEC); },q.t0);
+    const used=runTimer(SEC,null,()=>{ fb(false,t("timeUp")); FK.sfx("whistleEnd"); el.querySelectorAll("[data-o]").forEach(x=>{x.disabled=true; if(x.textContent===q.answer) x.classList.add("ok");}); finishQ(false,0,SEC); },q.t0);
     if(canBoost()) FK.bindBoosts(el,{ fifty:()=>{ g.extra.boost=1; const w=q.opts.map((o,k)=>k).filter(k=>q.opts[k]!==q.answer&&!q.gone[k]); FK.shuffle(w).slice(0,2).forEach(k=>q.gone[k]=1); drawQuick(); },
       time:()=>{ g.extra.boost=1; q.t0+=10000; drawQuick(); }, pass:()=>skipQ() });
     el.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{
@@ -270,7 +270,7 @@ FK.screens.play = (el,{g}) => {
   // geri sayım
   el.innerHTML=head();
   const cd=document.createElement("div"); cd.className="countdown"; el.appendChild(cd);
-  let n=3; const tick=()=>{ if(ended) return; if(n===0){ cd.remove(); draw(); return; } cd.innerHTML='<b>'+n+'</b>'; FK.sfx("tick"); n--; setTimeout(tick,750); };
+  let n=3; const tick=()=>{ if(ended) return; if(n===0){ cd.remove(); FK.sfx("whistle"); draw(); return; } cd.innerHTML='<b>'+n+'</b>'; FK.sfx("count"); n--; setTimeout(tick,750); };
   tick();
 };
 
