@@ -72,7 +72,7 @@ FK.screens.guess = (el,{diff,era}) => {
   const guessCard=(g,isNew)=>{ const c=compare(g,T); const winRow=g.name===T.name;
     return '<div class="gcard'+(winRow?" win":"")+(isNew?" new":"")+'"><div class="gname" lang="en">'+FK.esc(g.name)+'</div><div class="grow7">'+COLS.map((col,k)=>{
       const st=c[col], dir= col==="by"&&st!=="ok"?c.byDir : col==="no"&&st!=="ok"?c.noDir : null;
-      return '<div class="gcol" style="animation-delay:'+(isNew?k*90:0)+'ms"><span class="gcell '+st+'" data-ex="'+FK.esc(g.name)+'|'+col+'">'+cellContent(col,g,c)+'</span>'+mark(st,dir)+'</div>'; }).join("")+'</div></div>'; };
+      return '<div class="gcol" style="animation-delay:'+(isNew?k*90:0)+'ms"><span class="gcell '+st+'" data-ex="'+FK.esc(g.name)+'|'+col+'">'+cellContent(col,g,c)+'</span>'+(col==="nat"&&st==="near"?'<i class="mk near">'+FK.ic("globe",13,2.6)+'</i>':mark(st,dir))+'</div>'; }).join("")+'</div></div>'; };
 
   const explain=(g,col)=>{
     const c=compare(g,T), en=FK.lang()==="en", res=st=>t(st==="ok"?"ex_ok":st==="near"?"ex_near":"ex_no");

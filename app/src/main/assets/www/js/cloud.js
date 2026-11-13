@@ -5,20 +5,21 @@
 const FK=window.FK, t=FK.t, N=()=>window.FKAndroid, KEY="fk_state_v1";
 Object.assign(FK_I18N.tr,{
   acc_signed:"Google hesabı", acc_guest:"Misafir · ilerleme sadece bu cihazda", acc_signin:"Google ile giriş yap", acc_signinS:"İlerlemen buluta yedeklensin, telefon değişse de kaybolmasın",
-  acc_out:"Çıkış yap", acc_outQ:"Çıkış yapılsın mı? Bu cihazdaki ilerleme kalır.", acc_del:"Hesabı ve bulut verilerini sil", acc_delQ:"Google hesabınla ilişkili Futbol Kafası verilerin kalıcı olarak silinecek. Emin misin?",
+  acc_out:"Çıkış yap", acc_outQ:"Çıkış yapılsın mı? İlerlemen bulutta saklı; tekrar giriş yapınca geri gelir.", acc_del:"Hesabı ve bulut verilerini sil", acc_delQ:"Google hesabınla ilişkili Futbol Kafası verilerin kalıcı olarak silinecek. Emin misin?",
   acc_deleted:"Hesap silindi", acc_relogin:"Güvenlik için tekrar giriş yapıp yeniden dene", acc_hi:"Hoş geldin {n}! İlerlemen artık bulutta ☁️", acc_err:"Giriş yapılamadı. İnternetini kontrol edip tekrar dene.",
   acc_synced:"Buluta kaydedildi ☁️", acc_syncNow:"Şimdi yedekle", acc_pick:"Hangi kayıt kalsın?", acc_cloudRec:"Buluttaki kayıt", acc_localRec:"Bu cihazdaki kayıt", acc_lvl:"Seviye {l} · {g} elmas",
   acc_restored:"Bulut kaydın yüklendi ☁️", acc_noapp:"Google girişi uygulamanın Play sürümünde çalışır", delete:"Sil"
 });
 Object.assign(FK_I18N.en,{
   acc_signed:"Google account", acc_guest:"Guest · progress only on this device", acc_signin:"Sign in with Google", acc_signinS:"Back up your progress to the cloud, keep it on any phone",
-  acc_out:"Sign out", acc_outQ:"Sign out? Progress on this device stays.", acc_del:"Delete account and cloud data", acc_delQ:"Your Futbol Kafası data linked to this Google account will be permanently deleted. Are you sure?",
+  acc_out:"Sign out", acc_outQ:"Sign out? Your progress is saved in the cloud and returns when you sign in again.", acc_del:"Delete account and cloud data", acc_delQ:"Your Futbol Kafası data linked to this Google account will be permanently deleted. Are you sure?",
   acc_deleted:"Account deleted", acc_relogin:"For security, sign in again and retry", acc_hi:"Welcome {n}! Your progress is now in the cloud ☁️", acc_err:"Sign-in failed. Check your connection and try again.",
   acc_synced:"Saved to cloud ☁️", acc_syncNow:"Back up now", acc_pick:"Which save should we keep?", acc_cloudRec:"Cloud save", acc_localRec:"This device", acc_lvl:"Level {l} · {g} gems",
   acc_restored:"Cloud save restored ☁️", acc_noapp:"Google sign-in works in the Play app", delete:"Delete"
 });
 FK.user = () => { try{ const j=N()&&N().authUser&&N().authUser(); return j?JSON.parse(j):null; }catch(e){ return null; } };
-let after=null, manual=false;
+let after=null, manual=false, outPending=false;
+const wipe = () => { try{ localStorage.removeItem(KEY); }catch(e){} location.reload(); };
 const meta = () => JSON.stringify({name:FK.state.profile.name||"", xp:FK.state.xp||0, level:FK.levelInfo().level});
 FK.cloudPush = (show) => { const n=N(); if(!n||!n.cloudSave||!FK.user()) return; manual=!!show; try{ n.cloudSave(JSON.stringify(FK.state), meta()); }catch(e){} };
 
@@ -38,6 +39,7 @@ window.fkNative = (ev,a,b) => {
       if(!FK.state.profile.name && u.name) FK.state.profile.name=(u.name.split(" ")[0]||"").replace(/[^A-Za-zÇĞİÖŞÜçğıöşü0-9_]/g,"").slice(0,16);
       FK.toast(t("acc_hi",{n:FK.esc((u.name||"").split(" ")[0]||"")}),"check",3000); mergeAfterLogin(); }
     else if(a==="0"){ if(b!=="cancel") FK.toast(t("acc_err"),"info",3500); }
+    else if(a==="out"){ wipe(); return; }
     FK.render&&FK.render(); return;
   }
   if(ev==="cloud"){
@@ -56,8 +58,8 @@ window.fkNative = (ev,a,b) => {
     if(a==="none"){ if(s.onboarded){ FK.cloudPush(false); if(after){ const f=after; after=null; f(); } } else { FK.go("setup",{step:0}); } return; }
     return;
   }
-  if(ev==="saved"){ if(a==="1"&&manual){ manual=false; FK.toast(t("acc_synced"),"check"); } return; }
-  if(ev==="del"){ if(a==="1"){ FK.toast(t("acc_deleted"),"check"); FK.render&&FK.render(); } else FK.toast(t("acc_relogin"),"info",4000); return; }
+  if(ev==="saved"){ if(outPending){ outPending=false; N().signOut(); return; } if(a==="1"&&manual){ manual=false; FK.toast(t("acc_synced"),"check"); } return; }
+  if(ev==="del"){ if(a==="1"){ FK.toast(t("acc_deleted"),"check"); setTimeout(wipe,900); } else FK.toast(t("acc_relogin"),"info",4000); return; }
   if(_nat) _nat(ev,a,b);
 };
 
@@ -71,7 +73,7 @@ FK.accountRows = () => { const u=FK.user();
 FK.bindAccount = el => {
   const si=el.querySelector("[data-signin]"); if(si) si.onclick=()=>{ FK.sfx("tap"); FK.signIn(); };
   const sy=el.querySelector("[data-sync]"); if(sy) sy.onclick=()=>FK.cloudPush(true);
-  const so=el.querySelector("[data-signout]"); if(so) so.onclick=()=>FK.confirm(t("acc_outQ"),t("acc_out"),()=>{ FK.cloudPush(false); setTimeout(()=>N().signOut(),600); });
+  const so=el.querySelector("[data-signout]"); if(so) so.onclick=()=>FK.confirm(t("acc_outQ"),t("acc_out"),()=>{ outPending=true; FK.cloudPush(false); setTimeout(()=>{ if(outPending){ outPending=false; N().signOut(); } },4000); });
   const dl=el.querySelector("[data-delacc]"); if(dl) dl.onclick=()=>FK.confirm(t("acc_delQ"),t("delete"),()=>N().deleteAccount(),true);
 };
 })();
