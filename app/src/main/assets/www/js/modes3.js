@@ -165,11 +165,12 @@ FK.screens.more = el => {
     el.querySelectorAll("[data-side]").forEach(b=>{ const i=+b.dataset.side; const it=i?q.b:q.a; b.classList.add(i===win?"win":"lose"); if(i===side) b.classList.add("picked");
       const v=b.querySelector("[data-val]"); let c=0; const target=it[2]; const st=Date.now(); const an=()=>{ const p=Math.min(1,(Date.now()-st)/450); c=Math.round(target*p); v.textContent=c; if(p<1) requestAnimationFrame(an); }; v.classList.add("show"); an(); });
     if(ok){ streak++; FK.sfx("ok"); FK.vib(25); setTimeout(next,1100); }
-    else { FK.sfx("no"); FK.vib([60,40,60]); if(!usedChance && streak>=3){ setTimeout(offer,900); } else setTimeout(end,1300); }
+    else { FK.sfx("no"); FK.vib([60,40,60]); if(streak>=1 && (FK.inv("second")>0 || (!usedChance && streak>=3))){ setTimeout(offer,900); } else setTimeout(end,1300); }
   };
   let usedChance=false;
-  const offer=()=>FK.modal('<div class="center stack" style="gap:12px"><div class="h-display h2">'+t("moreOver")+'</div><div class="h-display" style="font-size:48px;color:var(--green-l)">'+streak+'</div><button class="btn btn-reward" data-sc>🎬 '+t("secondChance")+'</button><button class="btn btn-ghost" data-no>'+t("exitGame")+'</button></div>',w=>{ w.dataset.lock=1;
-    w.querySelector("[data-sc]").onclick=()=>{ FK.closeModal(); FK.rewarded("chance",ok=>{ usedChance=true; if(ok) next(); else end(); }); };
+  const offer=()=>FK.modal('<div class="center stack" style="gap:12px"><div class="h-display h2">'+t("moreOver")+'</div><div class="h-display" style="font-size:48px;color:var(--green-l)">'+streak+'</div><button class="btn btn-primary" data-sb>❤️ '+t("b_second")+(FK.inv("second")>0?' ('+FK.inv("second")+')':' · '+FK.gemIc(16)+'60')+'</button>'+(!usedChance&&streak>=3?'<button class="btn btn-reward" data-sc>🎬 '+t("secondChance")+'</button>':'')+'<button class="btn btn-ghost" data-no>'+t("exitGame")+'</button></div>',w=>{ w.dataset.lock=1;
+    const sc=w.querySelector("[data-sc]"); if(sc) sc.onclick=()=>{ FK.closeModal(); FK.rewarded("chance",ok=>{ usedChance=true; if(ok) next(); else end(); }); };
+    w.querySelector("[data-sb]").onclick=()=>{ FK.closeModal(); FK.useBoost("second",()=>next(),()=>end()); };
     w.querySelector("[data-no]").onclick=()=>{ FK.closeModal(); end(); }; });
   const end=()=>{ over=true; record=streak>best() && best()>0;
     res=FK.finishGame({mode:"more",diff:0,correct:streak,total:streak+1,score:streak,bestStreak:streak,timeSum:0});
@@ -180,11 +181,12 @@ FK.screens.more = el => {
     '<div class="scroll" style="padding-top:8px"><div class="stack" style="gap:14px">'+
      (over ? endCard(el,{title:t("moreOver"),big:streak,sub:t("moreRes",{n:streak}),res,record})
       : '<div class="more-q"><div class="label" style="color:#FDE047">'+t("moreScore")+' '+streak+'</div><div class="h-display" style="font-size:24px;line-height:1.15;margin-top:6px">'+t("q_"+q.cat)+'</div><div class="tbar"><i data-tbar></i></div></div>'+
-        card(0,q.a)+'<div class="vs">VS</div>'+card(1,q.b))+
+        card(0,q.a)+'<div class="vs">VS</div>'+card(1,q.b)+FK.boostBar(["time","pass"]))+
     '</div></div>';
     el.querySelector("[data-quit]").onclick=()=>{ clearTimeout(tmr); FK.back(); };
     if(over){ el.querySelector("[data-again]").onclick=()=>{ FK.sfx("tap"); FK.go("more",{},{replace:true}); }; el.querySelector("[data-exit]").onclick=()=>FK.back(); return; }
     el.querySelectorAll("[data-side]").forEach(b=>b.onclick=()=>pick(+b.dataset.side));
+    FK.bindBoosts(el,{ time:()=>{ if(locked) return; t0+=10000; tick(); }, pass:()=>{ if(locked) return; clearTimeout(tmr); next(); } });
   };
   FK.onLeave=()=>clearTimeout(tmr);
   next();
@@ -235,11 +237,12 @@ FK.screens.tf = el => {
      : '<div class="tbar big"><i data-tbar></i></div>'+
        '<div class="row" style="justify-content:space-between"><span class="h-display" style="font-size:26px">'+FK.fmtNum(score)+'</span><span class="combo m'+mult()+'">'+t("combo")+' x'+mult()+'</span></div>'+
        '<div class="tf-card" data-card><div class="tf-txt">'+FK.esc(cur.txt)+'</div><div class="tf-hint">⟵ '+t("tfFalse")+' · '+t("tfTrue")+' ⟶</div></div>'+
-       '<div class="grid2"><button class="btn tf-no" data-a="0">'+FK.ic("x",22,2.6)+t("tfFalse")+'</button><button class="btn tf-yes" data-a="1">'+FK.ic("check",22,2.6)+t("tfTrue")+'</button></div>')+
+       '<div class="grid2"><button class="btn tf-no" data-a="0">'+FK.ic("x",22,2.6)+t("tfFalse")+'</button><button class="btn tf-yes" data-a="1">'+FK.ic("check",22,2.6)+t("tfTrue")+'</button></div>'+FK.boostBar(["time"]))+
     '</div></div>';
     el.querySelector("[data-quit]").onclick=()=>{ clearTimeout(tmr); FK.back(); };
     if(over){ el.querySelector("[data-again]").onclick=()=>{ FK.sfx("tap"); FK.go("tf",{},{replace:true}); }; el.querySelector("[data-exit]").onclick=()=>FK.back(); return; }
     el.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>answer(b.dataset.a==="1"));
+    FK.bindBoosts(el,{ time:()=>{ st+=10000; tick(); } });
     const c=el.querySelector("[data-card]"); let x0=null;
     c.addEventListener("touchstart",e=>{ x0=e.touches[0].clientX; },{passive:true});
     c.addEventListener("touchmove",e=>{ if(x0==null) return; const dx=e.touches[0].clientX-x0; c.style.transform="translateX("+dx+"px) rotate("+(dx/18)+"deg)"; },{passive:true});

@@ -9,6 +9,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowInsets;
+import android.widget.FrameLayout;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -19,6 +21,7 @@ import android.window.OnBackInvokedDispatcher;
 
 public class MainActivity extends Activity {
     WebView web;
+    FrameLayout root;
     Ads ads;
     Billing billing;
 
@@ -42,7 +45,24 @@ public class MainActivity extends Activity {
             }
         });
         web.addJavascriptInterface(new Bridge(), "FKAndroid");
-        setContentView(web);
+        // Android 15+ uygulamayı kenardan kenara çizer: durum ve gezinme çubuğu kadar boşluk bırak
+        root = new FrameLayout(this);
+        root.setBackgroundColor(Color.parseColor("#0B1426"));
+        root.addView(web, new FrameLayout.LayoutParams(-1, -1));
+        root.setOnApplyWindowInsetsListener((v, in) -> {
+            int top, bottom, left, right;
+            if (Build.VERSION.SDK_INT >= 30) {
+                android.graphics.Insets sb = in.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+                android.graphics.Insets ime = in.getInsets(WindowInsets.Type.ime());
+                top = sb.top; left = sb.left; right = sb.right; bottom = Math.max(sb.bottom, ime.bottom);
+            } else {
+                top = in.getSystemWindowInsetTop(); bottom = in.getSystemWindowInsetBottom();
+                left = in.getSystemWindowInsetLeft(); right = in.getSystemWindowInsetRight();
+            }
+            v.setPadding(left, top, right, bottom);
+            return in;
+        });
+        setContentView(root);
         web.loadUrl("file:///android_asset/www/index.html");
 
         billing = new Billing(this);
@@ -82,6 +102,7 @@ public class MainActivity extends Activity {
         int c = Color.parseColor(dark ? "#0B1426" : "#F1F5F9");
         w.setStatusBarColor(c); w.setNavigationBarColor(c);
         web.setBackgroundColor(c);
+        if (root != null) root.setBackgroundColor(c);
         View d = w.getDecorView();
         int f = d.getSystemUiVisibility();
         if (dark) f &= ~(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);

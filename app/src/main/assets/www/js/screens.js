@@ -81,7 +81,7 @@ S.home = el => {
    '<div class="row" style="gap:12px">'+
     '<button data-go="profile" aria-label="'+t("navProfile")+'">'+FK.avatar(s.profile.avatar,46,li.pct)+'</button>'+
     '<div class="grow"><div class="row" style="gap:8px;align-items:baseline"><b style="font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+FK.esc(s.profile.name)+'</b><span class="small muted">'+t("level")+' '+li.level+'</span></div><div class="bar" style="margin-top:6px"><i style="width:'+li.pct+'%"></i></div></div>'+
-    '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><span class="pill">'+FK.gemIc()+FK.fmtNum(s.gems)+'</span>'+FK.streakPill()+'</div>'+
+    '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><button class="pill" data-go="shop">'+FK.gemIc()+FK.fmtNum(s.gems)+'<b style="color:var(--green-l);margin-left:2px">+</b></button>'+FK.streakPill()+'</div>'+
    '</div>'+
    '<button class="row card tight" data-go="rank" style="width:100%;text-align:left;gap:12px;background:linear-gradient(90deg,'+L.c1+'29,'+L.c1+'08);border-color:'+L.c1+'59">'+FK.leagueBadge(s.league,32)+'<div class="grow"><div style="font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:.5px;color:'+L.txt+'">'+t("leagueLbl",{l:t(L.k)})+'</div><div class="small" style="color:#CBD5E1">'+t("leaguePos",{p:pos})+'</div></div><span class="small" style="font-weight:600;color:'+L.c2+'">'+t("leagueDays",{d:FK.daysLeftInWeek()})+'</span></button>'+
    '<div class="card-hero" style="background:linear-gradient(135deg,#16A34A,#0D9488);box-shadow:0 14px 30px rgba(22,163,74,.35)">'+FK.bgBall(170)+
@@ -90,7 +90,7 @@ S.home = el => {
     '<div class="row" style="margin-top:14px;justify-content:space-between"><button class="btn btn-sm" data-mode="daily" style="background:#fff;color:#065F46;padding:0 22px">'+(d10?FK.ic("check",18,2.6)+t("completed"):t("start"))+'</button><span class="row small" style="font-weight:600;color:#ECFDF5;gap:6px">'+FK.ic("clock",14)+'<span data-cd>'+t("newSet",{t:FK.fmtHMS(FK.msToMidnight())})+'</span></span></div></div>'+
    '<div class="grid2"><button class="btn btn-orange" data-go="games" style="height:62px;justify-content:flex-start">'+FK.ic("bolt",24,2.2)+'<span style="font-family:var(--display);font-weight:900;font-style:italic;font-size:20px;line-height:1;text-align:left;white-space:pre-line">'+t("playNow")+'</span></button>'+
    '<button class="btn btn-purple" data-duel style="height:62px;justify-content:flex-start">'+FK.ic("swords",24,2)+'<span style="font-family:var(--display);font-weight:900;font-style:italic;font-size:20px;line-height:1;text-align:left;white-space:pre-line">'+t("duelStart")+'</span></button></div>'+
-   (FK.isPro()?'':'<button class="pro-card" data-pro><span class="pro-crown-s">👑</span><div class="grow" style="text-align:left"><div class="h-display" style="font-size:22px">'+t("proT")+'</div><div class="small" style="font-weight:600;color:#422006">'+t("proCard")+'</div></div>'+FK.ic("right",20,2.6)+'</button>')+'<button class="row card tight" data-fgem style="gap:12px;width:100%;text-align:left"><span style="font-size:26px">🎬</span><div class="grow"><b style="font-size:14px">'+t("freeGem")+'</b><div class="small muted">'+(FK.freeGemsLeft()>0?t("freeGemLeft",{n:FK.freeGemsLeft()}):t("freeGemNone"))+'</div></div>'+FK.gemIc(22)+'</button>'+'<div class="card stack" style="gap:12px"><div class="row" style="justify-content:space-between"><span class="sec-title">'+t("dailyMissions")+'</span><button class="small muted" data-go="missions" style="font-weight:600">'+t("nDone",{a:doneN,b:ms.length})+' ›</button></div>'+ms.map(missionRow).join("")+'</div>'+
+   (FK.isPro()?'':'<button class="pro-card" data-pro><span class="pro-crown-s">👑</span><div class="grow" style="text-align:left"><div class="h-display" style="font-size:22px">'+t("proT")+'</div><div class="small" style="font-weight:600;color:#422006">'+t("proCard")+'</div></div>'+FK.ic("right",20,2.6)+'</button>')+FK.shopCard()+'<div class="card stack" style="gap:12px"><div class="row" style="justify-content:space-between"><span class="sec-title">'+t("dailyMissions")+'</span><button class="small muted" data-go="missions" style="font-weight:600">'+t("nDone",{a:doneN,b:ms.length})+' ›</button></div>'+ms.map(missionRow).join("")+'</div>'+
    (recent.length?'<div class="card"><div class="row" style="justify-content:space-between;margin-bottom:10px"><span class="sec-title">'+t("recentAch")+'</span><button class="small muted" data-go="profile" style="font-weight:600">'+t("seeAll")+' ›</button></div><div class="grid3">'+recent.map(achTile).join("")+'</div></div>':'')+
    '<div class="row card tight" style="gap:12px">'+'<span style="color:#F87171">'+FK.ic("flag",26)+'</span><div class="grow"><div style="font-weight:700;font-size:14px">'+t("fanWar")+(s.profile.club?' · '+FK.esc(s.profile.club):'')+'</div><div class="small muted">'+t("fanWarS")+'</div></div><span class="chip chip-soon">'+t("soon")+'</span></div>'+
   '</div></div>'+FK.nav("home");
@@ -98,7 +98,7 @@ S.home = el => {
   bindMissions(el,()=>FK.render());
   const sp=el.querySelector("[data-streak]"); if(sp) sp.onclick=()=>{ FK.sfx("tap"); FK.streakModal(); }; FK.streakNote();
   const pc=el.querySelector("[data-pro]"); if(pc) pc.onclick=()=>{ FK.sfx("tap"); FK.go("pro"); };
-  el.querySelector("[data-fgem]").onclick=()=>FK.freeGems(()=>FK.render());
+  const fgm=el.querySelector("[data-fgem]"); if(fgm) fgm.onclick=()=>FK.freeGems(()=>FK.render()); FK.starterCheck&&FK.starterCheck();
   const cd=el.querySelector("[data-cd]"); const iv=setInterval(()=>{ if(!document.body.contains(cd)){ clearInterval(iv); return; } cd.textContent=t("newSet",{t:FK.fmtHMS(FK.msToMidnight())}); if(FK.msToMidnight()<1000) setTimeout(()=>FK.render(),1500); },1000);
   FK.onLeave=()=>clearInterval(iv);
   if(s.lastWeek){ const lw=s.lastWeek; s.lastWeek=null; FK.save();
@@ -219,7 +219,7 @@ S.profile = el => {
    '</div><div class="center small muted" style="margin-top:14px">'+t("version",{v:FK.VERSION})+' · EA Vision Labs</div></div>'+
   '</div></div>'+FK.nav("profile");
   FK.bindNav(el);
-  el.querySelector("[data-edit]").onclick=()=>{ FK.setupDraftReset(); FK.go("setup",{step:0,edit:true}); };
+  el.querySelector("[data-edit]").onclick=()=>{ FK.sfx("tap"); FK.go("pedit"); };
   el.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{ P.lang=b.dataset.l; FK.save(); FK.render(); });
   el.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{ const k=b.dataset.t; s.settings[k]=!s.settings[k]; FK.save(); b.querySelector(".switch").classList.toggle("on",s.settings[k]); if(k==="vib"&&s.settings.vib) FK.vib(40); if(k==="sound") FK.sfx("tap"); });
   el.querySelectorAll("[data-soon]").forEach(b=>b.onclick=()=>FK.toast(t(b.dataset.soon),"info",3500));

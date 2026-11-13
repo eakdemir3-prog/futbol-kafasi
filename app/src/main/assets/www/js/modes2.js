@@ -62,7 +62,8 @@ FK.screens.guess = (el,{diff,era}) => {
   FK.backHandler=()=>{ if(done||!guesses.length){ FK.go("games",{},{root:true}); return true; } FK.confirm(t("exitConfirm"),t("exit"),()=>FK.go("games",{},{root:true})); return true; };
 
   const CONT={EU:["AVRUPA","EUROPE"],SA:["G.AMERİKA","S.AMERICA"],AF:["AFRİKA","AFRICA"],AS:["ASYA","ASIA"],NA:["K.AMERİKA","N.AMERICA"]};
-  const known=()=>{ const k={}; if(diff<=2) k.nat=true; guesses.forEach(g=>{ const c=compare(g,T); COLS.forEach(col=>{ if(c[col]==="ok") k[col]=true; }); if(c.nat==="near") k.cont=true; }); return k; };
+  const hinted={};
+  const known=()=>{ const k=Object.assign({},hinted); if(diff<=2) k.nat=true; guesses.forEach(g=>{ const c=compare(g,T); COLS.forEach(col=>{ if(c[col]==="ok") k[col]=true; }); if(c.nat==="near") k.cont=true; }); return k; };
   const revealBar=()=>{ const k=known(); return '<div class="rbar">'+COLS.map(col=>{
       if(done||k[col]){ const cmp = col==="club"?{clubShow:T.clubs[T.clubs.length-1]} : col==="lg"?{lgShow:FK_GCLUBS[T.clubs[T.clubs.length-1]][2]} : null;
         return '<span class="rcell on">'+cellContent(col,T,cmp)+'</span>'; }
@@ -98,7 +99,7 @@ FK.screens.guess = (el,{diff,era}) => {
        ? '<div class="card center stack" style="gap:10px"><div class="h-display h2" style="color:'+(win?'var(--green-l)':'#FCA5A5')+'">'+(win?t("guessWin",{n:guesses.length}):t("guessLose",{a:'<span lang="en">'+FK.esc(T.name)+'</span>'}))+'</div>'+
          (res?'<div class="row" style="justify-content:center;gap:8px"><span class="chip chip-xp">+'+res.xp+' XP</span><span class="chip chip-gem">'+FK.gemIc(12)+'+'+res.gems+'</span></div>'+FK.doubleBtn(res):'')+
          '<button class="btn btn-primary" data-new>'+FK.ic("replay",22,2.4)+t("newPlayer")+'</button><button class="btn btn-ghost" data-share>'+FK.ic("share",18)+t("share")+'</button></div>'
-       : '<div class="ac"><div class="row"><input class="input" data-in placeholder="'+t("guessPh")+'" autocomplete="off" autocapitalize="words" spellcheck="false" value="'+FK.esc(query)+'"></div><div class="ac-list down hide" data-ac></div></div>')+
+       : FK.boostBar(["hint"])+'<div class="ac"><div class="row"><input class="input" data-in placeholder="'+t("guessPh")+'" autocomplete="off" autocapitalize="words" spellcheck="false" value="'+FK.esc(query)+'"></div><div class="ac-list down hide" data-ac></div></div>')+
      (guesses.length?'<div class="ghead">'+COLS.map(c=>'<span>'+t("col_"+c)+'</span>').join("")+'</div>':'<div class="small muted center" style="line-height:1.5">'+t("rules_guess")+'</div>')+
      guesses.slice().reverse().map((g,i)=>guessCard(g, newIdx!=null && i===0)).join("")+
     '</div></div>';
@@ -111,6 +112,7 @@ FK.screens.guess = (el,{diff,era}) => {
     }
     const inp=el.querySelector("[data-in]"), ac=el.querySelector("[data-ac]");
     bindExplain();
+    FK.bindBoosts(el,{ hint:()=>{ const k=known(); const c=["club","lg","no","pos","by","nat","wc"].filter(x=>!k[x]); if(!c.length){ FK.toast("👍","check"); return; } hinted[c[0]]=true; FK.sfx("win"); FK.toast(t("b_hint")+": "+t("col_"+c[0]),"bulb",1800); draw(); } });
     const submit=val=>{
       const p=all.find(x=>FK.norm(x.name)===FK.norm(val));
       if(!p){ inp.classList.add("err"); setTimeout(()=>inp.classList.remove("err"),600); FK.toast(t("notInList"),"info",1600); return; }

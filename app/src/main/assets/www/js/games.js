@@ -133,8 +133,8 @@ FK.screens.play = (el,{g}) => {
     stopTimer(); const t0=startAt||performance.now(); let lastS=-1;
     const ring=el.querySelector("[data-ring]"), lbl=el.querySelector("[data-sec]"), box=el.querySelector("[data-timer]");
     const step=now=>{ if(ended) return;
-      const left=Math.max(0,sec-(now-t0)/1000);
-      if(ring) ring.style.strokeDashoffset=String(150.8*(1-left/sec));
+      const left=Math.max(0,sec-(now-t0)/1000), lf=Math.min(left,sec);
+      if(ring) ring.style.strokeDashoffset=String(150.8*(1-lf/sec));
       const s=Math.ceil(left); if(s!==lastS){ lastS=s; if(lbl) lbl.textContent=s; if(s<=3&&s>0){ FK.sfx("tick"); box&&box.classList.add("warn"); } if(onTick) onTick(left); }
       if(left<=0){ timer=null; onEnd(); return; }
       timer=requestAnimationFrame(step);
@@ -150,6 +150,8 @@ FK.screens.play = (el,{g}) => {
     else { g.streak=0; FK.sfx("no"); FK.vib([60,40,60]); }
     setTimeout(next, ok?1100:1700);
   }
+  function skipQ(){ if(ended) return; stopTimer(); g.extra.boost=1; g.res[g.i]=null; FK.toast(t("b_pass")+" ⏭️","check",1200); setTimeout(next,350); }
+  const canBoost = () => g.mode!=="daily";
   function next(){ if(ended) return; g.i++; if(g.i>=g.qs.length) return endGame(); draw(); }
   function endGame(){
     ended=true; stopTimer();
@@ -187,13 +189,16 @@ FK.screens.play = (el,{g}) => {
         : (k===q.rev ? '<button class="clue locked" data-reveal><span class="n">'+FK.ic("lock",14,2.4)+'</span><span class="grow">'+t("openClue",{n:k+1})+'</span><span class="small">'+[100,80,60,40][k]+'</span></button>' : '')).join("")+'</div>'+
      (q.tries===1?'<div class="center small" style="color:#FCA5A5;font-weight:700">'+t("lastTry")+'</div>':'')+
      '<div class="opts">'+q.opts.map((o,k)=>'<button class="opt'+(q.gone[k]?" gone":"")+'" data-o="'+k+'">'+FK.esc(o)+'</button>').join("")+'</div>'+
-     '<div class="joker-row"><button class="joker" data-j '+(g.jokers<=0||Object.keys(q.gone).length>=2?"disabled":"")+'>'+FK.ic("bulb",18)+t("joker50",{n:g.jokers})+'</button></div>'+
+     (g.jokers>0?'<div class="joker-row"><button class="joker" data-j '+(Object.keys(q.gone).length>=2?"disabled":"")+'>'+FK.ic("bulb",18)+t("joker50",{n:g.jokers})+'</button></div>':'')+FK.boostBar(g.jokers>0?["time","pass"]:["fifty","time","pass"])+
     '</div></div>';
     bindCommon();
     const used=runTimer(CT,left=>{ const e=CT-left; if(q.rev<4 && e>=q.rev*10){ q.rev++; drawClues(); } },()=>{
       fb(false,t("timeUp")); el.querySelectorAll("[data-o]").forEach(x=>x.disabled=true); markAnswer(); finishQ(false,0,CT); },q.t0);
     const rv=el.querySelector("[data-reveal]"); if(rv) rv.onclick=()=>{ FK.sfx("tap"); if(q.rev<4){ q.rev++; drawClues(); } };
-    el.querySelector("[data-j]").onclick=()=>{ if(g.jokers<=0) return; g.jokers--; FK.sfx("tap");
+    const wrong2=()=>{ const wrong=q.opts.map((o,k)=>k).filter(k=>q.opts[k]!==q.answer && !q.gone[k]); FK.shuffle(wrong).slice(0,Math.max(0,2-Object.keys(q.gone).length)).forEach(k=>q.gone[k]=1); };
+    FK.bindBoosts(el,{ fifty:()=>{ g.extra.boost=1; const before=Object.keys(q.gone).length; if(before>=2){ const w=q.opts.map((o,k)=>k).filter(k=>q.opts[k]!==q.answer&&!q.gone[k]); if(w[0]!=null) q.gone[w[0]]=1; } else wrong2(); drawClues(); },
+      time:()=>{ g.extra.boost=1; q.t0+=10000; drawClues(); }, pass:()=>skipQ() });
+    const jb=el.querySelector("[data-j]"); if(jb) jb.onclick=()=>{ if(g.jokers<=0) return; g.jokers--; FK.sfx("tap");
       const wrong=q.opts.map((o,k)=>k).filter(k=>q.opts[k]!==q.answer && !q.gone[k]); FK.shuffle(wrong).slice(0,2-Object.keys(q.gone).length).forEach(k=>q.gone[k]=1); drawClues(); };
     el.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{
       const k=+b.dataset.o; const ok=q.opts[k]===q.answer;
@@ -209,15 +214,18 @@ FK.screens.play = (el,{g}) => {
 
   /* ---- hızlı seçmeli modlar: bayrak & günün 10'u ---- */
   function drawQuick(){
-    const q=g.qs[g.i], isFlag=g.mode==="flag", SEC=isFlag?10:15;
+    const q=g.qs[g.i], isFlag=g.mode==="flag", SEC=isFlag?10:15; if(q.t0==null){ q.t0=performance.now(); q.gone={}; }
     el.innerHTML=head()+'<div class="scroll" style="padding-top:12px"><div class="stack" style="gap:14px">'+
      (isFlag
       ? '<div class="stage" style="height:230px;background:radial-gradient(circle at 50% 45%,#1E3A8A,#0F1B33)"><div class="flag-big">'+FK.flag(q.code)+'</div>'+timerUI(SEC)+'</div><div class="center" style="font-weight:700;font-size:16px">'+t("whichCountry")+'</div>'
       : '<div class="stage" style="min-height:200px;padding:70px 18px 22px;background:linear-gradient(160deg,#1A2A4A,#0F1B33);border:1px solid var(--line)"><div class="qtext">'+FK.esc(q.text)+'</div>'+timerUI(SEC)+'<div class="pts-badge" style="background:rgba(250,204,21,.15);color:#FDE047">+100 · '+FK.ic("bolt",12,2.4,'style="display:inline;vertical-align:-1px"')+' +50</div></div>')+
-     '<div class="opts '+(isFlag?'':'one')+'">'+q.opts.map((o,k)=>'<button class="opt" data-o="'+k+'">'+FK.esc(o)+'</button>').join("")+'</div>'+
+     '<div class="opts '+(isFlag?'':'one')+'">'+q.opts.map((o,k)=>'<button class="opt'+(q.gone[k]?" gone":"")+'" data-o="'+k+'">'+FK.esc(o)+'</button>').join("")+'</div>'+
+     (canBoost()?FK.boostBar(["fifty","time","pass"]):'')+
     '</div></div>';
     bindCommon();
-    const used=runTimer(SEC,null,()=>{ fb(false,t("timeUp")); el.querySelectorAll("[data-o]").forEach(x=>{x.disabled=true; if(x.textContent===q.answer) x.classList.add("ok");}); finishQ(false,0,SEC); });
+    const used=runTimer(SEC,null,()=>{ fb(false,t("timeUp")); el.querySelectorAll("[data-o]").forEach(x=>{x.disabled=true; if(x.textContent===q.answer) x.classList.add("ok");}); finishQ(false,0,SEC); },q.t0);
+    if(canBoost()) FK.bindBoosts(el,{ fifty:()=>{ g.extra.boost=1; const w=q.opts.map((o,k)=>k).filter(k=>q.opts[k]!==q.answer&&!q.gone[k]); FK.shuffle(w).slice(0,2).forEach(k=>q.gone[k]=1); drawQuick(); },
+      time:()=>{ g.extra.boost=1; q.t0+=10000; drawQuick(); }, pass:()=>skipQ() });
     el.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{
       const u=used(); const ok=q.opts[+b.dataset.o]===q.answer;
       el.querySelectorAll("[data-o]").forEach(x=>{ x.disabled=true; if(!ok && x.textContent===q.answer) x.classList.add("ok"); });
@@ -239,8 +247,9 @@ FK.screens.play = (el,{g}) => {
       (left.length?'<div class="order-item" style="border-style:dashed;background:transparent;color:var(--muted);justify-content:center;font-weight:600;font-size:13px">'+t("pickFrom")+'</div>':'')+'</div>'+
      '<div class="pool">'+q.pool.map((c,k)=> q.picked.indexOf(k)<0 ? '<button data-pick="'+k+'">'+FK.esc(c)+'</button>' : '').join("")+'</div>'+
      '<button class="btn btn-primary" data-check '+(left.length?"disabled":"")+'>'+FK.ic("check",22,2.6)+t("check")+'</button>'+
+     FK.boostBar(["pass"])+
     '</div></div>';
-    bindCommon();
+    bindCommon(); FK.bindBoosts(el,{pass:()=>skipQ()});
     el.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{ FK.sfx("tap"); q.picked.push(+b.dataset.pick); q.marks=null; drawCareer(); });
     el.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{ q.picked.splice(+b.dataset.del,1); q.marks=null; drawCareer(); });
     el.querySelectorAll("[data-up]").forEach(b=>b.onclick=()=>{ const p=+b.dataset.up; [q.picked[p-1],q.picked[p]]=[q.picked[p],q.picked[p-1]]; q.marks=null; drawCareer(); });
