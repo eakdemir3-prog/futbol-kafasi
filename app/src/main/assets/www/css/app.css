@@ -580,3 +580,133 @@ html[data-theme=light] .bitem,html[data-theme=light] .gpack,html[data-theme=ligh
 @keyframes kPop{from{opacity:0;transform:scale(.7) translateX(-10px)}to{opacity:1;transform:none}}
 html[data-theme=light] .kbubble{background:#fff}
 html[data-theme=light] .kbubble::after{border-right-color:#fff}
+
+/* ===== v1.0 oyun ekranı yenilemeleri + açık tema düzeltmeleri ===== */
+.stage,.more-q,.card-hero{color:#F8FAFC}
+.timer b{color:#fff}
+.chip-prac{background:rgba(250,204,21,.18);color:var(--yellow-l);font-size:10px;text-transform:uppercase;letter-spacing:.4px;vertical-align:1px}
+/* soru kartı (Günün 10 Sorusu / Bayrak) */
+.scroll.qx{display:flex;flex-direction:column;gap:12px}
+.qstage{flex:1 1 auto;min-height:210px;max-height:360px;flex-direction:column;padding:62px 18px 20px;background:radial-gradient(circle at 50% 0%,#1E3A8A,#0B1426 75%);border:1px solid #24375C;box-shadow:0 14px 30px rgba(15,23,42,.35)}
+.qstage.flagst{padding:54px 16px 16px;gap:10px;background:radial-gradient(circle at 50% 40%,#2563EB,#0B1426 80%)}
+.qpitch{position:absolute;inset:auto 0 0 0;height:55%;opacity:.14;background:
+  radial-gradient(ellipse 60px 22px at 50% 100%,transparent 96%,#fff 97%,#fff 100%,transparent 101%),
+  linear-gradient(#fff,#fff) 50% 100%/100% 2px no-repeat;border-radius:0 0 24px 24px;
+  -webkit-mask-image:linear-gradient(transparent,#000);mask-image:linear-gradient(transparent,#000)}
+.qcat{position:absolute;top:14px;left:14px;padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.14);font-size:12px;font-weight:800;letter-spacing:.3px;backdrop-filter:blur(4px)}
+.qstage .pts-badge{top:auto;bottom:14px;left:14px;background:rgba(250,204,21,.16);color:#FDE047}
+.qstage .qtext{font-size:21px;position:relative}
+.qkafa{position:absolute;right:8px;bottom:4px}
+.qask{font-weight:800;font-size:15px;opacity:.9;position:relative}
+.qopts{gap:10px}
+.qopts.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.opt.qopt{display:flex;align-items:center;gap:10px;text-align:left;padding:8px 12px;min-height:58px;font-size:15px}
+.qopts.two .opt.qopt{font-size:14px;padding:8px 10px;gap:8px}
+.ol{width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-style:normal;font-family:var(--display);font-weight:900;font-size:17px;color:#fff;flex-shrink:0}
+.ol.l0{background:#3B82F6}.ol.l1{background:#A855F7}.ol.l2{background:#F97316}.ol.l3{background:#14B8A6}
+.opt.ok .ol,.opt.no .ol{background:rgba(255,255,255,.3)}
+.oflag{font-size:22px;line-height:1}
+/* Doğru mu Yanlış mı — kart destesi */
+.scroll.tfx{display:flex;flex-direction:column}
+.tf-score{font-size:30px}
+.tf-deck{flex:1;position:relative;min-height:250px;margin:14px 4px 18px}
+.tf-back{position:absolute;inset:0;border-radius:28px;background:var(--card);border:2px solid var(--line2)}
+.tf-back.b1{transform:translateY(11px) scale(.95)}
+.tf-back.b2{transform:translateY(22px) scale(.9);opacity:.6}
+.tf-deck .tf-card{position:absolute;inset:0;min-height:0;border-radius:28px;padding:64px 22px 16px;justify-content:space-between;align-items:center;background:linear-gradient(165deg,#0F3B66,#0B1426 70%);animation:tfIn .28s ease-out both}
+@keyframes tfIn{from{transform:translateY(12px) scale(.95);opacity:.6}to{transform:none;opacity:1}}
+.tf-deck .tf-txt{font-size:25px;line-height:1.3;flex:1;display:flex;align-items:center}
+.tf-cat{position:absolute;top:18px;left:50%;transform:translateX(-50%);white-space:nowrap;padding:6px 12px;border-radius:999px;background:rgba(14,165,233,.18);color:#7DD3FC;font-size:12px;font-weight:800}
+.tf-foot{display:flex;flex-direction:column;align-items:center;gap:4px}
+.tf-stamp{position:absolute;top:58px;padding:4px 12px;border:4px solid;border-radius:12px;font-family:var(--display);font-weight:900;font-style:italic;font-size:26px;opacity:0;z-index:2;background:rgba(11,20,38,.6)}
+.tf-stamp.yes{left:14px;color:#4ADE80;transform:rotate(-14deg)}
+.tf-stamp.no{right:14px;color:#F87171;transform:rotate(14deg)}
+.tf-card.tint-y,.tf-card.good{border-color:#22C55E;box-shadow:0 14px 34px rgba(34,197,94,.4)}
+.tf-card.tint-n,.tf-card.bad{border-color:#EF4444;box-shadow:0 14px 34px rgba(239,68,68,.4)}
+.tf-card.cm2{border-color:#3B82F6}.tf-card.cm3{border-color:#A855F7;box-shadow:0 14px 34px rgba(168,85,247,.35)}.tf-card.cm4{border-color:#F59E0B;box-shadow:0 0 34px rgba(245,158,11,.55)}
+.tf-btns{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 8px 4px}
+.tf-rb{width:74px;height:74px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;transition:transform .1s}
+.tf-rb.no{background:linear-gradient(135deg,#F87171,#B91C1C);box-shadow:0 6px 0 #7F1D1D,0 10px 22px rgba(239,68,68,.35)}
+.tf-rb.yes{background:linear-gradient(135deg,#4ADE80,#15803D);box-shadow:0 6px 0 #14532D,0 10px 22px rgba(34,197,94,.35)}
+.tf-rb:active{transform:translateY(5px);box-shadow:none}
+/* Hangisi Daha Fazla — iki büyük kart */
+.scroll.mx{display:flex;flex-direction:column;gap:12px}
+.more-q2{text-align:center}
+.more-q2 .label{color:#F59E0B}
+.more-q2 .h-display{font-size:23px;line-height:1.1;margin-top:4px}
+.more-arena{flex:1;display:flex;flex-direction:column;gap:14px;position:relative;min-height:330px}
+.mcard.mc2{flex:1;flex-direction:column;justify-content:center;text-align:center;gap:6px;border-radius:28px;padding:14px;color:#fff;border:3px solid transparent;position:relative;overflow:hidden}
+.mcard.mc2.c0{background:linear-gradient(160deg,#2563EB,#0B1B4D);box-shadow:0 12px 26px rgba(37,99,235,.35)}
+.mcard.mc2.c1{background:linear-gradient(160deg,#9333EA,#2E1065);box-shadow:0 12px 26px rgba(147,51,234,.35)}
+.mcard.mc2::before{content:"";position:absolute;right:-30px;top:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.08)}
+.mc2 .mflag{font-size:70px;width:auto;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35))}
+.mc2 .mname{font-size:28px}
+.mc2 .mc-sub{opacity:.8}
+.mc2 .mval{align-items:center;flex-direction:row;gap:8px;min-width:0}
+.mc2 .mval b{font-size:40px;color:rgba(255,255,255,.55)}
+.mc2 .mval b.show,html[data-theme=light] .mc2 .mval b.show{color:#fff}
+.mc2 .mval span{color:rgba(255,255,255,.75);font-size:13px;font-weight:700}
+.mcard.mc2.win,html[data-theme=light] .mcard.mc2.win{background:linear-gradient(160deg,#22C55E,#14532D);border-color:#86EFAC;transform:scale(1.02);box-shadow:0 0 34px rgba(34,197,94,.55)}
+.mcard.mc2.lose,html[data-theme=light] .mcard.mc2.lose{background:linear-gradient(160deg,#475569,#1E293B);opacity:.75;box-shadow:none}
+.mcard.mc2.lose.picked{border-color:#EF4444;opacity:1}
+.mc2.win .mval b{color:#fff}
+.vsb{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;background:#0B1426;z-index:3;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 5px var(--bg),0 0 24px rgba(253,224,71,.45)}
+.vsb svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.vsb circle{fill:none;stroke-width:5}
+.vr0{stroke:rgba(255,255,255,.14)}
+.vr1{stroke:#FDE047;stroke-linecap:round;transition:stroke-dashoffset .1s linear}
+.vr1.warn{stroke:#F87171}
+.vsb b{font-family:var(--display);font-weight:900;font-style:italic;font-size:24px;color:#FDE047;position:relative}
+.pill.fire.hot{animation:flick 1s infinite}
+/* Günün Kelimesi */
+.wcat-row{justify-content:center;gap:8px;align-items:center}
+.chip.wcat{background:rgba(20,184,166,.18);color:#5EEAD4;font-size:13px;padding:7px 12px}
+.wnote{font-size:11px;color:var(--muted);text-align:center;margin-bottom:2px}
+/* açık tema */
+html[data-theme=light] .opt{box-shadow:0 4px 0 #CBD5E1;background:#fff}
+html[data-theme=light] .opt:active{box-shadow:0 1px 0 #CBD5E1}
+html[data-theme=light] .opt.ok{background:var(--green)}
+html[data-theme=light] .opt.no{background:#FEE2E2;color:#991B1B}
+html[data-theme=light] .joker{background:rgba(139,92,246,.12);color:#6D28D9;border-color:rgba(139,92,246,.5)}
+html[data-theme=light] .chip-prac{color:#A16207}
+html[data-theme=light] .chip.wcat{background:#CCFBF1;color:#0F766E}
+html[data-theme=light] .key.ok{background:#16A34A;color:#fff}
+html[data-theme=light] .key.near{background:#D97706;color:#fff}
+html[data-theme=light] .key.no{background:#475569;color:#CBD5E1}
+html[data-theme=light] .tf-deck .tf-card{background:linear-gradient(165deg,#fff,#E0F2FE);color:#0F172A}
+html[data-theme=light] .tf-cat{background:#E0F2FE;color:#0369A1}
+html[data-theme=light] .tf-stamp{background:rgba(255,255,255,.85)}
+html[data-theme=light] .tf-stamp.yes{color:#16A34A}
+html[data-theme=light] .tf-stamp.no{color:#DC2626}
+html[data-theme=light] .tf-back{background:#fff}
+html[data-theme=light] .more-q2 .label{color:#B45309}
+html[data-theme=light] .pill.fire{color:#C2410C}
+html[data-theme=light] .tf-time{color:#B45309}
+html[data-theme=light] [style*="color:#FDE68A"]{color:#A16207!important}
+html[data-theme=light] .stat b[style*="color:#FDBA74"]{color:#C2410C!important}
+html[data-theme=light] .stat b[style*="color:#7DD3FC"]{color:#0369A1!important}
+/* ===== Düello ===== */
+.du-hero{position:relative;overflow:hidden;border-radius:24px;padding:18px 16px;text-align:center;color:#fff;background:linear-gradient(135deg,#7C3AED,#312E81);box-shadow:0 14px 30px rgba(109,40,217,.35)}
+.du-vs{position:relative;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px}
+.du-sw{color:#FDE047;filter:drop-shadow(0 0 10px rgba(253,224,71,.6))}
+.du-join{display:grid;grid-template-columns:1fr 110px;gap:10px}
+.du-join .input{text-align:center;font-family:var(--display);font-weight:900;font-size:24px;letter-spacing:6px;text-transform:uppercase}
+.du-join .input::placeholder{font-size:15px;letter-spacing:1px}
+.du-row{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;border-radius:16px;background:var(--card);border:1px solid var(--line)}
+.du-c{font-family:var(--display);font-weight:900;font-size:19px;letter-spacing:2px;color:#C4B5FD}
+.du-codebox{display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px;border-radius:22px;background:var(--card);border:1px dashed var(--line2)}
+.du-code{display:flex;gap:6px}
+.du-code i{width:40px;height:50px;border-radius:12px;background:linear-gradient(160deg,#8B5CF6,#4338CA);color:#fff;display:flex;align-items:center;justify-content:center;font-style:normal;font-family:var(--display);font-weight:900;font-size:28px;box-shadow:0 4px 0 #312E81}
+.du-arena{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
+.du-p{display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 8px;border-radius:22px;background:var(--card);border:2px solid var(--line);text-align:center;min-height:210px;justify-content:center}
+.du-p.me{border-color:#8B5CF6}
+.du-p b{font-size:15px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.du-score{font-size:40px;line-height:1;margin-top:6px;color:var(--green-l)}
+.du-score.q{font-family:var(--display);font-weight:900;color:var(--muted)}
+.du-mid{font-family:var(--display);font-weight:900;font-style:italic;font-size:24px;color:#FDE047}
+.du-banner{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px;border-radius:24px;color:#fff;background:linear-gradient(135deg,#475569,#1E293B)}
+.du-banner.w{background:linear-gradient(135deg,#F59E0B,#B45309);box-shadow:0 0 34px rgba(245,158,11,.45)}
+.du-banner.d{background:linear-gradient(135deg,#0EA5E9,#1D4ED8)}
+html[data-theme=light] .du-row,html[data-theme=light] .du-p,html[data-theme=light] .du-codebox{background:#fff}
+html[data-theme=light] .du-c{color:#6D28D9}
+html[data-theme=light] .du-mid{color:#B45309}

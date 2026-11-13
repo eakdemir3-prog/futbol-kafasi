@@ -156,8 +156,8 @@ FK.screens.more = el => {
   const last=(s.moreLast=s.moreLast||[]);
   const best=()=>((s.stats.byMode.more||{}).best||0);
   const next=()=>{ q=morePair(last); locked=false; draw(); t0=Date.now(); tick(); };
-  const tick=()=>{ clearTimeout(tmr); const bar=el.querySelector("[data-tbar]"); if(!bar) return;
-    const left=Math.max(0,QT-(Date.now()-t0)); bar.style.width=(left/QT*100)+"%"; bar.classList.toggle("warn",left<3000);
+  const tick=()=>{ clearTimeout(tmr); const bar=el.querySelector("[data-ring]"); if(!bar) return;
+    const left=Math.max(0,QT-(Date.now()-t0)); bar.style.strokeDashoffset=String(201*(1-Math.min(1,left/QT))); bar.classList.toggle("warn",left<3000);
     if(left<=0){ pick(-1); return; } tmr=setTimeout(tick,100); };
   const pick=side=>{
     if(locked||over) return; locked=true; clearTimeout(tmr);
@@ -168,21 +168,24 @@ FK.screens.more = el => {
     else { FK.sfx("no"); FK.vib([60,40,60]); if(streak>=1 && (FK.inv("second")>0 || (!usedChance && streak>=3))){ setTimeout(offer,900); } else setTimeout(end,1300); }
   };
   let usedChance=false;
-  const offer=()=>FK.modal('<div class="center stack" style="gap:12px"><div class="h-display h2">'+t("moreOver")+'</div><div class="h-display" style="font-size:48px;color:var(--green-l)">'+streak+'</div><button class="btn btn-primary" data-sb>❤️ '+t("b_second")+(FK.inv("second")>0?' ('+FK.inv("second")+')':' · '+FK.gemIc(16)+'60')+'</button>'+(!usedChance&&streak>=3?'<button class="btn btn-reward" data-sc>🎬 '+t("secondChance")+'</button>':'')+'<button class="btn btn-ghost" data-no>'+t("exitGame")+'</button></div>',w=>{ w.dataset.lock=1;
+  const offer=()=>{ if(!el.isConnected) return; offerM(); };
+  const offerM=()=>FK.modal('<div class="center stack" style="gap:12px"><div class="h-display h2">'+t("moreOver")+'</div><div class="h-display" style="font-size:48px;color:var(--green-l)">'+streak+'</div><button class="btn btn-primary" data-sb>❤️ '+t("b_second")+(FK.inv("second")>0?' ('+FK.inv("second")+')':' · '+FK.gemIc(16)+'60')+'</button>'+(!usedChance&&streak>=3?'<button class="btn btn-reward" data-sc>🎬 '+t("secondChance")+'</button>':'')+'<button class="btn btn-ghost" data-no>'+t("exitGame")+'</button></div>',w=>{ w.dataset.lock=1;
     const sc=w.querySelector("[data-sc]"); if(sc) sc.onclick=()=>{ FK.closeModal(); FK.rewarded("chance",ok=>{ usedChance=true; if(ok) next(); else end(); }); };
     w.querySelector("[data-sb]").onclick=()=>{ FK.closeModal(); FK.useBoost("second",()=>next(),()=>end()); };
     w.querySelector("[data-no]").onclick=()=>{ FK.closeModal(); end(); }; });
-  const end=()=>{ over=true; record=streak>best() && best()>0;
+  const end=()=>{ if(!el.isConnected||over) return; over=true; record=streak>best() && best()>0;
     res=FK.finishGame({mode:"more",diff:0,correct:streak,total:streak+1,score:streak,bestStreak:streak,timeSum:0});
     draw(); if(record||streak>=10) FK.confetti(el); afterRes(res); };
-  const card=(i,it)=>'<button class="mcard" data-side="'+i+'">'+moreIcon(q.cat,it)+'<div class="grow"><div class="mname" lang="en">'+FK.esc(moreName(q.cat,it))+'</div>'+(q.cat!=="wc"&&q.cat!=="uclC"?'<div class="small muted">'+FK.esc(FK.cName(it[1]))+'</div>':'')+'</div><div class="mval"><b data-val>?</b><span>'+t("u_"+q.cat)+'</span></div></button>';
+  const bigIcon=(cat,it)=> cat==="uclC" && it[3] && FK_GCLUBS[it[3]] ? FK.clubBadge(it[3],74) : '<span class="mflag">'+FK.flag(it[1])+'</span>';
+  const card=(i,it)=>'<button class="mcard mc2 c'+i+'" data-side="'+i+'"><div class="mc-ic">'+bigIcon(q.cat,it)+'</div><div class="mc-txt"><div class="mname" lang="en">'+FK.esc(moreName(q.cat,it))+'</div>'+(q.cat!=="wc"&&q.cat!=="uclC"?'<div class="small mc-sub">'+FK.esc(FK.cName(it[1]))+'</div>':'')+'</div><div class="mval"><b data-val>?</b><span>'+t("u_"+q.cat)+'</span></div></button>';
   const draw=()=>{
-    el.innerHTML='<div class="game-head"><button class="icon-btn" data-quit aria-label="'+t("back")+'">'+FK.ic("left",22,2.4)+'</button><div class="grow"><div class="h-display" style="font-size:22px">'+t("m_more")+'</div><div class="small muted" style="margin-top:3px">'+t("best",{s:FK.fmtNum(best())})+'</div></div><span class="pill fire">'+FK.fireIc()+streak+'</span></div>'+
-    '<div class="scroll" style="padding-top:8px"><div class="stack" style="gap:14px">'+
-     (over ? endCard(el,{title:t("moreOver"),big:streak,sub:t("moreRes",{n:streak}),res,record})
-      : '<div class="more-q"><div class="label" style="color:#FDE047">'+t("moreScore")+' '+streak+'</div><div class="h-display" style="font-size:24px;line-height:1.15;margin-top:6px">'+t("q_"+q.cat)+'</div><div class="tbar"><i data-tbar></i></div></div>'+
-        card(0,q.a)+'<div class="vs">VS</div>'+card(1,q.b)+FK.boostBar(["time","pass"]))+
-    '</div></div>';
+    el.innerHTML='<div class="game-head"><button class="icon-btn" data-quit aria-label="'+t("back")+'">'+FK.ic("left",22,2.4)+'</button><div class="grow"><div class="h-display" style="font-size:22px">'+t("m_more")+'</div><div class="small muted" style="margin-top:3px">'+t("best",{s:FK.fmtNum(best())})+'</div></div><span class="pill fire'+(streak>=5?" hot":"")+'">'+FK.fireIc()+streak+'</span></div>'+
+    '<div class="scroll mx" style="padding-top:8px">'+
+     (over ? '<div class="stack" style="gap:14px">'+endCard(el,{title:t("moreOver"),big:streak,sub:t("moreRes",{n:streak}),res,record})+'</div>'
+      : '<div class="more-q2"><span class="label">'+t("moreScore")+' '+streak+'</span><div class="h-display">'+t("q_"+q.cat)+'</div></div>'+
+        '<div class="more-arena">'+card(0,q.a)+'<div class="vsb"><svg viewBox="0 0 72 72"><circle cx="36" cy="36" r="32" class="vr0"/><circle cx="36" cy="36" r="32" class="vr1" data-ring stroke-dasharray="201" stroke-dashoffset="0"/></svg><b>VS</b></div>'+card(1,q.b)+'</div>'+
+        FK.boostBar(["time","pass"]))+
+    '</div>';
     el.querySelector("[data-quit]").onclick=()=>{ clearTimeout(tmr); FK.back(); };
     if(over){ el.querySelector("[data-again]").onclick=()=>{ FK.sfx("tap"); FK.go("more",{},{replace:true}); }; el.querySelector("[data-exit]").onclick=()=>FK.back(); return; }
     el.querySelectorAll("[data-side]").forEach(b=>b.onclick=()=>pick(+b.dataset.side));
@@ -194,8 +197,9 @@ FK.screens.more = el => {
 
 /* ---------------- 4) DOĞRU MU YANLIŞ MI ---------------- */
 function rnd(a){ return a[Math.floor(Math.random()*a.length)]; }
+let tfKind='wc';
 function tfMake(){
-  const truth=Math.random()<0.5, kind=rnd(["wc","nat","club","club","ucl","ballon","born","intl"]);
+  const truth=Math.random()<0.5, kind=rnd(["wc","nat","club","club","ucl","ballon","born","intl"]); tfKind=kind;
   const act=(window.FK_ACTIVE||[]), all=FK_GPLAYERS.filter(p=>p[6]<=2);
   if(kind==="wc"){ const w=rnd(FK_WC_WINNERS); let c=w[1]; if(!truth){ const others=[...new Set(FK_WC_WINNERS.map(x=>x[1]))].filter(x=>x!==w[1]); c=rnd(others); }
     return {txt:t("tf_wc",{y:w[0],c:FK.cName(c)}),ans:truth}; }
@@ -217,12 +221,13 @@ FK.screens.tf = el => {
   const s=FK.state, DUR=60000; let st=null, cur=null, ok=0, bad=0, combo=0, score=0, over=false, res=null, record=false, tmr=null, seen=[], bestC=0;
   const best=()=>((s.stats.byMode.tf||{}).best||0);
   const mult=()=>Math.min(4,1+Math.floor(combo/4));
-  const nextQ=()=>{ for(let k=0;k<20;k++){ const q=tfMake(); if(seen.indexOf(q.txt)<0){ seen.push(q.txt); if(seen.length>60) seen.shift(); return q; } } return tfMake(); };
+  const mk=()=>{ const q=tfMake(); q.kind=tfKind; return q; };
+  const nextQ=()=>{ for(let k=0;k<20;k++){ const q=mk(); if(seen.indexOf(q.txt)<0){ seen.push(q.txt); if(seen.length>60) seen.shift(); return q; } } return mk(); };
   const answer=v=>{
     if(over||!cur) return; const right = v===cur.ans; const cardEl=el.querySelector("[data-card]");
     if(right){ ok++; combo++; bestC=Math.max(bestC,combo); score+=100*mult(); FK.sfx("ok"); FK.vib(20); }
     else { bad++; combo=0; FK.sfx("no"); FK.vib([50,30,50]); }
-    if(cardEl){ cardEl.classList.add(right?"good":"bad", v?"fly-r":"fly-l"); }
+    if(cardEl){ cardEl.style.transform=""; cardEl.classList.add(right?"good":"bad", v?"fly-r":"fly-l"); const st=cardEl.querySelector(v?"[data-sy]":"[data-sn]"); if(st) st.style.opacity=1; }
     setTimeout(()=>{ cur=nextQ(); draw(); },260);
   };
   const tick=()=>{ clearTimeout(tmr); const left=Math.max(0,DUR-(Date.now()-st)); const b=el.querySelector("[data-tbar]"), n=el.querySelector("[data-left]");
@@ -232,21 +237,25 @@ FK.screens.tf = el => {
     res=FK.finishGame({mode:"tf",diff:0,correct:ok,total:ok+bad,score,bestStreak:bestC,timeSum:0}); draw(); if(record) FK.confetti(el); afterRes(res); };
   const draw=()=>{
     el.innerHTML='<div class="game-head"><button class="icon-btn" data-quit aria-label="'+t("back")+'">'+FK.ic("left",22,2.4)+'</button><div class="grow"><div class="h-display" style="font-size:22px">'+t("m_tf")+'</div><div class="small muted" style="margin-top:3px">'+t("best",{s:FK.fmtNum(best())})+'</div></div>'+(over?'':'<span class="pill tf-time">'+FK.ic("clock",14)+'<b data-left>60</b></span>')+'</div>'+
-    '<div class="scroll" style="padding-top:8px"><div class="stack" style="gap:14px">'+
-    (over ? endCard(el,{title:t("tfOver"),big:FK.fmtNum(score),sub:t("tfRes",{a:ok,b:bad}),res,record})
+    '<div class="scroll tfx" style="padding-top:8px">'+
+    (over ? '<div class="stack" style="gap:14px">'+endCard(el,{title:t("tfOver"),big:FK.fmtNum(score),sub:t("tfRes",{a:ok,b:bad}),res,record})+'</div>'
      : '<div class="tbar big"><i data-tbar></i></div>'+
-       '<div class="row" style="justify-content:space-between"><span class="h-display" style="font-size:26px">'+FK.fmtNum(score)+'</span><span class="combo m'+mult()+'">'+t("combo")+' x'+mult()+'</span></div>'+
-       '<div class="tf-card" data-card><div class="tf-txt">'+FK.esc(cur.txt)+'</div><div class="tf-hint">⟵ '+t("tfFalse")+' · '+t("tfTrue")+' ⟶</div></div>'+
-       '<div class="grid2"><button class="btn tf-no" data-a="0">'+FK.ic("x",22,2.6)+t("tfFalse")+'</button><button class="btn tf-yes" data-a="1">'+FK.ic("check",22,2.6)+t("tfTrue")+'</button></div>'+FK.boostBar(["time"]))+
-    '</div></div>';
+       '<div class="row" style="justify-content:space-between;margin-top:10px"><span class="h-display tf-score">'+FK.fmtNum(score)+'</span><span class="combo m'+mult()+'">'+t("combo")+' x'+mult()+'</span></div>'+
+       '<div class="tf-deck"><div class="tf-back b2"></div><div class="tf-back b1"></div>'+
+        '<div class="tf-card cm'+mult()+'" data-card><span class="tf-stamp yes" data-sy>'+t("stampYes")+' ✓</span><span class="tf-stamp no" data-sn>'+t("stampNo")+' ✗</span>'+
+         '<span class="tf-cat">'+({wc:"🏆",nat:"🌍",club:"🔁",ucl:"⭐",ballon:"🥇",intl:"⚽",born:"🎂"}[cur.kind]||"⚽")+' '+t("tc_"+cur.kind)+'</span><div class="tf-txt">'+FK.esc(cur.txt)+'</div>'+
+         '<div class="tf-foot">'+(FK.kafa?FK.kafa("bilge",58):'')+'<div class="tf-hint">⟵ '+t("tfFalse")+' · '+t("tfTrue")+' ⟶</div></div></div></div>'+
+       '<div class="tf-btns"><button class="tf-rb no" data-a="0" aria-label="'+t("tfFalse")+'">'+FK.ic("x",34,3)+'</button>'+FK.boostBar(["time"])+'<button class="tf-rb yes" data-a="1" aria-label="'+t("tfTrue")+'">'+FK.ic("check",34,3)+'</button></div>')+
+    '</div>';
     el.querySelector("[data-quit]").onclick=()=>{ clearTimeout(tmr); FK.back(); };
     if(over){ el.querySelector("[data-again]").onclick=()=>{ FK.sfx("tap"); FK.go("tf",{},{replace:true}); }; el.querySelector("[data-exit]").onclick=()=>FK.back(); return; }
     el.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>answer(b.dataset.a==="1"));
     FK.bindBoosts(el,{ time:()=>{ st+=10000; tick(); } });
     const c=el.querySelector("[data-card]"); let x0=null;
     c.addEventListener("touchstart",e=>{ x0=e.touches[0].clientX; },{passive:true});
-    c.addEventListener("touchmove",e=>{ if(x0==null) return; const dx=e.touches[0].clientX-x0; c.style.transform="translateX("+dx+"px) rotate("+(dx/18)+"deg)"; },{passive:true});
-    c.addEventListener("touchend",e=>{ if(x0==null) return; const dx=(e.changedTouches[0].clientX-x0); x0=null; if(Math.abs(dx)>70) answer(dx>0); else c.style.transform=""; });
+    const sy=c.querySelector("[data-sy]"), sn=c.querySelector("[data-sn]");
+    c.addEventListener("touchmove",e=>{ if(x0==null) return; const dx=e.touches[0].clientX-x0; c.style.transition="none"; c.style.transform="translateX("+dx+"px) rotate("+(dx/18)+"deg)"; sy.style.opacity=Math.max(0,Math.min(1,dx/80)); sn.style.opacity=Math.max(0,Math.min(1,-dx/80)); c.classList.toggle("tint-y",dx>30); c.classList.toggle("tint-n",dx<-30); },{passive:true});
+    c.addEventListener("touchend",e=>{ if(x0==null) return; const dx=(e.changedTouches[0].clientX-x0); x0=null; c.style.transition=""; if(Math.abs(dx)>70) answer(dx>0); else { c.style.transform=""; sy.style.opacity=0; sn.style.opacity=0; c.classList.remove("tint-y","tint-n"); } });
     tick();
   };
   FK.onLeave=()=>clearTimeout(tmr);

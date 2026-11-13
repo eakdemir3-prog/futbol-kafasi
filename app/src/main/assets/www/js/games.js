@@ -59,8 +59,15 @@ function buildDaily(){
   const r=FK.rng("daily10-"+FK.dayKey());
   const q=FK_QUESTIONS;
   const pick=[].concat(FK.shuffle(q.filter(x=>x.d===1),r).slice(0,4),FK.shuffle(q.filter(x=>x.d===2),r).slice(0,4),FK.shuffle(q.filter(x=>x.d===3),r).slice(0,2));
-  return pick.map(x=>({ text:L(x.q), answer:L(x.a[0]), opts:FK.shuffle(x.a.map(L),r) }));
+  return pick.map(x=>({ k:x.k, text:L(x.q), answer:L(x.a[0]), opts:FK.shuffle(x.a.map(L),r) }));
 }
+FK.duelGame = (code,side) => {
+  const r=FK.rng("duel-"+code), q=FK_QUESTIONS;
+  const pick=[].concat(FK.shuffle(q.filter(x=>x.d===1),r).slice(0,4),FK.shuffle(q.filter(x=>x.d===2),r).slice(0,4),FK.shuffle(q.filter(x=>x.d===3),r).slice(0,2));
+  const qs=pick.map(x=>({ k:x.k, text:L(x.q), answer:L(x.a[0]), opts:FK.shuffle(x.a.map(L),r) }));
+  const g={ mode:"duel", duel:{code,side}, diff:0, qs, i:0, score:0, correct:0, streak:0, bestStreak:0, timeSum:0, res:[], jokers:0, practice:false, extra:{} };
+  FK.go("play",{g},{replace:true});
+};
 function buildCareer(diff){
   return byDiff(FK_CAREERS,diff,5,c=>c.d,"career",c=>c.name).map(c=>({ answer:c.name, order:c.clubs.map(nameOf), pool:FK.shuffle(c.clubs.map(nameOf)) }));
 }
@@ -121,10 +128,10 @@ FK.screens.play = (el,{g}) => {
   let timer=null, ended=false;
   const stopTimer=()=>{ if(timer){ cancelAnimationFrame(timer); timer=null; } };
   FK.onLeave=stopTimer;
-  FK.backHandler=()=>{ FK.confirm(t("exitConfirm"),t("exit"),()=>{ stopTimer(); ended=true; FK.go("games",{},{root:true}); }); return true; };
+  FK.backHandler=()=>{ FK.confirm(t(g.mode==="duel"?"duelQuit":"exitConfirm"),t("exit"),()=>{ stopTimer(); ended=true; if(g.mode==="duel"){ FK.duelDone(g); return; } FK.go("games",{},{root:true}); }); return true; };
 
   const M=FK.MODES[g.mode];
-  const head=()=>'<div class="game-head"><button class="icon-btn" data-quit aria-label="'+t("exit")+'">'+FK.ic("x",20,2.4)+'</button><div class="grow"><div class="h-display" style="font-size:22px">'+FK.modeName(g.mode)+'</div><div class="small muted" style="margin-top:3px">'+(g.diff?t("d"+g.diff)+' · ':'')+t("questionN",{a:g.i+1,b:g.qs.length})+(g.practice?' · '+t("practice"):'')+'</div></div><span class="pill fire">'+FK.fireIc()+g.streak+'</span></div>'+
+  const head=()=>'<div class="game-head"><button class="icon-btn" data-quit aria-label="'+t("exit")+'">'+FK.ic("x",20,2.4)+'</button><div class="grow"><div class="h-display" style="font-size:22px">'+FK.modeName(g.mode)+'</div><div class="small muted" style="margin-top:3px">'+(g.diff?t("d"+g.diff)+' · ':'')+t("questionN",{a:g.i+1,b:g.qs.length})+(g.practice?' <span class="chip chip-prac">'+t("practice")+'</span>':'')+'</div></div><span class="pill fire">'+FK.fireIc()+g.streak+'</span></div>'+
     '<div class="qbar" style="grid-template-columns:repeat('+g.qs.length+',1fr)">'+g.qs.map((q,k)=>'<span class="'+(g.res[k]===true?"ok":g.res[k]===false?"no":k===g.i?"cur":"")+'"></span>').join("")+'</div>';
   const fb=(ok,txt)=>{ const d=document.createElement("div"); d.className="fb "+(ok?"ok":"no"); d.textContent=txt; el.appendChild(d); setTimeout(()=>d.remove(),900); };
 
@@ -151,10 +158,11 @@ FK.screens.play = (el,{g}) => {
     setTimeout(next, ok?1100:1700);
   }
   function skipQ(){ if(ended) return; stopTimer(); g.extra.boost=1; g.res[g.i]=null; FK.toast(t("b_pass")+" ⏭️","check",1200); setTimeout(next,350); }
-  const canBoost = () => g.mode!=="daily";
+  const canBoost = () => g.mode!=="daily" && g.mode!=="duel";
   function next(){ if(ended) return; g.i++; if(g.i>=g.qs.length) return endGame(); draw(); }
   function endGame(){
     ended=true; stopTimer();
+    if(g.mode==="duel"){ FK.duelDone(g); return; }
     if(g.mode==="daily" && !g.practice){ FK.state.daily10={date:FK.dayKey(),score:g.score,correct:g.correct,done:true}; }
     const res=FK.finishGame({mode:g.mode,diff:g.diff,correct:g.correct,total:g.qs.length,score:g.score,bestStreak:g.bestStreak,timeSum:g.timeSum,practice:g.practice,extra:g.extra});
     FK.go("result",{g,res},{replace:true});
@@ -215,20 +223,22 @@ FK.screens.play = (el,{g}) => {
   /* ---- hızlı seçmeli modlar: bayrak & günün 10'u ---- */
   function drawQuick(){
     const q=g.qs[g.i], isFlag=g.mode==="flag", SEC=isFlag?10:15; if(q.t0==null){ q.t0=performance.now(); q.gone={}; }
-    el.innerHTML=head()+'<div class="scroll" style="padding-top:12px"><div class="stack" style="gap:14px">'+
+    const QI={wc:"🏆",cl:"⭐",cl2:"🏟️",co:"📋",eu:"🥇",nt:"🌍",org:"🏛️",pl:"👟",ru:"📏",tr:"🇹🇷"};
+    const cFlag=o=>{ if(!window.FK_COUNTRIES) return ''; const c=FK_COUNTRIES.find(x=>FK.cName(x[0])===o); return c?'<span class="oflag">'+FK.flag(c[0])+'</span>':''; };
+    el.innerHTML=head()+'<div class="scroll qx" style="padding-top:12px">'+
      (isFlag
-      ? '<div class="stage" style="height:230px;background:radial-gradient(circle at 50% 45%,#1E3A8A,#0F1B33)"><div class="flag-big">'+FK.flag(q.code)+'</div>'+timerUI(SEC)+'</div><div class="center" style="font-weight:700;font-size:16px">'+t("whichCountry")+'</div>'
-      : '<div class="stage" style="min-height:200px;padding:70px 18px 22px;background:linear-gradient(160deg,#1A2A4A,#0F1B33);border:1px solid var(--line)"><div class="qtext">'+FK.esc(q.text)+'</div>'+timerUI(SEC)+'<div class="pts-badge" style="background:rgba(250,204,21,.15);color:#FDE047">+100 · '+FK.ic("bolt",12,2.4,'style="display:inline;vertical-align:-1px"')+' +50</div></div>')+
-     '<div class="opts '+(isFlag?'':'one')+'">'+q.opts.map((o,k)=>'<button class="opt'+(q.gone[k]?" gone":"")+'" data-o="'+k+'">'+FK.esc(o)+'</button>').join("")+'</div>'+
+      ? '<div class="stage qstage flagst"><div class="rays2" style="opacity:.25"></div><span class="qcat">🚩 '+t("qc_flag")+'</span><div class="flag-big">'+FK.flag(q.code)+'</div>'+timerUI(SEC)+'<div class="qask">'+t("whichCountry")+'</div></div>'
+      : '<div class="stage qstage"><div class="qpitch"></div><span class="qcat">'+(QI[q.k]||"⚽")+' '+t("qc_"+(q.k||"wc"))+'</span><div class="qtext">'+FK.esc(q.text)+'</div>'+timerUI(SEC)+'<div class="pts-badge">+100 · '+FK.ic("bolt",12,2.4,'style="display:inline;vertical-align:-1px"')+' +50</div><div class="qkafa">'+(FK.kafa?FK.kafa("bilge",62):'')+'</div></div>')+
+     '<div class="opts qopts '+(isFlag?'two':'one')+'">'+q.opts.map((o,k)=>'<button class="opt qopt'+(q.gone[k]?" gone":"")+'" data-o="'+k+'"><i class="ol l'+k+'">'+"ABCD"[k]+'</i><span class="grow">'+FK.esc(o)+'</span>'+(isFlag?'':cFlag(o))+'</button>').join("")+'</div>'+
      (canBoost()?FK.boostBar(["fifty","time","pass"]):'')+
-    '</div></div>';
+    '</div>';
     bindCommon();
-    const used=runTimer(SEC,null,()=>{ fb(false,t("timeUp")); FK.sfx("whistleEnd"); el.querySelectorAll("[data-o]").forEach(x=>{x.disabled=true; if(x.textContent===q.answer) x.classList.add("ok");}); finishQ(false,0,SEC); },q.t0);
+    const used=runTimer(SEC,null,()=>{ fb(false,t("timeUp")); FK.sfx("whistleEnd"); el.querySelectorAll("[data-o]").forEach(x=>{x.disabled=true; if(q.opts[+x.dataset.o]===q.answer) x.classList.add("ok");}); finishQ(false,0,SEC); },q.t0);
     if(canBoost()) FK.bindBoosts(el,{ fifty:()=>{ g.extra.boost=1; const w=q.opts.map((o,k)=>k).filter(k=>q.opts[k]!==q.answer&&!q.gone[k]); FK.shuffle(w).slice(0,2).forEach(k=>q.gone[k]=1); drawQuick(); },
       time:()=>{ g.extra.boost=1; q.t0+=10000; drawQuick(); }, pass:()=>skipQ() });
     el.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{
       const u=used(); const ok=q.opts[+b.dataset.o]===q.answer;
-      el.querySelectorAll("[data-o]").forEach(x=>{ x.disabled=true; if(!ok && x.textContent===q.answer) x.classList.add("ok"); });
+      el.querySelectorAll("[data-o]").forEach(x=>{ x.disabled=true; if(!ok && q.opts[+x.dataset.o]===q.answer) x.classList.add("ok"); });
       b.classList.add(ok?"ok":"no");
       if(!ok) fb(false,t("wrong"));
       const speed=Math.max(0,1-u/SEC);

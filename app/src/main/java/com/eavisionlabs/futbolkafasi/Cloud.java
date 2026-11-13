@@ -104,6 +104,41 @@ class Cloud {
         });
     }
 
+    // ---- Düello: fk_duels/{code} ----
+    static Object conv(Object v) throws Exception {
+        if (v == null || v == JSONObject.NULL) return null;
+        if (v instanceof JSONObject) { JSONObject o = (JSONObject) v; Map<String, Object> m = new HashMap<>(); java.util.Iterator<String> it = o.keys(); while (it.hasNext()) { String k = it.next(); m.put(k, conv(o.get(k))); } return m; }
+        if (v instanceof Integer) return ((Integer) v).longValue();
+        return v;
+    }
+    static JSONObject toJson(Map<String, Object> m) throws Exception {
+        JSONObject o = new JSONObject();
+        for (Map.Entry<String, Object> e : m.entrySet()) {
+            Object v = e.getValue();
+            if (v instanceof Map) { @SuppressWarnings("unchecked") Map<String, Object> mm = (Map<String, Object>) v; o.put(e.getKey(), toJson(mm)); }
+            else if (v == null) o.put(e.getKey(), JSONObject.NULL);
+            else if (v instanceof String || v instanceof Number || v instanceof Boolean) o.put(e.getKey(), v);
+        }
+        return o;
+    }
+    void duelGet(final String code) {
+        if (auth.getCurrentUser() == null || code == null || !code.matches("^[A-Z0-9]{6}$")) { a.js("duel", code, "!"); return; }
+        FirebaseFirestore.getInstance().collection("fk_duels").document(code).get().addOnCompleteListener(t -> {
+            if (!t.isSuccessful()) { a.js("duel", code, "!"); return; }
+            DocumentSnapshot d = t.getResult();
+            if (d == null || !d.exists() || d.getData() == null) { a.js("duel", code, ""); return; }
+            try { a.js("duel", code, toJson(d.getData()).toString()); } catch (Exception e) { a.js("duel", code, "!"); }
+        });
+    }
+    void duelSet(final String code, String json) {
+        if (auth.getCurrentUser() == null || code == null || !code.matches("^[A-Z0-9]{6}$")) { a.js("duelSet", code, "0"); return; }
+        try {
+            @SuppressWarnings("unchecked") Map<String, Object> m = (Map<String, Object>) conv(new JSONObject(json));
+            FirebaseFirestore.getInstance().collection("fk_duels").document(code).set(m, SetOptions.merge())
+                .addOnCompleteListener(t -> a.js("duelSet", code, t.isSuccessful() ? "1" : "0"));
+        } catch (Exception e) { a.js("duelSet", code, "0"); }
+    }
+
     void deleteAccount() {
         FirebaseUser u = auth.getCurrentUser(); if (u == null) { a.js("del", "0", "nouser"); return; }
         FirebaseFirestore.getInstance().collection("fk_users").document(u.getUid()).delete().addOnCompleteListener(t1 ->

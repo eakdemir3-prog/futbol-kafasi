@@ -147,5 +147,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void cloudLoad() { cloud.load(); }
         @JavascriptInterface public String cloudData() { return cloud.loaded == null ? "" : cloud.loaded; }
         @JavascriptInterface public void deleteAccount() { runOnUiThread(() -> cloud.deleteAccount()); }
+        @JavascriptInterface public void duelGet(String code) { cloud.duelGet(code); }
+        @JavascriptInterface public void duelSet(String code, String json) { cloud.duelSet(code, json); }
     }
 }
