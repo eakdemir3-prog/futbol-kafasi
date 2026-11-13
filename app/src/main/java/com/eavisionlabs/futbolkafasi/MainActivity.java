@@ -99,6 +99,7 @@ public class MainActivity extends Activity {
         }
         @JavascriptInterface public boolean isPro() { return billing.isPro(); }
         @JavascriptInterface public String proPrice() { return billing.price(); }
+        @JavascriptInterface public String proFull() { return billing.fullPrice(); }
         @JavascriptInterface public void buyPro() { runOnUiThread(() -> billing.buy()); }
         @JavascriptInterface public void restore() { billing.refresh(); }
         @JavascriptInterface public boolean showInter() {

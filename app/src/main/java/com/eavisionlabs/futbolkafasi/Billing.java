@@ -35,10 +35,24 @@ class Billing {
     }
 
     boolean isPro() { return sp.getBoolean("pro", false); }
-    String price() {
-        ProductDetails d = pd;
-        if (d != null && d.getOneTimePurchaseOfferDetails() != null) return d.getOneTimePurchaseOfferDetails().getFormattedPrice();
-        return "";
+    /** Kullanıcının alabileceği en ucuz teklif (indirim varsa indirimli). */
+    ProductDetails.OneTimePurchaseOfferDetails best() {
+        ProductDetails d = pd; if (d == null) return null;
+        ProductDetails.OneTimePurchaseOfferDetails b = null;
+        List<ProductDetails.OneTimePurchaseOfferDetails> l = d.getOneTimePurchaseOfferDetailsList();
+        if (l != null) for (ProductDetails.OneTimePurchaseOfferDetails o : l)
+            if (b == null || o.getPriceAmountMicros() < b.getPriceAmountMicros()) b = o;
+        return b != null ? b : d.getOneTimePurchaseOfferDetails();
+    }
+    String price() { ProductDetails.OneTimePurchaseOfferDetails b = best(); return b != null ? b.getFormattedPrice() : ""; }
+    /** İndirimsiz (normal) fiyat: en pahalı satın alma teklifi. */
+    String fullPrice() {
+        ProductDetails d = pd; if (d == null) return "";
+        ProductDetails.OneTimePurchaseOfferDetails m = d.getOneTimePurchaseOfferDetails();
+        List<ProductDetails.OneTimePurchaseOfferDetails> l = d.getOneTimePurchaseOfferDetailsList();
+        if (l != null) for (ProductDetails.OneTimePurchaseOfferDetails o : l)
+            if (m == null || o.getPriceAmountMicros() > m.getPriceAmountMicros()) m = o;
+        return m != null ? m.getFormattedPrice() : "";
     }
 
     void connect() {
@@ -62,8 +76,10 @@ class Billing {
     void buy() {
         ProductDetails d = pd;
         if (!ready || d == null) { a.js("proErr", null, null); if (ready) loadProduct(); return; }
-        BillingFlowParams f = BillingFlowParams.newBuilder().setProductDetailsParamsList(Collections.singletonList(
-            BillingFlowParams.ProductDetailsParams.newBuilder().setProductDetails(d).build())).build();
+        BillingFlowParams.ProductDetailsParams.Builder pb = BillingFlowParams.ProductDetailsParams.newBuilder().setProductDetails(d);
+        ProductDetails.OneTimePurchaseOfferDetails b = best();
+        if (b != null && b.getOfferToken() != null) pb.setOfferToken(b.getOfferToken());
+        BillingFlowParams f = BillingFlowParams.newBuilder().setProductDetailsParamsList(Collections.singletonList(pb.build())).build();
         client.launchBillingFlow(a, f);
     }
 
