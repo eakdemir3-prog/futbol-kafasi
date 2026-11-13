@@ -1,7 +1,7 @@
 plugins { id 'com.android.application' }
 
 def vCode = (System.getenv("VERSION_CODE") ?: "13") as int
-def admobAppId = System.getenv("ADMOB_APP_ID") ?: "ca-app-pub-3940256099942544~3347511713"   // Google test App ID (AdMob uygulaması açılınca değişecek)
+def admobAppId = System.getenv("ADMOB_APP_ID") ?: "ca-app-pub-2435516035253344~3300682148"   // AdMob: Futbol Kafası
 
 android {
     namespace 'com.eavisionlabs.futbolkafasi'
@@ -11,7 +11,7 @@ android {
         minSdk 24
         targetSdk 36
         versionCode vCode
-        versionName "0.5.1"
+        versionName "0.5.2"
         manifestPlaceholders = [admobAppId: admobAppId]
     }
     signingConfigs {
