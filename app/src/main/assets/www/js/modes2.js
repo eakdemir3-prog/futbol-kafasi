@@ -50,16 +50,17 @@ function cellContent(col,p,cmp){
   if(col==="wc") return trophy(p.wc);
 }
 
-FK.screens.guess = (el,{diff,era}) => {
+FK.screens.guess = (el,{diff,era,level,target,max}) => {
   era=era||"now";
-  const s=FK.state, all=FK.guessPool(era);
-  const MAX = diff===4?6:8;
+  const s=FK.state, all=FK.guessPool(level?"mix":era);
+  const MAX = max || (diff===4?6:8);
   const pool = all.filter(p=> diff===1?p.fame===1 : diff===2?p.fame<=2 : true);
-  const T=FK.fresh("guess",pool,p=>p.name,1)[0];
-  FK.markSeen("guess",[T.name]); s.guessRecent=[T.name];
+  const T=(target&&all.find(p=>p.name===target)) || FK.fresh("guess",pool,p=>p.name,1)[0];
+  if(!target) FK.markSeen("guess",[T.name]); s.guessRecent=[T.name];
   const names=all.map(p=>p.name).sort((a,b)=>a.localeCompare(b,"tr"));
   const guesses=[]; let done=false, win=false, res=null, query="";
-  FK.backHandler=()=>{ if(done||!guesses.length){ FK.go("games",{},{root:true}); return true; } FK.confirm(t("exitConfirm"),t("exit"),()=>FK.go("games",{},{root:true})); return true; };
+  const exitTo=()=>{ if(level){ FK.stack=[{name:"games",params:{}}]; FK.go("intro",{mode:"guess"}); } else FK.go("games",{},{root:true}); };
+  FK.backHandler=()=>{ if(done||!guesses.length){ exitTo(); return true; } FK.confirm(t("exitConfirm"),t("exit"),exitTo); return true; };
 
   const CONT={EU:["AVRUPA","EUROPE"],SA:["G.AMERİKA","S.AMERICA"],AF:["AFRİKA","AFRICA"],AS:["ASYA","ASIA"],NA:["K.AMERİKA","N.AMERICA"]};
   const hinted={};
@@ -97,8 +98,11 @@ FK.screens.guess = (el,{diff,era}) => {
       revealBar()+'</div>'+
      (done
        ? '<div class="card center stack" style="gap:10px"><div class="h-display h2" style="color:'+(win?'var(--green-l)':'#FCA5A5')+'">'+(win?t("guessWin",{n:guesses.length}):t("guessLose",{a:'<span lang="en">'+FK.esc(T.name)+'</span>'}))+'</div>'+
+         (res&&res.lvl?'<div>'+FK.starsHtml(res.lvl.stars,34)+'</div>':'')+
          (res?'<div class="row" style="justify-content:center;gap:8px"><span class="chip chip-xp">+'+res.xp+' XP</span><span class="chip chip-gem">'+FK.gemIc(12)+'+'+res.gems+'</span></div>'+FK.doubleBtn(res):'')+
-         '<button class="btn btn-primary" data-new>'+FK.ic("replay",22,2.4)+t("newPlayer")+'</button><button class="btn btn-ghost" data-share>'+FK.ic("share",18)+t("share")+'</button></div>'
+         (res&&res.lvl&&res.lvl.next?'<button class="btn btn-primary" data-nextlv>'+t("lvNext")+' · '+res.lvl.nextN+' <span class="en-cost">⚡1</span></button><button class="btn btn-ghost" data-new>'+FK.ic("replay",20,2.4)+t("lvRetry")+'</button>'
+           :'<button class="btn btn-primary" data-new>'+FK.ic("replay",22,2.4)+(level?t("lvRetry"):t("newPlayer"))+'</button>')+
+         '<button class="btn btn-ghost" data-share>'+FK.ic("share",18)+t("share")+'</button></div>'
        : FK.boostBar(["hint"])+'<div class="ac"><div class="row"><input class="input" data-in placeholder="'+t("guessPh")+'" autocomplete="off" autocapitalize="words" spellcheck="false" value="'+FK.esc(query)+'"></div><div class="ac-list down hide" data-ac></div></div>')+
      (guesses.length?'<div class="ghead">'+COLS.map(c=>'<span>'+t("col_"+c)+'</span>').join("")+'</div>':'<div class="small muted center" style="line-height:1.5">'+t("rules_guess")+'</div>')+
      guesses.slice().reverse().map((g,i)=>guessCard(g, newIdx!=null && i===0)).join("")+
@@ -106,8 +110,10 @@ FK.screens.guess = (el,{diff,era}) => {
     el.querySelector("[data-quit]").onclick=()=>FK.backHandler();
     if(done){
       bindExplain();
-      el.querySelector("[data-new]").onclick=()=>{ FK.sfx("tap"); FK.go("guess",{diff,era},{replace:true}); };
-      el.querySelector("[data-share]").onclick=()=>FK.share("Futbol Kafası · "+t("m_guess")+"\n"+guesses.map(g=>{ const c=compare(g,T); return COLS.map(col=>c[col]==="ok"?"🟩":c[col]==="near"?"🟨":"⬛").join(""); }).join("\n")+"\n"+(win?guesses.length:"X")+"/"+MAX+" #FutbolKafası");
+      el.querySelector("[data-new]").onclick=()=>{ FK.sfx("tap"); if(level){ FK.playLevel("guess",level); return; } FK.go("guess",{diff,era},{replace:true}); };
+      const nl=el.querySelector("[data-nextlv]"); if(nl) nl.onclick=()=>FK.playLevel("guess",res.lvl.nextN);
+      if(res&&res.lvl&&res.lvl.chest&&!res._ch){ res._ch=1; setTimeout(()=>FK.chestModal(res.lvl.chest,res.lvl.n),900); }
+      el.querySelector("[data-share]").onclick=()=>FK.shareCard({mode:"guess",score:res?res.score||0:0,level,stars:res&&res.lvl?res.lvl.stars:null,win,tries:guesses.length,max:MAX,grid:guesses.map(g=>{ const c=compare(g,T); return COLS.map(col=>c[col]); }),pose:win?"sampiyon":"uzgun"});
       return;
     }
     const inp=el.querySelector("[data-in]"), ac=el.querySelector("[data-ac]");
@@ -122,7 +128,7 @@ FK.screens.guess = (el,{diff,era}) => {
       else { FK.sfx("no"); FK.vib(40); if(guesses.length>=MAX) done=true; }
       if(done){
         const score = win ? Math.round((MAX+1-guesses.length)*25*[1,1,1.2,1.4,1.7][diff]) : 0;
-        res=FK.finishGame({mode:"guess",diff,correct:win?1:0,total:1,score,bestStreak:win?1:0,timeSum:0,extra:{win,guesses:guesses.length}});
+        res=FK.finishGame({mode:"guess",diff,level,correct:win?1:0,total:1,score,bestStreak:win?1:0,timeSum:0,extra:{win,guesses:guesses.length}}); res.score=score;
         draw(0); if(win) FK.confetti(el);
         let d=500; res.ach.forEach(a=>{ setTimeout(()=>FK.toast(t("achUnlocked")+" <b>"+t("ach_"+a.id)+"</b>","trophy",3000),d); d+=1200; });
         res.missions.forEach(m=>FK.toast(t("missionDone",{m:FK.missionText(m)}),"check"));
@@ -168,7 +174,7 @@ FK.screens.word = el => {
        : '<div class="kb"><div class="wnote">'+t("wordNote")+'</div>'+ROWS.map(r=>'<div class="kbrow">'+[...r].map(ch=> ch==="⏎"?'<button class="key wide" data-k="ENTER" aria-label="'+t("check")+'">'+FK.ic("check",22,3)+'</button>' : ch==="⌫"?'<button class="key wide" data-k="BACK" aria-label="sil">'+FK.ic("left",20,2.4)+'</button>' : '<button class="key '+(ks[ch]||"")+'" data-k="'+ch+'">'+ch+'</button>').join("")+'</div>').join("")+'</div>')+
     '</div></div>';
     el.querySelector("[data-quit]").onclick=FK.back;
-    if(st.done){ el.querySelector("[data-share]").onclick=()=>FK.share(share()); return; }
+    if(st.done){ el.querySelector("[data-share]").onclick=()=>FK.shareCard({mode:"word",win:st.win,tries:st.guesses.length,max:6,wgrid:st.guesses.map(g=>scoreWord(g,A)),pose:st.win?"sampiyon":"uzgun",text:share()}); return; }
     el.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>press(b.dataset.k));
   };
   const press=k=>{

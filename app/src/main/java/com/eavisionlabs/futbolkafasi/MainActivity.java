@@ -120,6 +120,24 @@ public class MainActivity extends Activity {
                 startActivity(Intent.createChooser(i, "Futbol Kafası"));
             });
         }
+        @JavascriptInterface public void shareImage(final String b64, final String text) {
+            runOnUiThread(() -> {
+                try {
+                    java.io.File dir = new java.io.File(getCacheDir(), "share"); dir.mkdirs();
+                    java.io.File f = new java.io.File(dir, "futbol-kafasi.png");
+                    java.io.FileOutputStream o = new java.io.FileOutputStream(f);
+                    o.write(android.util.Base64.decode(b64, android.util.Base64.DEFAULT)); o.close();
+                    Uri u = androidx.core.content.FileProvider.getUriForFile(MainActivity.this, getPackageName() + ".files", f);
+                    Intent i = new Intent(Intent.ACTION_SEND); i.setType("image/png");
+                    i.putExtra(Intent.EXTRA_STREAM, u); i.putExtra(Intent.EXTRA_TEXT, text);
+                    i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(Intent.createChooser(i, "Futbol Kafası"));
+                } catch (Exception e) {
+                    Intent i = new Intent(Intent.ACTION_SEND); i.setType("text/plain"); i.putExtra(Intent.EXTRA_TEXT, text);
+                    startActivity(Intent.createChooser(i, "Futbol Kafası"));
+                }
+            });
+        }
         @JavascriptInterface public boolean isPro() { return billing.isPro(); }
         @JavascriptInterface public String proPrice() { return billing.price(); }
         @JavascriptInterface public String proFull() { return billing.fullPrice(); }

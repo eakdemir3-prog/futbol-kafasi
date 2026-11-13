@@ -7,7 +7,7 @@ const FK=window.FK, t=FK.t, N=()=>window.FKAndroid;
 
 Object.assign(FK_I18N.tr,{
   shop:"Mağaza", shopS:"Güçlendirici, avatar, çerçeve ve elmas", tabBoost:"Güçlendirici", tabStyle:"Görünüm", tabGems:"Elmas",
-  freeSec:"Bedava", freeGemAd:"Reklam izle · +20 elmas", boostAd:"Reklam izle · rastgele güçlendirici", leftToday:"Bugün {n} hak kaldı", noneToday:"Bugünlük bitti",
+  freeSec:"Bedava", freeGemAd:"Reklam izle · +15 elmas", boostAd:"Reklam izle · rastgele güçlendirici", leftToday:"Bugün {n} hak kaldı", noneToday:"Bugünlük bitti",
   b_time:"Süre +10", b_fifty:"50/50+", b_pass:"Pas", b_hint:"İpucu Aç", b_second:"İkinci Şans", b_xp2:"2x XP", b_freeze:"Seri dondurma",
   bd_time:"Soruya 10 saniye ekler", bd_fifty:"2 yanlış şıkkı siler", bd_pass:"Soruyu atlar, seri bozulmaz", bd_hint:"Gizli oyuncunun bir özelliğini açar", bd_second:"Yanlıştan sonra devam et", bd_xp2:"15 dakika XP iki kat", bd_freeze:"Kaçırdığın günde serini korur",
   have:"Elinde: {n}", buy1:"1 al", buy5:"5'li al", pack5:"%20 ucuz",
@@ -24,7 +24,7 @@ Object.assign(FK_I18N.tr,{
 });
 Object.assign(FK_I18N.en,{
   shop:"Shop", shopS:"Boosters, avatars, frames and gems", tabBoost:"Boosters", tabStyle:"Style", tabGems:"Gems",
-  freeSec:"Free", freeGemAd:"Watch ad · +20 gems", boostAd:"Watch ad · random booster", leftToday:"{n} left today", noneToday:"Done for today",
+  freeSec:"Free", freeGemAd:"Watch ad · +15 gems", boostAd:"Watch ad · random booster", leftToday:"{n} left today", noneToday:"Done for today",
   b_time:"Time +10", b_fifty:"50/50+", b_pass:"Skip", b_hint:"Reveal", b_second:"Second Chance", b_xp2:"2x XP", b_freeze:"Streak freeze",
   bd_time:"Adds 10 seconds", bd_fifty:"Removes 2 wrong answers", bd_pass:"Skips the question, keeps streak", bd_hint:"Reveals a hidden player attribute", bd_second:"Continue after a mistake", bd_xp2:"Double XP for 15 minutes", bd_freeze:"Protects your streak on a missed day",
   have:"You have: {n}", buy1:"Buy 1", buy5:"Buy 5", pack5:"20% off",
@@ -140,7 +140,7 @@ window.fkNative=(ev,a,b)=>{
   if(_nat2) _nat2(ev,a,b);
 };
 /* ana sayfa kartı */
-FK.shopCard = () => '<button class="shop-card" data-go="shop"><span class="sc-ic">🛒</span><div class="grow" style="text-align:left"><div class="h-display" style="font-size:22px">'+t("shopCard")+'</div><div class="small" style="opacity:.9;font-weight:600">'+t("shopCardS")+'</div></div><span class="sc-free">🎬 +20 '+FK.gemIc(13)+'</span></button>';
+FK.shopCard = () => '<button class="shop-card" data-go="shop"><span class="sc-ic">🛒</span><div class="grow" style="text-align:left"><div class="h-display" style="font-size:22px">'+t("shopCard")+'</div><div class="small" style="opacity:.9;font-weight:600">'+t("shopCardS")+'</div></div><span class="sc-free">🎬 +15 '+FK.gemIc(13)+'</span></button>';
 /* ---------------- MAĞAZA ---------------- */
 const PACKS=[{id:"200",g:200,p:"39,99 ₺",d:"31,99 ₺",ic:"🤏"},{id:"550",g:550,p:"89,99 ₺",d:"71,99 ₺",ic:"👝"},{id:"1200",g:1200,p:"179,99 ₺",d:"143,99 ₺",ic:"🧰",pop:true}];
 FK.screens.shop = (el,params) => {
@@ -160,6 +160,7 @@ FK.screens.shop = (el,params) => {
     el.querySelectorAll("[data-xp2go]").forEach(b=>b.onclick=()=>{ if(FK.inv("xp2")>0 && FK.xp2Left()<=0){ inv().xp2--; FK.save(); FK.startXp2(); draw(); } });
     const fg=el.querySelector("[data-fg]"); if(fg) fg.onclick=()=>FK.freeGems(draw);
     const ba=el.querySelector("[data-ba]"); if(ba) ba.onclick=()=>FK.boostAd(draw);
+    const em=el.querySelector("[data-enm]"); if(em) em.onclick=()=>{ if(!FK.isPro()) FK.energyModal(); };
     el.querySelectorAll("[data-av]").forEach(b=>b.onclick=()=>buyAv(+b.dataset.av));
     el.querySelectorAll("[data-fr]").forEach(b=>b.onclick=()=>buyFr(b.dataset.fr));
     const pr=el.querySelector("[data-gopro]"); if(pr) pr.onclick=()=>FK.go("pro");
@@ -167,9 +168,11 @@ FK.screens.shop = (el,params) => {
     const gs=el.querySelector("[data-gsign]"); if(gs) gs.onclick=()=>FK.signIn(()=>draw());
   };
   const boostTab=xl=>
+    '<div class="sec-title">'+t("en_shopT")+'</div>'+
+    '<button class="en-shop" data-enm><span style="font-size:30px">⚡</span><div class="grow" style="text-align:left"><b>'+(FK.isPro()?t("en_inf"):FK.energy()+' / 5')+'</b><div class="small muted">'+t("en_sub")+'</div></div><span class="pbtn" style="min-width:auto;padding:0 12px">'+FK.gemIc(13)+'25 · 100</span></button>'+
     '<div class="sec-title">'+t("freeSec")+'</div>'+
     '<div class="grid2">'+
-      '<button class="shop-free" data-fg '+(FK.freeGemsLeft()>0?'':'disabled')+'><span style="font-size:28px">🎬</span><b>+20 💎</b><span class="small muted">'+(FK.freeGemsLeft()>0?t("leftToday",{n:FK.freeGemsLeft()}):t("noneToday"))+'</span></button>'+
+      '<button class="shop-free" data-fg '+(FK.freeGemsLeft()>0?'':'disabled')+'><span style="font-size:28px">🎬</span><b>+15 💎</b><span class="small muted">'+(FK.freeGemsLeft()>0?t("leftToday",{n:FK.freeGemsLeft()}):t("noneToday"))+'</span></button>'+
       '<button class="shop-free" data-ba '+(FK.boostAdLeft()>0?'':'disabled')+'><span style="font-size:28px">🎁</span><b>+1 '+t("tabBoost")+'</b><span class="small muted">'+(FK.boostAdLeft()>0?t("leftToday",{n:FK.boostAdLeft()}):t("noneToday"))+'</span></button>'+
     '</div>'+
     (xl>0?'<div class="xp2-live">⚡ '+t("xp2On",{m:Math.ceil(xl/60000)})+'</div>':'')+

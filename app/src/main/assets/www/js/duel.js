@@ -102,7 +102,7 @@ FK.screens.duelres = (el,{code}) => {
     '</div></div>';
     el.querySelector("[data-back]").onclick=()=>FK.backHandler();
     el.querySelector("[data-ref]").onclick=()=>load(true);
-    const sh=el.querySelector("[data-share]"); if(sh) sh.onclick=()=>FK.share(t("du_shareTxt",{c:code}));
+    const sh=el.querySelector("[data-share]"); if(sh) sh.onclick=()=>FK.shareCard({mode:"duel",code,pose:"atesli",text:t("du_shareTxt",{c:code})});
     const pb=el.querySelector("[data-play]"); if(pb) pb.onclick=()=>{ FK.sfx("tap"); FK.duelGame(code,side); };
     const nb=el.querySelector("[data-new]"); if(nb) nb.onclick=()=>FK.backHandler();
   };

@@ -5,7 +5,7 @@
    ========================================================== */
 (function(){
 const FK = window.FK = {};
-FK.VERSION="1.0.1";
+FK.VERSION="1.1.0";
 const KEY = "fk_state_v1";
 
 /* ---------- yardımcılar ---------- */
@@ -190,7 +190,7 @@ FK.finishGame = g => {
   let xp=Math.round((10 + g.correct*8 + g.score/25) * diffMult * mult);
   if(g.mode==="daily" && !g.practice) xp*=2;
   if(g.practice) xp=Math.round(xp*0.5);
-  let gems = 2 + (g.total && g.correct/g.total>=0.7 ? 3:0) + (g.total>=5 && g.correct===g.total ? 5:0);
+  let gems = 1 + (g.total && g.correct/g.total>=0.7 ? 2:0) + (g.total>=5 && g.correct===g.total ? 3:0);
   if(g.practice) gems=0;
   s.xp+=xp; s.gems+=gems; s.weekly.xp+=xp;
   if(s.daily.modes.indexOf(g.mode)<0) s.daily.modes.push(g.mode);

@@ -81,7 +81,7 @@ S.home = el => {
    '<div class="row" style="gap:12px">'+
     '<button data-go="profile" aria-label="'+t("navProfile")+'">'+FK.avatar(s.profile.avatar,46,li.pct)+'</button>'+
     '<div class="grow"><div class="row" style="gap:8px;align-items:baseline"><b style="font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+FK.esc(s.profile.name)+'</b><span class="small muted">'+t("level")+' '+li.level+'</span></div><div class="bar" style="margin-top:6px"><i style="width:'+li.pct+'%"></i></div></div>'+
-    '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><button class="pill" data-go="shop">'+FK.gemIc()+FK.fmtNum(s.gems)+'<b style="color:var(--green-l);margin-left:2px">+</b></button>'+FK.streakPill()+'</div>'+
+    '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><div style="display:flex;gap:6px">'+FK.energyPill()+'<button class="pill" data-go="shop">'+FK.gemIc()+FK.fmtNum(s.gems)+'<b style="color:var(--green-l);margin-left:2px">+</b></button></div>'+FK.streakPill()+'</div>'+
    '</div>'+
    FK.kafaHome()+
    '<button class="row card tight" data-go="rank" style="width:100%;text-align:left;gap:12px;background:linear-gradient(90deg,'+L.c1+'29,'+L.c1+'08);border-color:'+L.c1+'59">'+FK.leagueBadge(s.league,32)+'<div class="grow"><div style="font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:.5px;color:'+L.txt+'">'+t("leagueLbl",{l:t(L.k)})+'</div><div class="small" style="color:#CBD5E1">'+t("leaguePos",{p:pos})+'</div></div><span class="small" style="font-weight:600;color:'+L.c2+'">'+t("leagueDays",{d:FK.daysLeftInWeek()})+'</span></button>'+
@@ -120,6 +120,7 @@ function bindMissions(el,after){
 function achTile(a){ const on=!!FK.state.ach[a.id]; return '<div class="ach'+(on?"":" off")+'"><div class="badge" style="background:linear-gradient(145deg,'+a.c+','+a.c+'88);color:#fff">'+FK.ic(a.ic,28,2.2)+'</div><b>'+t("ach_"+a.id)+'</b><span>'+t("ach_"+a.id+"D")+'</span></div>'; }
 function bindCommon(el){
   el.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{ FK.sfx("tap"); FK.go(b.dataset.go,{},{root:["games","rank","missions","profile","home"].indexOf(b.dataset.go)>=0}); });
+  FK.energyTick&&FK.energyTick(el);
   el.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{ FK.sfx("tap"); FK.go("intro",{mode:b.dataset.mode}); });
   el.querySelectorAll("[data-duel]").forEach(b=>b.onclick=()=>{ FK.sfx("tap"); FK.go("duel"); });
 }
@@ -154,7 +155,7 @@ S.rank = (el,params) => {
     if(tab==="league"){
       const rows=FK.leagueTable(), me=rows.findIndex(x=>x.me), L=FK.LEAGUES[s.league];
       const top3=rows.slice(0,3), cols=["#64748B","#EAB308","#B45309"], order=[1,0,2], hgt=[74,92,60];
-      body='<button class="row card tight" style="gap:12px;width:100%;text-align:left;border-color:'+L.c1+'59">'+FK.leagueBadge(s.league,30)+'<div class="grow"><div style="font-family:var(--display);font-weight:800;font-size:18px;color:'+L.txt+'">'+t("leagueLbl",{l:t(L.k)})+'</div><div class="small muted">'+t("weekEnds",{d:FK.daysLeftInWeek()})+'</div></div><span class="chip chip-demo">DEMO</span></button>'+
+      body='<button class="row card tight" style="gap:12px;width:100%;text-align:left;border-color:'+L.c1+'59">'+FK.leagueBadge(s.league,30)+'<div class="grow"><div style="font-family:var(--display);font-weight:800;font-size:18px;color:'+L.txt+'">'+t("leagueLbl",{l:t(L.k)})+'</div><div class="small muted">'+t("weekEnds",{d:FK.daysLeftInWeek()})+'</div></div></button>'+
        '<div class="podium">'+order.map(k=>{ const r=top3[k]; if(!r) return ''; return '<div class="pod">'+(k===0?'<svg aria-hidden="true" width="26" height="18" viewBox="0 0 28 20"><path d="M2 18L4 4l6 6 4-8 4 8 6-6 2 14z" fill="#FACC15" stroke="#FDE68A" stroke-width="1.5" stroke-linejoin="round"/></svg>':'')+'<div style="border-radius:50%;padding:3px;background:'+cols[k===0?1:k===1?0:2]+';'+(k===0?'box-shadow:0 0 22px rgba(250,204,21,.45)':'')+'">'+FK.avatar(r.av,k===0?60:50)+'</div><div class="nm">'+FK.esc(r.me?t("you"):r.name)+'</div><div class="blk" style="height:'+hgt[k]+'px;background:linear-gradient(180deg,'+[ "#EAB308","#64748B","#B45309"][k]+','+["#A16207","#334155","#78350F"][k]+')"><b style="font-size:'+(k===0?30:26)+'px;'+(k===0?'color:#422006':'')+'">'+(k+1)+'</b><span class="small" style="'+(k===0?'color:#422006;font-weight:700':'color:#E2E8F0')+'">'+FK.fmtNum(r.xp)+'</span></div></div>'; }).join("")+'</div>'+
        '<div class="stack" style="gap:6px">'+rows.slice(3).map((r,k)=>{ const rank=k+4; let zone=""; if(rank===4) zone='<div class="zone" style="color:var(--green-l)">'+FK.ic("up",14,2.6)+t("promo")+' (1-5)</div>'; if(rank===16) zone='<div class="zone" style="color:#F87171">'+FK.ic("down",14,2.6)+t("demo")+' (16-20)</div>';
          return zone+'<div class="lrow'+(r.me?" me":"")+'"><span class="rk">'+rank+'</span>'+FK.avatar(r.av,34)+'<span class="nm">'+FK.esc(r.me?(t("you")+" · "+r.name):r.name)+'</span><span class="sc">'+FK.fmtNum(r.xp)+'</span></div>'; }).join("")+'</div>'+

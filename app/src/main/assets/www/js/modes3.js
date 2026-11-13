@@ -131,7 +131,7 @@ function endCard(el,{title,big,sub,res,record,mode,again}){
     (record?'<span class="chip" style="align-self:center;background:#FACC15;color:#422006">'+FK.ic("star",12,2.6)+' '+t("newRecord")+'</span>':'')+
     (FK.kafa?'<div style="display:flex;justify-content:center">'+FK.kafa(record?"sampiyon":(res&&res.xp>=30)?"taraftar":"uzgun",110,"bob")+'</div>':'')+'<div class="h-display h2">'+title+'</div><div class="h-display" style="font-size:56px;line-height:1;color:var(--green-l)">'+big+'</div><div class="small muted">'+sub+'</div>'+
     (res?'<div class="row" style="justify-content:center;gap:8px"><span class="chip chip-xp">+'+res.xp+' XP</span><span class="chip chip-gem">'+FK.gemIc(12)+'+'+res.gems+'</span></div>'+FK.doubleBtn(res):'')+
-    '<button class="btn btn-primary" data-again>'+FK.ic("replay",22,2.4)+t("again")+'</button><button class="btn btn-ghost" data-exit>'+t("exitGame")+'</button></div>';
+    '<button class="btn btn-primary" data-again>'+FK.ic("replay",22,2.4)+t("again")+' <span class="en-cost">⚡1</span></button><div class="grid2"><button class="btn btn-ghost" data-esh>'+FK.ic("share",18)+t("share")+'</button><button class="btn btn-ghost" data-exit>'+t("exitGame")+'</button></div></div>';
 }
 function afterRes(res){ let d=500; res.ach.forEach(a=>{ setTimeout(()=>FK.toast(t("achUnlocked")+" <b>"+t("ach_"+a.id)+"</b>","trophy",3000),d); d+=1200; });
   res.missions.forEach(m=>FK.toast(t("missionDone",{m:FK.missionText(m)}),"check")); if(res.levelUp) setTimeout(()=>FK.levelUpModal(res.levelUp),d+300); }
@@ -187,7 +187,7 @@ FK.screens.more = el => {
         FK.boostBar(["time","pass"]))+
     '</div>';
     el.querySelector("[data-quit]").onclick=()=>{ clearTimeout(tmr); FK.back(); };
-    if(over){ el.querySelector("[data-again]").onclick=()=>{ FK.sfx("tap"); FK.go("more",{},{replace:true}); }; el.querySelector("[data-exit]").onclick=()=>FK.back(); return; }
+    if(over){ el.querySelector("[data-again]").onclick=()=>{ FK.sfx("tap"); FK.useEnergy(()=>FK.go("more",{},{replace:true})); }; el.querySelector("[data-exit]").onclick=()=>FK.back(); el.querySelector("[data-esh]").onclick=()=>FK.shareCard({mode:"more",score:streak,big:streak,sub:t("moreRes",{n:streak}),pose:streak>=5?"sampiyon":"taraftar"}); return; }
     el.querySelectorAll("[data-side]").forEach(b=>b.onclick=()=>pick(+b.dataset.side));
     FK.bindBoosts(el,{ time:()=>{ if(locked) return; t0+=10000; tick(); }, pass:()=>{ if(locked) return; clearTimeout(tmr); next(); } });
   };
@@ -248,7 +248,7 @@ FK.screens.tf = el => {
        '<div class="tf-btns"><button class="tf-rb no" data-a="0" aria-label="'+t("tfFalse")+'">'+FK.ic("x",34,3)+'</button>'+FK.boostBar(["time"])+'<button class="tf-rb yes" data-a="1" aria-label="'+t("tfTrue")+'">'+FK.ic("check",34,3)+'</button></div>')+
     '</div>';
     el.querySelector("[data-quit]").onclick=()=>{ clearTimeout(tmr); FK.back(); };
-    if(over){ el.querySelector("[data-again]").onclick=()=>{ FK.sfx("tap"); FK.go("tf",{},{replace:true}); }; el.querySelector("[data-exit]").onclick=()=>FK.back(); return; }
+    if(over){ el.querySelector("[data-again]").onclick=()=>{ FK.sfx("tap"); FK.useEnergy(()=>FK.go("tf",{},{replace:true})); }; el.querySelector("[data-exit]").onclick=()=>FK.back(); el.querySelector("[data-esh]").onclick=()=>FK.shareCard({mode:"tf",score,sub:t("tfRes",{a:ok,b:bad}),pose:ok>=10?"sampiyon":"taraftar"}); return; }
     el.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>answer(b.dataset.a==="1"));
     FK.bindBoosts(el,{ time:()=>{ st+=10000; tick(); } });
     const c=el.querySelector("[data-card]"); let x0=null;

@@ -12,7 +12,7 @@ Object.assign(FK_I18N.tr,{
   proCard:"Reklamları kaldır · Ödülleri 2 kat al", proUnavailable:"Satın alma şu an kullanılamıyor. İnternet bağlantını ve Google Play'i kontrol et.",
   dbl:"Reklam izle · Ödülü 2 kat al", dblPro:"PRO: Ödülü 2 kat al", dblDone:"2 kat ödül alındı ✓", adNotReady:"Reklam hazır değil, biraz sonra tekrar dene",
   adTest:"TEST REKLAMI", adTestS:"Gerçek reklamlar yayında gösterilecek",
-  freeGem:"Reklam izle · +20 elmas", freeGemLeft:"Bugün {n} hak kaldı", freeGemNone:"Bugünlük hakkın bitti",
+  freeGem:"Reklam izle · +15 elmas", freeGemLeft:"Bugün {n} hak kaldı", freeGemNone:"Bugünlük hakkın bitti",
   freezeAd:"Reklam izle · +1 dondurma", secondChance:"Reklam izle · Devam et", proDaily:"PRO günlük ödülü: +50 elmas 👑",
   theme:"Tema", thDark:"Koyu", thLight:"Açık", thSys:"Sistem", privacyOpt:"Reklam gizlilik seçenekleri"
 });
@@ -23,7 +23,7 @@ Object.assign(FK_I18N.en,{
   proCard:"Remove ads · Double your rewards", proUnavailable:"Purchases are unavailable right now. Check your connection and Google Play.",
   dbl:"Watch an ad · Double reward", dblPro:"PRO: Double reward", dblDone:"Double reward claimed ✓", adNotReady:"Ad not ready yet, try again shortly",
   adTest:"TEST AD", adTestS:"Real ads will be shown in the live app",
-  freeGem:"Watch an ad · +20 gems", freeGemLeft:"{n} left today", freeGemNone:"No more today",
+  freeGem:"Watch an ad · +15 gems", freeGemLeft:"{n} left today", freeGemNone:"No more today",
   freezeAd:"Watch an ad · +1 freeze", secondChance:"Watch an ad · Continue", proDaily:"PRO daily reward: +50 gems 👑",
   theme:"Theme", thDark:"Dark", thLight:"Light", thSys:"System", privacyOpt:"Ad privacy options"
 });
@@ -77,7 +77,7 @@ const _go=FK.go; FK.go=(name,params,opts)=>{
 /* ---------------- ücretsiz elmas (günde 5) ---------------- */
 FK.freeGemsLeft = () => { const s=FK.state, d=FK.dayKey(); if(s.fgDay!==d){ s.fgDay=d; s.fgN=0; } return 5-(s.fgN||0); };
 FK.freeGems = after => { if(FK.freeGemsLeft()<=0){ FK.toast(t("freeGemNone"),"info"); return; }
-  FK.rewarded("gems",ok=>{ if(!ok) return; const s=FK.state; s.fgN=(s.fgN||0)+1; s.gems+=20; FK.save(); FK.sfx("gem"); FK.toast("+20 "+t("gems"),"gem"); after&&after(); }); };
+  FK.rewarded("gems",ok=>{ if(!ok) return; const s=FK.state; s.fgN=(s.fgN||0)+1; s.gems+=15; FK.save(); FK.sfx("gem"); FK.toast("+15 "+t("gems"),"gem"); after&&after(); }); };
 
 /* ---------------- PRO ekranı ---------------- */
 FK.proPrice = () => { try{ const p=N()&&N().proPrice&&N().proPrice(); if(p) return p; }catch(e){} return ""; };
@@ -91,7 +91,7 @@ FK.screens.pro = el => {
   el.innerHTML='<div class="topbar"><button class="icon-btn" data-back aria-label="'+t("back")+'">'+FK.ic("left",22,2.4)+'</button><div class="grow"></div><span class="pill">'+FK.gemIc()+FK.fmtNum(s.gems)+'</span></div>'+
   '<div class="scroll"><div class="stack">'+
    '<div class="pro-hero"><div class="rays2" style="opacity:.6"></div><div class="pro-crown">👑</div><div class="h-display" style="font-size:34px;position:relative">'+t("proT")+'</div><div style="position:relative;font-weight:700;color:#422006;margin-top:6px">'+t("proS")+'</div></div>'+
-   '<div class="card stack" style="gap:12px">'+["proB1","proB2","proB3","proB4","proB5"].map(k=>'<div class="row" style="gap:12px"><span class="pro-tick">'+FK.ic("check",16,3)+'</span><b style="font-size:15px">'+t(k)+'</b></div>').join("")+'</div>'+
+   '<div class="card stack" style="gap:12px">'+["proB6","proB1","proB2","proB3","proB4","proB5"].map(k=>'<div class="row" style="gap:12px"><span class="pro-tick">'+FK.ic("check",16,3)+'</span><b style="font-size:15px">'+t(k)+'</b></div>').join("")+'</div>'+
    (own?'':disc())+(own?'<div class="card center"><b style="font-size:16px;color:#FACC15">'+t("proOwned")+'</b></div>'
        :'<button class="btn btn-pro" data-buy>👑 '+(FK.proPrice()?t("proBuy",{p:FK.proPrice()}):t("proBuy",{p:""}).replace(/ · $/,""))+'</button>')+
    '<button class="btn btn-ghost btn-sm" data-restore>'+t("proRestore")+'</button>'+
