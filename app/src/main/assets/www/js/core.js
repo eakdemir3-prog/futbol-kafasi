@@ -5,7 +5,7 @@
    ========================================================== */
 (function(){
 const FK = window.FK = {};
-FK.VERSION="1.0.0";
+FK.VERSION="1.0.1";
 const KEY = "fk_state_v1";
 
 /* ---------- yardımcılar ---------- */
