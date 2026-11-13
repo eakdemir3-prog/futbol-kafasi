@@ -80,7 +80,7 @@ S.home = el => {
   el.innerHTML='<div class="scroll"><div class="stack">'+
    '<div class="row" style="gap:12px">'+
     '<button data-go="profile" aria-label="'+t("navProfile")+'">'+FK.avatar(s.profile.avatar,46,li.pct)+'</button>'+
-    '<div class="grow"><div class="row" style="gap:8px;align-items:baseline"><b style="font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+FK.esc(s.profile.name)+'</b><span class="small muted">'+t("level")+' '+li.level+'</span></div><div class="bar" style="margin-top:6px"><i style="width:'+li.pct+'%"></i></div></div>'+
+    '<div class="grow" style="min-width:0"><b style="display:block;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+FK.esc(s.profile.name)+'</b><span class="small muted" style="white-space:nowrap">'+t("level")+' '+li.level+'</span><div class="bar" style="margin-top:6px"><i style="width:'+li.pct+'%"></i></div></div>'+
     '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><div style="display:flex;gap:6px">'+FK.energyPill()+'<button class="pill" data-go="shop">'+FK.gemIc()+FK.fmtNum(s.gems)+'<b style="color:var(--green-l);margin-left:2px">+</b></button></div>'+FK.streakPill()+'</div>'+
    '</div>'+
    FK.kafaHome()+

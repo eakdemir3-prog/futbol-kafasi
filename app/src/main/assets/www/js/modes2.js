@@ -62,7 +62,7 @@ FK.screens.guess = (el,{diff,era,level,target,max}) => {
   const exitTo=()=>{ if(level){ FK.stack=[{name:"games",params:{}}]; FK.go("intro",{mode:"guess"}); } else FK.go("games",{},{root:true}); };
   FK.backHandler=()=>{ if(done||!guesses.length){ exitTo(); return true; } FK.confirm(t("exitConfirm"),t("exit"),exitTo); return true; };
 
-  const CONT={EU:["AVRUPA","EUROPE"],SA:["G.AMERİKA","S.AMERICA"],AF:["AFRİKA","AFRICA"],AS:["ASYA","ASIA"],NA:["K.AMERİKA","N.AMERICA"]};
+  const CONT={EU:["AVRUPA","EUROPE"],SA:["G.AMERİKA","S.AMERICA"],AF:["AFRİKA","AFRICA"],AS:["ASYA","ASIA"],NA:["K.AMERİKA","N.AMERICA"],OC:["OKYANUSYA","OCEANIA"]};
   const hinted={};
   const known=()=>{ const k=Object.assign({},hinted); if(diff<=2) k.nat=true; guesses.forEach(g=>{ const c=compare(g,T); COLS.forEach(col=>{ if(c[col]==="ok") k[col]=true; }); if(c.nat==="near") k.cont=true; }); return k; };
   const revealBar=()=>{ const k=known(); return '<div class="rbar">'+COLS.map(col=>{

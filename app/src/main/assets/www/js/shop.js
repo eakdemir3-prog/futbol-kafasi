@@ -169,7 +169,7 @@ FK.screens.shop = (el,params) => {
   };
   const boostTab=xl=>
     '<div class="sec-title">'+t("en_shopT")+'</div>'+
-    '<button class="en-shop" data-enm><span style="font-size:30px">⚡</span><div class="grow" style="text-align:left"><b>'+(FK.isPro()?t("en_inf"):FK.energy()+' / 5')+'</b><div class="small muted">'+t("en_sub")+'</div></div><span class="pbtn" style="min-width:auto;padding:0 12px">'+FK.gemIc(13)+'25 · 100</span></button>'+
+    '<button class="en-shop" data-enm><span style="font-size:30px">⚡</span><div class="grow" style="text-align:left"><b>'+(FK.isPro()?t("en_inf"):FK.energy()+' / '+FK.EN.MAX)+'</b><div class="small muted">'+t("en_sub")+'</div></div><span class="pbtn" style="min-width:auto;padding:0 12px">'+FK.gemIc(13)+FK.EN.P1+' · '+FK.EN.PFULL+'</span></button>'+
     '<div class="sec-title">'+t("freeSec")+'</div>'+
     '<div class="grid2">'+
       '<button class="shop-free" data-fg '+(FK.freeGemsLeft()>0?'':'disabled')+'><span style="font-size:28px">🎬</span><b>+15 💎</b><span class="small muted">'+(FK.freeGemsLeft()>0?t("leftToday",{n:FK.freeGemsLeft()}):t("noneToday"))+'</span></button>'+

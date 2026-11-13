@@ -1,19 +1,20 @@
 /* ==========================================================
-   v1.1 — ENERJİ: en fazla 5 ⚡, her oyun 1, 30 dakikada 1 dolar.
+   v1.1 — ENERJİ: en fazla 10 ⚡, her oyun 1, 30 dakikada 1 dolar.
    Bedava: Günün 10 Sorusu, Günün Kelimesi, Düello. PRO: sınırsız.
-   Doldurma: reklam +1 (günde 5), 25 💎 +1, 100 💎 tamamı. Seviye atlayınca dolar.
+   Doldurma: reklam +2 (günde 5), 40 💎 +1, 250 💎 tamamı. Seviye atlayınca dolar.
    ========================================================== */
 (function(){
 const FK=window.FK, t=FK.t;
-const MAX=5, REGEN=30*60*1000, AD_MAX=5, P1=25, PFULL=100;
+const MAX=10, REGEN=30*60*1000, AD_MAX=5, AD_N=2, P1=40, PFULL=250;
+FK.EN={MAX,P1,PFULL,AD_N};
 Object.assign(FK_I18N.tr,{
   en_title:"Enerjin bitti!", en_sub:"Her oyun 1 enerji harcar. 30 dakikada 1 enerji dolar.", en_next:"Sonraki enerji: {t}", en_full:"Enerjin dolu ⚡",
-  en_ad:"Reklam izle · +1 ⚡", en_adLeft:"Bugün {n} hak", en_buy1:"+1 ⚡", en_fill:"Hepsini doldur", en_pro:"PRO ile sınırsız enerji",
+  en_ad:"Reklam izle · +2 ⚡", en_adLeft:"Bugün {n} hak", en_buy1:"+1 ⚡", en_fill:"Hepsini doldur", en_pro:"PRO ile sınırsız enerji",
   en_got:"+{n} enerji ⚡", en_lvl:"Seviye atladın, enerjin doldu! ⚡", en_inf:"Sınırsız", en_shopT:"Enerji", proB6:"Sınırsız enerji ⚡", en_wait:"Bekle"
 });
 Object.assign(FK_I18N.en,{
   en_title:"Out of energy!", en_sub:"Each game costs 1 energy. 1 energy refills every 30 minutes.", en_next:"Next energy: {t}", en_full:"Energy full ⚡",
-  en_ad:"Watch ad · +1 ⚡", en_adLeft:"{n} left today", en_buy1:"+1 ⚡", en_fill:"Refill all", en_pro:"Unlimited energy with PRO",
+  en_ad:"Watch ad · +2 ⚡", en_adLeft:"{n} left today", en_buy1:"+1 ⚡", en_fill:"Refill all", en_pro:"Unlimited energy with PRO",
   en_got:"+{n} energy ⚡", en_lvl:"Level up, energy refilled! ⚡", en_inf:"Unlimited", en_shopT:"Energy", proB6:"Unlimited energy ⚡", en_wait:"Wait"
 });
 const st = () => { const s=FK.state; if(!s.en) s.en={n:MAX,t:Date.now()}; return s.en; };
@@ -56,7 +57,7 @@ FK.energyModal = cb => {
       '<button class="btn btn-pro btn-sm" data-pro>👑 '+t("en_pro")+'</button>'+
       '<button class="btn btn-ghost btn-sm" data-c>'+t(cb&&!n?"en_wait":"close")+'</button>';
     const done=k=>{ FK.toast(t("en_got",{n:k}),"bolt",1800); if(cb && FK.energy()>0){ FK.closeModal(); FK.useEnergy(cb); } else draw(w); };
-    w.querySelector("[data-ad]").onclick=()=>FK.rewarded("energy",ok=>{ if(!ok) return; FK.state.enAdN=(FK.state.enAdN||0)+1; FK.addEnergy(1); FK.sfx("gem"); done(1); });
+    w.querySelector("[data-ad]").onclick=()=>FK.rewarded("energy",ok=>{ if(!ok) return; FK.state.enAdN=(FK.state.enAdN||0)+1; FK.addEnergy(AD_N); FK.sfx("gem"); done(AD_N); });
     w.querySelector("[data-b1]").onclick=()=>{ if(gems<P1){ FK.closeModal(); FK.notEnough(P1); return; } FK.spend(P1,()=>{ FK.addEnergy(1); done(1); }); };
     w.querySelector("[data-bf]").onclick=()=>{ if(gems<PFULL){ FK.closeModal(); FK.notEnough(PFULL); return; } const k=MAX-FK.energy(); FK.spend(PFULL,()=>{ FK.addEnergy(MAX); done(k); }); };
     w.querySelector("[data-pro]").onclick=()=>{ FK.closeModal(); FK.go("pro"); };

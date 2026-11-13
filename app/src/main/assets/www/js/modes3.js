@@ -10,7 +10,7 @@ Object.assign(FK_I18N.tr,{
   m_more:"Hangisi Daha Fazla", m_moreS:"İki seçenek · Seri kır · İlk hatada biter",
   rules_more:"İki oyuncu, kulüp ya da ülke gelir. Hangisinin sayısı daha fazlaysa ona dokun. Her soru için 8 saniyen var. Doğru bildikçe seri uzar, ilk hatada oyun biter. Sadece değişmeyen istatistikler sorulur.",
   m_tf:"Doğru mu Yanlış mı", m_tfS:"60 saniye · Kaydır · Kombo",
-  rules_tf:"60 saniyede olabildiğince çok cümleyi doğru ya da yanlış diye işaretle. Sağa kaydır veya DOĞRU'ya bas, sola kaydır veya YANLIŞ'a bas. Art arda doğrular kombo çarpanını büyütür (x4'e kadar).",
+  rules_tf:"60 saniyede olabildiğince çok cümleyi doğru ya da yanlış diye işaretle. Sağa kaydır veya DOĞRU'ya bas, sola kaydır veya YANLIŞ'a bas. Art arda doğrular kombo çarpanını büyütür (x4'e kadar). Her yanlış cevap süreden 5 saniye düşer.",
   q_intl:"Hangisinin milli takımda daha çok golü var?", q_wcGoals:"Hangisi Dünya Kupası'nda daha çok gol attı?", q_ballon:"Hangisinin daha çok Ballon d'Or ödülü var?",
   q_uclP:"Hangisi daha çok Şampiyonlar Ligi kazandı?", q_uclC:"Hangi kulüp daha çok Şampiyonlar Ligi / Avrupa Kupası kazandı?", q_wc:"Hangi ülke daha çok Dünya Kupası kazandı?",
   u_intl:"gol", u_wcGoals:"gol", u_ballon:"ödül", u_uclP:"kupa", u_uclC:"kupa", u_wc:"kupa",
@@ -29,7 +29,7 @@ Object.assign(FK_I18N.en,{
   m_more:"Higher or Lower", m_moreS:"Two options · Build a streak · One mistake ends it",
   rules_more:"Two players, clubs or countries appear. Tap the one with the higher number. You have 8 seconds per question. Every correct pick extends your streak; the first mistake ends the game. Only fixed, settled stats are used.",
   m_tf:"True or False", m_tfS:"60 seconds · Swipe · Combo",
-  rules_tf:"Mark as many statements as you can in 60 seconds. Swipe right or tap TRUE, swipe left or tap FALSE. Correct answers in a row raise your combo multiplier (up to x4).",
+  rules_tf:"Mark as many statements as you can in 60 seconds. Swipe right or tap TRUE, swipe left or tap FALSE. Correct answers in a row raise your combo multiplier (up to x4). Each wrong answer costs 5 seconds.",
   q_intl:"Who scored more international goals?", q_wcGoals:"Who scored more World Cup goals?", q_ballon:"Who has more Ballon d'Or awards?",
   q_uclP:"Who won more Champions League titles?", q_uclC:"Which club won more Champions League / European Cups?", q_wc:"Which country won more World Cups?",
   u_intl:"goals", u_wcGoals:"goals", u_ballon:"awards", u_uclP:"titles", u_uclC:"titles", u_wc:"titles",
@@ -226,7 +226,7 @@ FK.screens.tf = el => {
   const answer=v=>{
     if(over||!cur) return; const right = v===cur.ans; const cardEl=el.querySelector("[data-card]");
     if(right){ ok++; combo++; bestC=Math.max(bestC,combo); score+=100*mult(); FK.sfx("ok"); FK.vib(20); }
-    else { bad++; combo=0; FK.sfx("no"); FK.vib([50,30,50]); }
+    else { bad++; combo=0; FK.sfx("no"); FK.vib([50,30,50]); st-=FK.PEN*1000; FK.penFx(el); tick(); }
     if(cardEl){ cardEl.style.transform=""; cardEl.classList.add(right?"good":"bad", v?"fly-r":"fly-l"); const st=cardEl.querySelector(v?"[data-sy]":"[data-sn]"); if(st) st.style.opacity=1; }
     setTimeout(()=>{ cur=nextQ(); draw(); },260);
   };

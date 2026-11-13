@@ -215,7 +215,7 @@ FK.screens.play = (el,{g}) => {
       if(ok){ b.classList.add("ok"); finishQ(true,pts,used()); return; }
       b.classList.add("no"); q.tries--;
       if(q.tries<=0){ fb(false,t("wrong")); markAnswer(); finishQ(false,0,used()); return; }
-      FK.sfx("no"); FK.vib(60); q.gone[k]=1;
+      FK.sfx("no"); FK.vib(60); q.gone[k]=1; q.t0-=FK.PEN*1000; FK.penFx(el);
       setTimeout(()=>{ if(ended||g.qs[g.i]!==q) return; if(q.rev<4) q.rev++; drawClues(); },650);
     });
   }

@@ -160,7 +160,8 @@ window.FK_QUESTIONS.push(
 /* ---- otomatik üretilen sorular (sabit tohum → bütün cihazlarda aynı) ---- */
 const r=FK.rng("qgen-v1"), sh=a=>FK.shuffle(a.slice(),r);
 const ACT=new Set(window.FK_ACTIVE||[]);
-const P=FK_GPLAYERS.map(x=>({name:x[0],by:x[1],nat:x[2],wc:x[5],fame:x[6],clubs:x[7].split(",").filter(c=>FK_GCLUBS[c])})).filter(p=>p.clubs.length);
+/* v1.1 havuzu sabit tutulur (426 oyuncu) → farklı sürümlerde Günün Sorusu/Düello aynı kalır */
+const P=FK_GPLAYERS.slice(0,426).map(x=>({name:x[0],by:x[1],nat:x[2],wc:x[5],fame:x[6],clubs:x[7].split(",").filter(c=>FK_GCLUBS[c])})).filter(p=>p.clubs.length);
 const cn=c=>FK_GCLUBS[c][0], lg=c=>FK_GCLUBS[c][2];
 const nm=cc=>[FK_COUNTRY_NAME(cc,"tr"),FK_COUNTRY_NAME(cc,"en")];
 function FK_COUNTRY_NAME(cc,l){ const c=(window.FK_COUNTRIES||[]).find(x=>x[0]===cc); return c ? (l==="en"?(c[2]||c[1]):c[1]) : cc; }
