@@ -774,3 +774,40 @@ html[data-theme=light] .stat b[style*="color:#38BDF8"]{color:#0369A1!important}
 @keyframes penUp{0%{opacity:0;transform:translateY(10px) scale(.8)}20%{opacity:1;transform:translateY(0) scale(1.15)}100%{opacity:0;transform:translateY(-26px) scale(1)}}
 .en-pill{padding-left:9px;padding-right:9px}
 .en-pill small{font-size:9.5px;margin-left:1px}
+/* v1.3 online maç */
+.ol-card{position:relative;overflow:hidden;width:100%;border:0;border-radius:24px;padding:16px 16px 12px;color:#fff;text-align:left;background:linear-gradient(135deg,#EF4444,#7C3AED);box-shadow:0 10px 28px rgba(124,58,237,.35);display:flex;flex-direction:column;gap:10px}
+.ol-card .chip{align-self:flex-start;position:relative}
+.ol-live{background:#fff!important;color:#DC2626!important;font-weight:900;animation:pulseS 1.4s ease-in-out infinite}
+.ol-rec{background:rgba(148,163,184,.2)!important;color:var(--text)!important;font-weight:800}
+.ol-en{background:rgba(0,0,0,.25);border-radius:999px;padding:6px 10px;font-weight:900;color:#FDE047}
+.ol-cupb{position:relative;font-size:12.5px;font-weight:700;background:rgba(0,0,0,.2);border-radius:12px;padding:7px 10px}
+.ol-radar{position:relative;width:200px;height:200px;display:grid;place-items:center}
+.ol-radar i{position:absolute;inset:0;border-radius:50%;border:3px solid rgba(124,58,237,.6);animation:olr 2.4s ease-out infinite}
+.ol-radar i:nth-child(2){animation-delay:.8s}.ol-radar i:nth-child(3){animation-delay:1.6s}
+@keyframes olr{0%{transform:scale(.4);opacity:1}100%{transform:scale(1.1);opacity:0}}
+.ol-sec{font-size:56px;color:var(--purple,#8B5CF6)}
+.ol-vs{display:flex;align-items:center;gap:10px;justify-content:center;width:100%}
+.ol-vs .du-p{flex:1}
+.ol-count{font-size:96px;color:#EF4444;animation:pulseS .9s ease-in-out infinite}
+.ol-top{display:flex;align-items:center;gap:8px;padding:10px 12px 4px}
+.ol-pl{flex:1;min-width:0;display:flex;align-items:center;gap:7px;background:var(--card);border-radius:16px;padding:6px 8px;position:relative;border:2px solid transparent}
+.ol-pl.me{border-color:#22C55E}
+.ol-pl:not(.me){flex-direction:row-reverse;text-align:right;border-color:#EF4444}
+.ol-nm{display:block;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ol-sc{display:block;font-family:var(--display);font-style:italic;font-weight:900;font-size:22px;line-height:1}
+.ol-mid{display:flex;flex-direction:column;align-items:center;gap:2px;flex:0 0 auto}
+.ol-ring{position:relative;width:54px;height:54px}
+.ol-ring svg{width:54px;height:54px;transform:rotate(-90deg)}
+.ol-ring circle{fill:none;stroke-width:5}
+.ol-ring .bg{stroke:rgba(148,163,184,.25)}
+.ol-ring .fg{stroke:#FACC15;stroke-dasharray:150.8;stroke-linecap:round}
+.ol-ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:20px;font-weight:900}
+.ol-st{margin-top:10px;font-weight:800;min-height:20px;position:relative}
+.ol-mk{display:inline-flex;margin-left:6px}
+.qopt.sel{outline:3px solid #FACC15}
+.ol-emo{display:flex;justify-content:center;gap:12px;margin-top:14px}
+.ol-emo button{font-size:24px;width:52px;height:46px;border-radius:14px;border:0;background:var(--card)}
+.ol-bub{position:absolute;top:-18px;font-size:30px;opacity:0;pointer-events:none}
+.ol-pl.me .ol-bub{left:8px}.ol-pl:not(.me) .ol-bub{right:8px}
+.ol-bub.on{animation:olb 1.6s ease-out}
+@keyframes olb{0%{opacity:0;transform:translateY(10px) scale(.6)}15%{opacity:1;transform:translateY(0) scale(1.2)}80%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}

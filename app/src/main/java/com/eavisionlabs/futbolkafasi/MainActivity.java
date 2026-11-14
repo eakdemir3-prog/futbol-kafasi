@@ -167,5 +167,14 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void deleteAccount() { runOnUiThread(() -> cloud.deleteAccount()); }
         @JavascriptInterface public void duelGet(String code) { cloud.duelGet(code); }
         @JavascriptInterface public void duelSet(String code, String json) { cloud.duelSet(code, json); }
+        @JavascriptInterface public void liveQueue(String json) { cloud.liveQueue(json); }
+        @JavascriptInterface public void liveList() { cloud.liveList(); }
+        @JavascriptInterface public void liveClaim(String opp, String room, String json) { cloud.liveClaim(opp, room, json); }
+        @JavascriptInterface public void liveCancel() { cloud.liveCancel(); }
+        @JavascriptInterface public void liveWatch(String room) { cloud.liveWatch(room); }
+        @JavascriptInterface public void liveStop() { cloud.liveStop(); }
+        @JavascriptInterface public void livePut(String room, String json) { cloud.livePut(room, json); }
+        @JavascriptInterface public void ghostPut(String json) { cloud.ghostPut(json); }
+        @JavascriptInterface public void ghostList() { cloud.ghostList(); }
     }
 }

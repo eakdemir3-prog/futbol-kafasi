@@ -21,6 +21,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
@@ -137,6 +141,93 @@ class Cloud {
             FirebaseFirestore.getInstance().collection("fk_duels").document(code).set(m, SetOptions.merge())
                 .addOnCompleteListener(t -> a.js("duelSet", code, t.isSuccessful() ? "1" : "0"));
         } catch (Exception e) { a.js("duelSet", code, "0"); }
+    }
+
+    // ---- Online maç: fk_queue/{uid}, fk_live/{room}, fk_ghosts/{id} ----
+    ListenerRegistration qReg, rReg;
+    FirebaseFirestore db() { return FirebaseFirestore.getInstance(); }
+    String uid() { FirebaseUser u = auth.getCurrentUser(); return u == null ? null : u.getUid(); }
+
+    void liveQueue(String json) {
+        final String me = uid(); if (me == null) { a.js("lq", "err", "auth"); return; }
+        try {
+            @SuppressWarnings("unchecked") Map<String, Object> m = (Map<String, Object>) conv(new JSONObject(json));
+            m.put("uid", me); m.put("open", true); m.put("room", null);
+            liveStopQueue();
+            db().collection("fk_queue").document(me).set(m).addOnCompleteListener(t -> {
+                if (!t.isSuccessful()) { a.js("lq", "err", "set"); return; }
+                a.js("lq", "in", "");
+                qReg = db().collection("fk_queue").document(me).addSnapshotListener((d, e) -> {
+                    if (d == null || !d.exists()) return;
+                    String r = d.getString("room");
+                    if (r != null && !r.isEmpty()) a.js("lq", "room", r);
+                });
+            });
+        } catch (Exception e) { a.js("lq", "err", "json"); }
+    }
+    void liveList() {
+        if (uid() == null) return;
+        db().collection("fk_queue").whereEqualTo("open", true).limit(20).get().addOnCompleteListener(t -> {
+            if (!t.isSuccessful() || t.getResult() == null) { a.js("lq", "list", "[]"); return; }
+            JSONArray arr = new JSONArray();
+            for (QueryDocumentSnapshot d : t.getResult()) { try { arr.put(toJson(d.getData())); } catch (Exception ignored) {} }
+            a.js("lq", "list", arr.toString());
+        });
+    }
+    void liveClaim(final String opp, final String room, String roomJson) {
+        final String me = uid(); if (me == null || opp == null || room == null || !room.matches("^[A-Za-z0-9]{6,24}$")) { a.js("lq", "claim", ""); return; }
+        try {
+            @SuppressWarnings("unchecked") final Map<String, Object> rm = (Map<String, Object>) conv(new JSONObject(roomJson));
+            final com.google.firebase.firestore.DocumentReference od = db().collection("fk_queue").document(opp), md = db().collection("fk_queue").document(me), rd = db().collection("fk_live").document(room);
+            db().runTransaction(tr -> {
+                DocumentSnapshot o = tr.get(od), mm = tr.get(md);
+                if (!o.exists() || !Boolean.TRUE.equals(o.getBoolean("open")) || o.getString("room") != null) return false;
+                if (!mm.exists() || !Boolean.TRUE.equals(mm.getBoolean("open"))) return false;
+                Map<String, Object> up = new HashMap<>(); up.put("open", false); up.put("room", room);
+                tr.set(rd, rm);
+                tr.update(od, up);
+                tr.update(md, up);
+                return true;
+            }).addOnCompleteListener(t -> a.js("lq", "claim", t.isSuccessful() && Boolean.TRUE.equals(t.getResult()) ? room : ""));
+        } catch (Exception e) { a.js("lq", "claim", ""); }
+    }
+    void liveStopQueue() { if (qReg != null) { qReg.remove(); qReg = null; } }
+    void liveCancel() {
+        liveStopQueue();
+        String me = uid(); if (me != null) db().collection("fk_queue").document(me).delete();
+    }
+    void liveWatch(final String room) {
+        liveStop();
+        if (uid() == null || room == null) return;
+        rReg = db().collection("fk_live").document(room).addSnapshotListener((d, e) -> {
+            if (e != null) { a.js("lr", room, "!"); return; }
+            if (d == null || !d.exists() || d.getData() == null) { a.js("lr", room, ""); return; }
+            try { a.js("lr", room, toJson(d.getData()).toString()); } catch (Exception ex) { a.js("lr", room, "!"); }
+        });
+    }
+    void liveStop() { if (rReg != null) { rReg.remove(); rReg = null; } }
+    void livePut(String room, String json) {
+        if (uid() == null || room == null) return;
+        try {
+            @SuppressWarnings("unchecked") Map<String, Object> m = (Map<String, Object>) conv(new JSONObject(json));
+            db().collection("fk_live").document(room).set(m, SetOptions.merge());
+        } catch (Exception ignored) {}
+    }
+    void ghostPut(String json) {
+        String me = uid(); if (me == null) return;
+        try {
+            @SuppressWarnings("unchecked") Map<String, Object> m = (Map<String, Object>) conv(new JSONObject(json));
+            m.put("uid", me);
+            db().collection("fk_ghosts").add(m);
+        } catch (Exception ignored) {}
+    }
+    void ghostList() {
+        if (uid() == null) { a.js("gh", "list", "[]"); return; }
+        db().collection("fk_ghosts").orderBy("at", Query.Direction.DESCENDING).limit(40).get().addOnCompleteListener(t -> {
+            JSONArray arr = new JSONArray();
+            if (t.isSuccessful() && t.getResult() != null) for (QueryDocumentSnapshot d : t.getResult()) { try { arr.put(toJson(d.getData())); } catch (Exception ignored) {} }
+            a.js("gh", "list", arr.toString());
+        });
     }
 
     void deleteAccount() {

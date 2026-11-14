@@ -63,7 +63,10 @@ FK.screens.duel = el => {
   '<div class="scroll"><div class="stack" style="gap:14px">'+
    '<div class="du-hero"><div class="rays2" style="opacity:.3"></div><div class="du-vs">'+FK.kafa("kaptan",96,"bob")+'<span class="du-sw">'+FK.ic("swords",40,2)+'</span><div style="transform:scaleX(-1)">'+FK.kafa("atesli",96,"bob")+'</div></div><div class="small" style="position:relative;font-weight:700;line-height:1.4">'+t("du_sub")+'</div><div class="small" style="position:relative;opacity:.8;margin-top:6px">'+t("du_rules")+'</div></div>'+
    (!u ? '<div class="card center stack" style="gap:12px"><div class="small muted" style="line-height:1.5">'+t("du_login")+'</div><button class="btn btn-white" data-login style="color:#1E3A8A">'+t("acc_signin")+'</button></div>'
-       : '<button class="btn btn-purple" data-create style="height:60px">'+FK.ic("swords",22,2.2)+t("du_create")+'</button>'+
+       : '<button class="ol-card" data-quick><div class="rays2" style="opacity:.25"></div><span class="chip ol-live">● '+t("ol_live")+'</span><div class="row" style="gap:12px;position:relative"><span style="font-size:42px">⚡</span><div class="grow" style="text-align:left"><div class="h-display" style="font-size:28px">'+t("ol_quick")+'</div><div class="small" style="opacity:.9">'+t("ol_quickS")+'</div></div><span class="ol-en">⚡1</span></div><div class="ol-cupb">🏆 '+t("ol_cup",{n:(FK.state.ol||{}).cup||0})+' · '+t("ol_lg"+FK.olLeague((FK.state.ol||{}).cup||0))+' · '+t("ol_stats",{w:(FK.state.ol||{}).w||0,l:(FK.state.ol||{}).l||0})+'</div></button>'+
+         '<button class="small" data-olr style="color:var(--muted);text-decoration:underline;background:none;border:0;margin-top:-6px">'+t("howTo")+'</button>'+
+         '<div class="sec-title" style="margin-top:4px">'+t("ol_friend")+'</div>'+
+         '<button class="btn btn-purple" data-create style="height:60px">'+FK.ic("swords",22,2.2)+t("du_create")+'</button>'+
          '<div class="du-join"><input class="input" data-code maxlength="6" placeholder="'+t("du_codePh")+'" autocapitalize="characters" autocomplete="off" spellcheck="false"><button class="btn btn-primary" data-join>'+t("du_join")+'</button></div>'+
          '<div class="sec-title" style="margin-top:6px">'+t("du_mine")+'</div>'+
          (list.length? list.map(d=>'<button class="du-row" data-open="'+d.code+'"><span class="du-c">'+d.code+'</span><span class="grow small muted" style="text-align:left">'+(d.result?t("du_st_done"):d.done?t("du_st_wait"):t("du_st_play"))+'</span>'+(d.done?'<b>'+FK.fmtNum(d.score||0)+'</b>':'<span class="chip chip-new">'+t("du_play")+'</span>')+(d.result==="w"?'<span>🏆</span>':'')+FK.ic("right",16)+'</button>').join("")
@@ -71,6 +74,8 @@ FK.screens.duel = el => {
   '</div></div>';
   el.querySelector("[data-back]").onclick=FK.back;
   const lg=el.querySelector("[data-login]"); if(lg) lg.onclick=()=>FK.signIn(()=>FK.render());
+  const qb=el.querySelector("[data-quick]"); if(qb) qb.onclick=()=>{ FK.sfx("tap"); FK.quickMatch(); };
+  const orl=el.querySelector("[data-olr]"); if(orl) orl.onclick=()=>FK.modal('<div class="stack" style="gap:12px"><div style="display:flex;justify-content:center">'+FK.kafa("bilge",80,"bob")+'</div><div class="h-display h2 center">'+t("howTo")+'</div><div style="line-height:1.55;font-size:15px">'+t("ol_rules")+'</div><button class="btn btn-primary" data-ok>'+t("close")+'</button></div>',w=>w.querySelector("[data-ok]").onclick=FK.closeModal);
   const cr=el.querySelector("[data-create]"); if(cr) cr.onclick=()=>{ FK.sfx("tap"); create(); };
   const jb=el.querySelector("[data-join]"), ci=el.querySelector("[data-code]");
   if(jb){ jb.onclick=()=>join(ci.value); ci.oninput=()=>{ ci.value=ci.value.toUpperCase().replace(/[^A-Z0-9]/g,""); }; ci.onkeydown=e=>{ if(e.key==="Enter") join(ci.value); }; }

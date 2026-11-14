@@ -7,7 +7,7 @@ const FK=window.FK, t=FK.t;
 const STORE="https://play.google.com/store/apps/details?id=com.eavisionlabs.futbolkafasi";
 Object.assign(FK_I18N.tr,{ sh_beat:"Beni geçebilir misin? ⚽", sh_txt:"Futbol Kafası'nda {m}: {r}! Beni geçebilir misin? ⚽", sh_get:"Google Play'de: Futbol Kafası", sh_duel:"Bana meydan oku!", sh_code:"DÜELLO KODU", sh_pts:"puan", sh_win:"Buldum!", sh_lose:"Bulamadım", sh_streak:"seri" });
 Object.assign(FK_I18N.en,{ sh_beat:"Can you beat me? ⚽", sh_txt:"{m} in Futbol Kafası: {r}! Can you beat me? ⚽", sh_get:"On Google Play: Futbol Kafası", sh_duel:"Challenge me!", sh_code:"DUEL CODE", sh_pts:"points", sh_win:"Got it!", sh_lose:"Missed it", sh_streak:"streak" });
-const MC={player:["#22C55E","#14532D"],club:["#3B82F6","#1E3A8A"],flag:["#F97316","#9A3412"],daily:["#FACC15","#A16207"],career:["#A855F7","#581C87"],guess:["#D946EF","#6B21A8"],word:["#14B8A6","#115E59"],more:["#F43F5E","#881337"],tf:["#0EA5E9","#0C4A6E"],duel:["#8B5CF6","#312E81"]};
+const MC={live:["#EF4444","#7C3AED"],player:["#22C55E","#14532D"],club:["#3B82F6","#1E3A8A"],flag:["#F97316","#9A3412"],daily:["#FACC15","#A16207"],career:["#A855F7","#581C87"],guess:["#D946EF","#6B21A8"],word:["#14B8A6","#115E59"],more:["#F43F5E","#881337"],tf:["#0EA5E9","#0C4A6E"],duel:["#8B5CF6","#312E81"]};
 const loadImg = src => new Promise((ok,no)=>{ const i=new Image(); i.onload=()=>ok(i); i.onerror=no; i.src=src; });
 const rr = (c,x,y,w,h,r) => { c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); };
 const D = "'Barlow Condensed','Inter',sans-serif", I="'Inter',sans-serif";
