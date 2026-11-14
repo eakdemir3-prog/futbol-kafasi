@@ -54,6 +54,12 @@ FK.gp = () => {
     p.sc=Math.max(0,Math.min(1,sc+(hash(p.name)-.5)*.1)); return p; }).filter(p=>p.clubs.length);
   return _gp;
 };
+/* geçmişe dayalı modlar için (Kariyer, Kulübü Tanı): + kadrosu doğrulanamayan Wikidata oyuncuları */
+let _gpx=null;
+FK.gpx = () => { if(_gpx) return _gpx; const B=big();
+  _gpx=FK.gp().concat((window.FK_XPLAYERS||[]).map(r=>{ const clubs=r[7].split(",").filter(c=>FK_GCLUBS[c]); const p={name:r[0],by:r[1],nat:r[2],pos:r[3],no:0,wc:r[5],fame:r[6],clubs,act:false};
+    let sc=([0,.05,.38,.68][p.fame]||.68)+.08; if(!clubs.some(c=>B.has(c))) sc+=.1; p.sc=Math.max(0,Math.min(1,sc+(hash(p.name)-.5)*.1)); return p; }).filter(p=>p.clubs.length));
+  return _gpx; };
 /* hedef zorluğa en yakın, yakın zamanda sorulmamış öğeler */
 FK.pickBy = (mode,items,x,count,key) => {
   const w=Math.max(count*7,70);
@@ -94,14 +100,14 @@ const RICHALIAS={"Tottenham Hotspur":"Tottenham","Bayern Münih":"Bayern Munich"
 FK.clubPool = () => {
   if(_clubs) return _clubs;
   const rich={}; (window.FK_CLUBS||[]).forEach(c=>rich[RICHALIAS[c[0]]||c[0]]=c);
-  const by={}; FK.gp().forEach(p=>uniq(p.clubs).forEach(c=>(by[c]=by[c]||[]).push(p)));
+  const by={}; FK.gpx().forEach(p=>uniq(p.clubs).forEach(c=>(by[c]=by[c]||[]).push(p)));
   const B=big(), TOP=new Set(["ENG","ESP","ITA","GER","FRA","TUR"]);
   _clubs=Object.keys(by).map(code=>{ const g=FK_GCLUBS[code], lg=g[2], LG=FK_LEAGUES[lg]||[null,lg,lg,lg], r=rich[g[0]];
     const pl=by[code].slice().sort((a,b)=>a.sc-b.sc);
     let sc = r ? (r[7]-1)/3*.8 : (B.has(code)?.05:TOP.has(lg)?.35:.6) - Math.min(pl.length,12)*.025;
     if(!r && pl.length<2) sc+=.15;
     return {code,name:g[0],lg,cc:LG[0],lgName:[LG[2],LG[3]],short:LG[1],pl,rich:r,sc:Math.max(0,Math.min(1,sc+(hash(code)-.5)*.08))};
-  }).filter(c=>c.cc);
+  }).filter(c=>c.cc&&(c.rich||c.pl.length>=3));
   return _clubs;
 };
 function buildClubLv(n){
@@ -124,7 +130,7 @@ let _car=null;
 FK.careerPool = () => {
   if(_car) return _car;
   const hand={}; (window.FK_CAREERS||[]).forEach(c=>hand[c.name]=c);
-  _car=FK.gp().map(p=>{ const seq=p.clubs.filter((c,i)=>i===0||c!==p.clubs[i-1]); const cnt={};
+  _car=FK.gpx().map(p=>{ const seq=p.clubs.filter((c,i)=>i===0||c!==p.clubs[i-1]); const cnt={};
     const order=seq.map(c=>{ cnt[c]=(cnt[c]||0)+1; return cn(c)+(cnt[c]>1?" ("+cnt[c]+")":""); });
     const h=hand[p.name]; return {name:p.name, sc:p.sc, clubs:h?h.clubs:order}; }).filter(c=>c.clubs.length>=3 && c.clubs.length<=8);
   return _car;

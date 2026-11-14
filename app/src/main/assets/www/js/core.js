@@ -5,7 +5,7 @@
    ========================================================== */
 (function(){
 const FK = window.FK = {};
-FK.VERSION="1.4.0";
+FK.VERSION="1.4.1";
 FK.PEN=5; /* yanlış cevapta süre cezası (sn) */
 FK.penFx = el => { const d=document.createElement("div"); d.className="pen-fx"; d.textContent="−"+FK.PEN+(FK.lang()==="en"?"s":" sn"); el.appendChild(d); setTimeout(()=>d.remove(),1100); };
 const KEY = "fk_state_v1";
