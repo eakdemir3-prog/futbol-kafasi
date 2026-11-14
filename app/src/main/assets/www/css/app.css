@@ -852,3 +852,5 @@ html[data-theme=light] .stat b[style*="color:#38BDF8"]{color:#0369A1!important}
 .ch-pass{flex:0 0 auto;height:52px;min-width:64px;border-radius:14px;border:0;background:#F97316;color:#fff;font-weight:900;font-size:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
 .ch-pass small{font-size:10px;margin-top:3px;font-weight:700}
 .ch-mini-demo{flex-direction:row!important;justify-content:center;gap:6px!important;position:relative;margin-top:12px;background:rgba(0,0,0,.18);border-radius:14px;padding:8px}
+.gcell{position:relative}
+.retf{position:absolute;right:6%;top:6%;font-size:13px;font-style:normal;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}

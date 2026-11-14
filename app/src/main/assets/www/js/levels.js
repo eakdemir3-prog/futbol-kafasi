@@ -147,8 +147,9 @@ FK.playLevel = (mode,n) => {
   FK.useEnergy(()=>{
     const lg=FK.lvLeague(mode,n), d=Math.min(4,lg+1);
     if(mode==="guess"){
-      const pool=FK.gp(), T=FK.pickBy("guess",pool,xOf("guess",n),1,p=>p.name)[0];
-      FK.go("guess",{diff:[1,2,3,3,4][lg],era:"mix",level:n,target:T.name,max:[8,8,7,7,6][lg]},{replace:true}); return; }
+      const era=n<=120?"now":n<=160?"old":"mix";
+      const pool=FK.gp().filter(p=>era==="now"?p.act:era==="old"?!p.act:true), T=FK.pickBy("guess",pool,xOf("guess",n),1,p=>p.name)[0];
+      FK.go("guess",{diff:[1,2,3,3,4][lg],era,level:n,target:T.name,max:[8,8,7,7,6][lg]},{replace:true}); return; }
     let qs;
     if(mode==="player") qs=buildPlayerLv(n);
     else if(mode==="club") qs=buildClubLv(n);

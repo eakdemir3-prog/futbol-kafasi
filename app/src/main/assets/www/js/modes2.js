@@ -15,7 +15,7 @@ FK.clubBadge = (code,size=40) => {
 /* ======================= OYUNCUYU TAHMİN ET ======================= */
 const ACT = () => new Set(window.FK_ACTIVE||[]);
 FK.guessPool = era => { const a=ACT(); return P().filter(p=> era==="now"?a.has(p.name) : era==="old"?!a.has(p.name) : true); };
-const P = () => FK_GPLAYERS.map(r=>({name:r[0],by:r[1],nat:r[2],pos:r[3],no:r[4],wc:r[5],fame:r[6],clubs:r[7].split(",")}));
+const P = () => { const a=ACT(); return FK_GPLAYERS.map(r=>({name:r[0],by:r[1],nat:r[2],pos:r[3],no:r[4],wc:r[5],fame:r[6],clubs:r[7].split(","),ret:!a.has(r[0])})); };
 const leaguesOf = p => [...new Set(p.clubs.map(c=>FK_GCLUBS[c]&&FK_GCLUBS[c][2]).filter(Boolean))];
 const COLS=["nat","pos","by","club","lg","no","wc"];
 
@@ -43,18 +43,18 @@ function cellContent(col,p,cmp){
   if(col==="nat") return '<span style="font-size:22px;line-height:1">'+FK.flag(p.nat)+'</span>';
   if(col==="pos") return '<b>'+t("posS_"+p.pos)+'</b>';
   if(col==="by") return '<b style="font-size:13px">'+p.by+'</b>';
-  if(col==="club") return FK.clubBadge(cmp?cmp.clubShow:p.clubs[p.clubs.length-1],38);
+  if(col==="club") return FK.clubBadge(cmp?cmp.clubShow:p.clubs[p.clubs.length-1],38)+(p.ret?'<i class="retf" title="'+t("ex_retTag")+'">🏁</i>':'');
   if(col==="lg"){ const code=cmp?cmp.lgShow:FK_GCLUBS[p.clubs[p.clubs.length-1]][2], L=FK_LEAGUES[code]||[null,code];
     return '<span class="lgc" lang="en">'+(L[0]?'<i>'+FK.flag(L[0])+'</i>':'')+'<b>'+L[1]+'</b></span>'; }
-  if(col==="no") return '<span class="shirt">'+FK.ic("shirt",30,1.6)+'<b>'+p.no+'</b></span>';
+  if(col==="no") return '<span class="shirt">'+FK.ic("shirt",30,1.6)+'<b>'+p.no+'</b></span>'+(p.ret?'<i class="retf">🏁</i>':'');
   if(col==="wc") return trophy(p.wc);
 }
 
 FK.screens.guess = (el,{diff,era,level,target,max}) => {
   era=era||"now";
-  const s=FK.state, all=FK.guessPool(level?"mix":era);
+  const s=FK.state, all=FK.guessPool("mix");
   const MAX = max || (diff===4?6:8);
-  const pool = all.filter(p=> diff===1?p.fame===1 : diff===2?p.fame<=2 : true);
+  const pool = FK.guessPool(era).filter(p=> diff===1?p.fame===1 : diff===2?p.fame<=2 : true);
   const T=(target&&all.find(p=>p.name===target)) || FK.fresh("guess",pool,p=>p.name,1)[0];
   if(!target) FK.markSeen("guess",[T.name]); s.guessRecent=[T.name];
   const names=all.map(p=>p.name).sort((a,b)=>a.localeCompare(b,"tr"));
@@ -82,8 +82,9 @@ FK.screens.guess = (el,{diff,era,level,target,max}) => {
     if(col==="pos") v=t("pos_"+g.pos)+" — "+res(c.pos);
     if(col==="by") v=g.by+" — "+(c.by==="ok"?t("ex_ok"):t(c.byDir==="up"?"ex_younger":"ex_older"));
     const LN=x=>FK_LEAGUES[x]?(en?FK_LEAGUES[x][3]:FK_LEAGUES[x][2]):x;
-    if(col==="club") v=FK_GCLUBS[c.clubShow][0]+" — "+t(c.club==="ok"?"ex_clubSame":c.club==="near"?"ex_clubPast":"ex_clubNo");
-    if(col==="lg") v=LN(c.lgShow)+" — "+t(c.lg==="ok"?"ex_lgSame":c.lg==="near"?"ex_lgPast":"ex_lgNo");
+    const R=T.ret?"R":"";
+    if(col==="club") v=FK_GCLUBS[c.clubShow][0]+(g.ret?" 🏁":"")+" — "+t(c.club==="ok"?"ex_clubSame"+R:c.club==="near"?"ex_clubPast"+R:"ex_clubNo");
+    if(col==="lg") v=LN(c.lgShow)+(g.ret?" 🏁":"")+" — "+t(c.lg==="ok"?"ex_lgSame"+R:c.lg==="near"?"ex_lgPast"+R:"ex_lgNo");
     if(col==="no") v="#"+g.no+" — "+(c.no==="ok"?t("ex_ok"):t(c.noDir==="up"?"ex_higher":"ex_lower"));
     if(col==="wc") v=(g.wc?t("ex_wcYes"):t("ex_wcNo"))+" — "+res(c.wc);
     FK.toast('<b>'+t("col_"+col)+':</b> '+v,"info",3800);
