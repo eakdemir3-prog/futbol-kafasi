@@ -13,7 +13,7 @@ Object.assign(FK_I18N.tr,{
   ch_wrong:"{p} {c} forması giymedi!", ch_used:"{p} zaten kullanıldı", ch_noClub:"{p} ile gidilecek yeni kulüp kalmadı", ch_time:"Süre doldu!", ch_turnMe:"Sıra sende", ch_turnOpp:"Rakip düşünüyor…",
   ch_turnOf:"Sıra: {n}", ch_pass:"Telefonu {n} oyuncusuna ver", ch_ready:"Hazırım", ch_win:"{n} kazandı!", ch_links:"{n} halka", ch_again:"Tekrar oyna",
   ch_rules:"Kulüp Zinciri: Ekrandaki kulüpte oynamış bir futbolcu yaz. Doğruysa o futbolcunun oynadığı başka bir kulübü seç; zincir o kulüple devam eder ve sıra rakibe geçer. Her hamle 15 saniye. Aynı futbolcu ya da kulüp ikinci kez kullanılamaz. Yanlış cevap ya da süre bitimi 1 can götürür; 3 canı biten kaybeder. Sadece oyundaki futbolcu listesindekiler kabul edilir, yazarken öneriler çıkar. Online: galibiyet +25 kupa ve 30 💎, mağlubiyet −15 kupa ve 5 💎.",
-  ch_noOpp:"Şu an online rakip yok, Kafa Bot'a karşı oynuyorsun.", ch_start:"Başlangıç kulübü", ch_bySel:"{p} ile"
+  ch_noOpp:"Şu an online rakip yok, Kafa Bot'a karşı oynuyorsun.", ch_passB:"Pas", ch_passed:"{n} pas geçti", ch_start:"Başlangıç kulübü", ch_bySel:"{p} ile"
 });
 Object.assign(FK_I18N.en,{
   m_chain:"Club Chain", m_chainS:"Club to club via a shared player", ch_title:"CLUB CHAIN",
@@ -23,7 +23,7 @@ Object.assign(FK_I18N.en,{
   ch_wrong:"{p} never played for {c}!", ch_used:"{p} has already been used", ch_noClub:"No new club left to reach with {p}", ch_time:"Time's up!", ch_turnMe:"Your turn", ch_turnOpp:"Opponent is thinking…",
   ch_turnOf:"Turn: {n}", ch_pass:"Hand the phone to {n}", ch_ready:"Ready", ch_win:"{n} wins!", ch_links:"{n} links", ch_again:"Play again",
   ch_rules:"Club Chain: name a player who played for the club on screen. If correct, pick another club he played for; the chain moves there and it's your opponent's turn. 15 seconds per move. A player or club can't be used twice. A wrong answer or running out of time costs 1 life; lose all 3 and you lose. Only players in the game's list count, suggestions appear as you type. Online: win +25 cups and 30 💎, loss −15 cups and 5 💎.",
-  ch_noOpp:"No one is online right now, you're playing Kafa Bot.", ch_start:"Starting club", ch_bySel:"via {p}"
+  ch_noOpp:"No one is online right now, you're playing Kafa Bot.", ch_passB:"Pass", ch_passed:"{n} passed", ch_start:"Starting club", ch_bySel:"via {p}"
 });
 FK.MODES.chain={ icon:"link", g:["#0EA5E9","#1E3A8A"], fg:"#fff", diff:false, total:0 };
 
@@ -31,7 +31,8 @@ const SEC=15, LIVES=3;
 const chs=()=>{ const s=FK.state; s.ch=s.ch||{cup:0,w:0,l:0}; return s.ch; };
 let DB=null;
 const db=()=>{ if(DB) return DB; const P=[], byClub={};
-  FK_GPLAYERS.forEach(x=>{ const cl=[...new Set(String(x[7]).split(",").filter(c=>FK_GCLUBS[c]))]; if(!cl.length) return; const p={name:x[0],fame:x[6],clubs:cl,n:FK.norm(x[0])}; P.push(p); cl.forEach(c=>(byClub[c]=byClub[c]||[]).push(p)); });
+  const LO=window.FK_LOANS||{};
+  FK_GPLAYERS.concat(window.FK_XPLAYERS||[]).forEach(x=>{ const cl=[...new Set((String(x[7])+","+(x[8]||"")+","+(LO[x[0]]||"")).split(",").filter(c=>c&&FK_GCLUBS[c]))]; if(!cl.length) return; const p={name:x[0],fame:x[6],clubs:cl,n:FK.norm(x[0])}; P.push(p); cl.forEach(c=>(byClub[c]=byClub[c]||[]).push(p)); });
   const starts=Object.keys(byClub).filter(c=>byClub[c].filter(p=>p.clubs.length>=2).length>=10).sort();
   DB={P,byClub,starts,byName:Object.fromEntries(P.map(p=>[p.name,p]))}; return DB; };
 const cn=c=>FK_GCLUBS[c]?FK_GCLUBS[c][0]:c;
@@ -43,7 +44,7 @@ FK.screens.chain = el => {
   el.innerHTML='<div class="topbar"><button class="icon-btn" data-back aria-label="'+t("back")+'">'+FK.ic("left",22,2.4)+'</button><div class="grow"><h1 class="h-display" style="font-size:26px;margin:0">'+t("ch_title")+'</h1></div><span class="pill">'+FK.gemIc()+FK.fmtNum(FK.state.gems)+'</span></div>'+
    '<div class="scroll"><div class="stack" style="gap:14px">'+
    '<div class="ch-hero"><div class="rays2" style="opacity:.3"></div><div class="ch-demo">'+["GS","ARS","OM"].map((c,i)=>(i?'<i>'+FK.ic("link",18,2.4)+'</i>':'')+badge(c,52)).join("")+'</div><div class="small" style="position:relative;font-weight:700;line-height:1.45;margin-top:10px">'+t("ch_sub")+'</div></div>'+
-   '<button class="ol-card ch-on" data-on><span class="chip ol-live">● '+t("ol_live")+'</span><div class="row" style="gap:12px;position:relative"><span style="font-size:38px">🌐</span><div class="grow"><div class="h-display" style="font-size:26px">'+t("ch_online")+'</div><div class="small" style="opacity:.9">'+t("ch_onlineS")+'</div></div><span class="ol-en">⚡1</span></div><div class="ol-cupb">🏆 '+t("ol_cup",{n:o.cup})+' · '+t("ol_lg"+FK.olLeague(o.cup))+' · '+t("ol_stats",{w:o.w,l:o.l})+'</div></button>'+
+   '<button class="ol-card ch-on" data-on><div class="row" style="gap:12px;position:relative"><span style="font-size:38px">🌐</span><div class="grow"><div class="h-display" style="font-size:26px">'+t("ch_online")+'</div><div class="small" style="opacity:.9">'+t("ch_onlineS")+'</div></div><span class="ol-en">⚡1</span></div><div class="ol-cupb">🏆 '+t("ol_cup",{n:o.cup})+' · '+t("ol_lg"+FK.olLeague(o.cup))+' · '+t("ol_stats",{w:o.w,l:o.l})+'</div></button>'+
    '<div class="grid2"><button class="mode" data-loc><div class="mode-top" style="background:linear-gradient(135deg,#22C55E,#15803D);color:#fff">'+FK.ic("user",32,2)+'</div><div class="mode-body"><div class="mode-name">'+t("ch_local")+'</div><div class="mode-desc">'+t("ch_localS")+'</div></div></button>'+
    '<button class="mode" data-bot><div class="mode-top" style="background:linear-gradient(135deg,#F97316,#B45309);color:#fff">'+(FK.kafa?FK.kafa("bilge",46):'')+'<span class="mode-best" style="color:#fff">⚡1</span></div><div class="mode-body"><div class="mode-name">'+t("ch_bot")+'</div><div class="mode-desc">'+t("ch_botS")+'</div></div></button></div>'+
    '<button class="small" data-r style="color:var(--muted);text-decoration:underline;background:none;border:0">'+t("howTo")+'</button>'+
@@ -75,7 +76,7 @@ FK.screens.chplay = (el,p) => {
   function apply(mv){ if(ended||G.over) return; const s=mv.s; applied++;
     if(mv.r==="ok"){ G.chain.push({c:mv.c,p:mv.p,s}); G.usedP[mv.p]=1; G.usedC[mv.c]=1; G.cur=mv.c; FK.sfx("ok"); }
     else { G.lives[s]--; FK.sfx("no"); FK.vib(60);
-      FK.toast(mv.r==="time"?t("ch_time")+" · "+sideName(s)+" −❤️":(mv.p?t("ch_wrong",{p:mv.p,c:cn(G.cur)}):t("ch_time"))+" · −❤️","info",2200); }
+      FK.toast(mv.r==="pass"?t("ch_passed",{n:sideName(s)})+" · −❤️":mv.r==="time"?t("ch_time")+" · "+sideName(s)+" −❤️":(mv.p?t("ch_wrong",{p:mv.p,c:cn(G.cur)}):t("ch_time"))+" · −❤️","info",2200); }
     if(G.lives[s]<=0){ G.over=1; render(); setTimeout(()=>end(s==="a"?"b":"a"),900); return; }
     G.turn=s==="a"?"b":"a"; turnT0=performance.now(); picking=null;
     if(mode==="local"){ handoff=true; }
@@ -90,7 +91,7 @@ FK.screens.chplay = (el,p) => {
      '<div class="scroll" style="padding-top:6px"><div class="ch-chain">'+last.map((k,i)=>(k.p?'<div class="ch-lnk">'+FK.ic("link",14,2.4)+'<span>'+FK.esc(k.p)+'</span></div>':'')+'<div class="ch-node'+(i===last.length-1?" cur":"")+'">'+badge(k.c,i===last.length-1?54:34)+'<b>'+FK.esc(cn(k.c))+'</b>'+(k.s?'<span class="ch-by">'+FK.esc(sideName(k.s))+'</span>':'<span class="ch-by">'+t("ch_start")+'</span>')+'</div>').join("")+'</div>'+
      '<div class="ch-panel'+(turnMe?" me":"")+'">'+(turnMe
        ? (picking ? '<div class="small" style="font-weight:800;margin-bottom:8px">'+t("ch_pick",{p:FK.esc(picking.name)})+'</div><div class="ch-picks">'+picking.opts.map(c=>'<button class="ch-pick" data-c="'+c+'">'+badge(c,34)+'<span>'+FK.esc(cn(c))+'</span></button>').join("")+'</div>'
-          : '<div class="small" style="font-weight:800;margin-bottom:8px">'+(mode==="local"?'<span class="ch-who">'+t("ch_turnOf",{n:FK.esc(sideName(G.turn))})+'</span> ':'')+t("ch_ask")+'</div><div class="ac"><input class="input" data-in placeholder="'+t("ch_ph")+'" autocomplete="off" autocapitalize="words" spellcheck="false"><div class="ac-list down hide" data-ac></div></div>')
+          : '<div class="small" style="font-weight:800;margin-bottom:8px">'+(mode==="local"?'<span class="ch-who">'+t("ch_turnOf",{n:FK.esc(sideName(G.turn))})+'</span> ':'')+t("ch_ask")+'</div><div class="row" style="gap:8px;align-items:flex-start"><div class="ac grow"><input class="input" data-in placeholder="'+t("ch_ph")+'" autocomplete="off" autocapitalize="words" spellcheck="false"><div class="ac-list down hide" data-ac></div></div><button class="ch-pass" data-pass>'+t("ch_passB")+'<small>−❤️</small></button></div>')
        : '<div class="ch-wait">'+(mode==="bot"?FK.kafa("bilge",54,"bob"):'⏳')+'<b>'+t("ch_turnOpp")+'</b></div>')+'</div></div></div>';
     if(handoff){ handoff=false; showHand(); }
     bind(); loop(); }
@@ -98,6 +99,7 @@ FK.screens.chplay = (el,p) => {
     el.appendChild(ov); cancelAnimationFrame(raf); ov.querySelector("button").onclick=()=>{ ov.remove(); turnT0=performance.now(); loop(); const i=el.querySelector("[data-in]"); if(i) i.focus(); }; }
   function bind(){
     el.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{ if(!picking) return; const pk=picking; picking=null; myMove({r:"ok",p:pk.name,c:b.dataset.c}); });
+    const ps=el.querySelector("[data-pass]"); if(ps) ps.onclick=()=>{ FK.sfx("tap"); picking=null; myMove({r:"pass",p:"",c:""}); };
     const inp=el.querySelector("[data-in]"), ac=el.querySelector("[data-ac]"); if(!inp) return;
     const choose=name=>{ const pp=D.byName[name]; if(!pp) return; ac.classList.add("hide");
       if(G.usedP[name]){ FK.toast(t("ch_used",{p:name}),"info",1800); inp.value=""; return; }
@@ -126,7 +128,7 @@ FK.screens.chplay = (el,p) => {
     const pOk=Math.max(0.45,0.9-n*0.025-(cand.length<3?0.2:0)), r=Math.random();
     const delay=2200+Math.random()*5200;
     botT=setTimeout(()=>{ if(ended||G.turn!=="b"||G.cur!==cur) return;
-      if(!cand.length||r>pOk){ return; }      // bulamadı: süre dolunca can gider
+      if(!cand.length||r>pOk){ if(Math.random()<.6) myBot({r:"pass",p:"",c:""}); return; }      // bulamadı: pas ya da süre
       const pool=cand.sort((x,y)=>x.fame-y.fame+(Math.random()-.5)*1.6).slice(0,6), pk=pool[Math.floor(Math.random()*pool.length)];
       const opts=pk.clubs.filter(c=>c!==cur&&!G.usedC[c]).sort((x,y)=>(D.byClub[y]||[]).length-(D.byClub[x]||[]).length);
       myBot({r:"ok",p:pk.name,c:opts[Math.random()<.6?0:Math.floor(Math.random()*opts.length)]}); },delay); }
@@ -143,10 +145,12 @@ FK.screens.chplay = (el,p) => {
      '<div class="du-banner '+res+'">'+FK.kafa(res==="w"?"sampiyon":"uzgun",104,"bob")+'<div class="h-display" style="font-size:30px">'+(mode==="local"?t("ch_win",{n:FK.esc(sideName(winner))}):t(iWin?"du_win":"du_lose"))+'</div></div>'+
      '<div class="card"><div class="small muted" style="font-weight:800;margin-bottom:8px">'+t("ch_links",{n:G.chain.length-1})+'</div><div class="ch-full">'+G.chain.map((k,i)=>(i?'<i>'+FK.esc(k.p)+'</i>':'')+'<span>'+badge(k.c,26)+FK.esc(cn(k.c))+'</span>').join("")+'</div></div>'+
      (mode!=="local"?'<div class="card center"><b style="font-size:18px">+'+g+' 💎'+(mode==="live"?' · '+(dc>0?"+":"")+dc+' '+t("ol_cups").toLowerCase():'')+'</b>'+(mode==="live"?'<div class="small muted" style="margin-top:4px">🏆 '+t("ol_cup",{n:o.cup})+' · '+t("ol_lg"+FK.olLeague(o.cup))+'</div>':'')+'</div>':'')+
+     (mode==="live"&&opp?FK.friendBtn(opp):'')+
      '<button class="btn btn-primary" data-again style="height:56px">'+FK.ic("replay",18,2.2)+t("ch_again")+'</button>'+
      '<button class="btn btn-ghost" data-sh>'+FK.ic("share",16)+t("share")+'</button>'+
      '<button class="btn btn-ghost" data-home>'+t("m_chain")+'</button></div></div>';
     if(res==="w"){ FK.sfx("win"); FK.confetti(el); }
+    if(mode==="live"&&opp) FK.bindFriendBtn(el,opp);
     el.querySelector("[data-home]").onclick=()=>FK.go("chain",{},{replace:true});
     el.querySelector("[data-again]").onclick=()=>{ if(mode==="local") FK.go("chplay",{mode:"local"},{replace:true}); else if(mode==="bot") FK.useEnergy(()=>FK.go("chplay",{mode:"bot"},{replace:true})); else FK.useEnergy(()=>FK.go("olwait",{mode:"chain"},{replace:true})); };
     el.querySelector("[data-sh]").onclick=()=>FK.share(t("m_chain")+" ⛓️ "+G.chain.map(k=>FK_GCLUBS[k.c]?FK_GCLUBS[k.c][1]:k.c).join(" → ")+"\n"+t("ch_links",{n:G.chain.length-1})+" · #FutbolKafası");
@@ -154,14 +158,18 @@ FK.screens.chplay = (el,p) => {
 
   /* başlat */
   if(mode==="live"){
-    el.innerHTML='<div class="scroll"><div class="stack" style="gap:16px;align-items:center;text-align:center;padding-top:80px">'+FK.kafa("kaptan",110,"bob")+'<div class="h-display" style="font-size:28px">'+t("ol_found")+'</div><div class="small muted">'+t("ol_get")+'</div></div></div>';
+    if(p.invite){ el.innerHTML='<div class="scroll"><div class="stack" style="gap:16px;align-items:center;text-align:center;padding-top:60px"><div class="ol-radar"><i></i><i></i><i></i>'+FK.avatar(p.invite.av||0,84,null,"none")+'</div><div class="h-display" style="font-size:24px">'+t("fr_invited",{n:FK.esc(p.invite.name)})+'</div><button class="btn btn-ghost" data-x style="max-width:240px">'+t("ol_cancel")+'</button></div></div>';
+      el.querySelector("[data-x]").onclick=()=>{ set({la:1}); cleanup(); FK.backHandler=null; FK.back(); }; }
+    else el.innerHTML='<div class="scroll"><div class="stack" style="gap:16px;align-items:center;text-align:center;padding-top:80px">'+FK.kafa("kaptan",110,"bob")+'<div class="h-display" style="font-size:28px">'+t("ol_found")+'</div><div class="small muted">'+t("ol_get")+'</div></div></div>';
     FK.chainH=(r,v)=>{ if(ended||r!==room||!v||v==="!") return; let d; try{ d=JSON.parse(v); }catch(e){ return; } lastSeen=Date.now();
       if(!G){ opp=d[os]; names={a:d.a.name,b:d.b.name}; avs={a:d.a.av,b:d.b.av}; newGame(d.seed); }
-      if(phase==="wait"){ if(side==="b"&&!d.rb) set({rb:1}); if(d.ra&&(d.rb||side==="b")){ clearTimeout(readyT); turnT0=performance.now(); FK.sfx("whistle"); render(); } return; }
+      if(phase==="wait"){ if(d.db&&p.invite){ FK.toast(t("fr_invNo",{n:p.invite.name}),"info",2600); cleanup(); FK.backHandler=null; FK.back(); return; }
+        if(d.la&&side==="b"){ FK.toast(t("ol_left"),"info",2200); cleanup(); FK.backHandler=null; FK.go("home",{},{root:true}); return; }
+        if(side==="b"&&!d.rb) set({rb:1}); if(d.ra&&(d.rb||side==="b")){ clearTimeout(readyT); turnT0=performance.now(); FK.sfx("whistle"); render(); } return; }
       const mv=d.m||{}; while(mv[applied]&&!ended){ const x=mv[applied]; if(x.s===side){ applied++; continue; } apply(x); }
       if(d["l"+os]&&!ended){ FK.toast(t("ol_left"),"info",2600); end(side,false,true); } };
     call("liveWatch",room); if(side==="b") set({rb:1});
-    readyT=setTimeout(()=>{ if(phase==="wait"&&!ended){ FK.toast(t("ol_noConn"),"info",2600); call("liveStop"); FK.chainH=null; FK.go("chplay",{mode:"bot"},{replace:true}); } },9000);
+    readyT=setTimeout(()=>{ if(phase==="wait"&&!ended){ if(p.invite){ FK.toast(t("fr_invNo",{n:p.invite.name}),"info",2600); cleanup(); FK.backHandler=null; FK.back(); return; } FK.toast(t("ol_noConn"),"info",2600); call("liveStop"); FK.chainH=null; FK.go("chplay",{mode:"bot"},{replace:true}); } },p.invite?60000:9000);
   } else {
     if(p.noOpp) FK.toast(t("ch_noOpp"),"info",2800);
     newGame("x"+Date.now()+Math.random()); turnT0=performance.now(); FK.sfx("whistle"); render();

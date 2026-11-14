@@ -176,5 +176,10 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void livePut(String room, String json) { cloud.livePut(room, json); }
         @JavascriptInterface public void ghostPut(String json) { cloud.ghostPut(json); }
         @JavascriptInterface public void ghostList() { cloud.ghostList(); }
+        @JavascriptInterface public void codeSet(String code, String json) { cloud.codeSet(code, json); }
+        @JavascriptInterface public void codeGet(String code) { cloud.codeGet(code); }
+        @JavascriptInterface public void invSend(String to, String json) { cloud.invSend(to, json); }
+        @JavascriptInterface public void invWatch() { cloud.invWatch(); }
+        @JavascriptInterface public void invClear() { cloud.invClear(); }
     }
 }

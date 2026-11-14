@@ -836,3 +836,19 @@ html[data-theme=light] .stat b[style*="color:#38BDF8"]{color:#0369A1!important}
 .ch-full span{display:inline-flex;align-items:center;gap:5px;background:var(--card2);border-radius:10px;padding:4px 8px}
 .ch-full i{font-style:normal;font-size:11px;color:#0EA5E9}
 .ch-full i::before{content:"→ ";}.ch-full i::after{content:" →";}
+/* v1.4 arkadaşlar + zincir kartı */
+.ch-card{position:relative;overflow:hidden;width:100%;border:0;border-radius:24px;padding:16px;color:#fff;background:linear-gradient(135deg,#0EA5E9 0%,#2563EB 55%,#1E3A8A 100%);box-shadow:0 10px 26px rgba(37,99,235,.35)}
+.ch-mini-demo{display:flex;flex-direction:column;align-items:center;gap:2px}
+.ch-mini-demo i{color:#FDE047;display:flex}
+.fr-card{display:flex;align-items:center;gap:12px;width:100%;background:var(--card);border:2px solid var(--line2);border-radius:18px;padding:12px 14px;color:var(--text)}
+.fr-code{position:relative;overflow:hidden;border-radius:24px;padding:18px;text-align:center;color:#fff;background:linear-gradient(135deg,#7C3AED,#4338CA);display:flex;flex-direction:column;align-items:center;gap:12px}
+.fr-c{position:relative}
+.fr-w{background:#fff;color:#4338CA;width:auto;padding:0 16px}.fr-w2{background:rgba(255,255,255,.18);color:#fff;width:auto;padding:0 16px}
+.fr-row{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:18px;padding:10px 12px}
+.fr-inv{width:44px;height:44px;border-radius:14px;border:0;font-size:20px;color:#fff}
+.fr-inv.q{background:linear-gradient(135deg,#EF4444,#7C3AED)}.fr-inv.c{background:linear-gradient(135deg,#0EA5E9,#1E3A8A)}
+.fr-x{width:34px;height:34px;border-radius:12px;border:0;background:transparent;color:var(--muted)}
+.fr-addbtn{background:linear-gradient(135deg,#22C55E,#15803D);color:#fff;height:52px}
+.ch-pass{flex:0 0 auto;height:52px;min-width:64px;border-radius:14px;border:0;background:#F97316;color:#fff;font-weight:900;font-size:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.ch-pass small{font-size:10px;margin-top:3px;font-weight:700}
+.ch-mini-demo{flex-direction:row!important;justify-content:center;gap:6px!important;position:relative;margin-top:12px;background:rgba(0,0,0,.18);border-radius:14px;padding:8px}

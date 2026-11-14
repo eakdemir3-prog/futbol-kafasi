@@ -107,7 +107,9 @@ FK.screens.ollive = (el,p) => {
 
   H.lr=(r,v)=>{ if(ended||mode!=="live"||r!==room) return; if(v==="!"||!v) return; let d=null; try{ d=JSON.parse(v); }catch(e){ return; } doc=d; lastSeen=Date.now();
     if(!opp){ opp=d[os]; qs=buildQs(d.seed); }
-    if(phase==="wait"){ if(side==="b"&&!d.rb) set({rb:1}); if(d.ra&&(d.rb||side==="b")){ clearTimeout(readyT); intro(); } return; }
+    if(phase==="wait"){ if(d.db&&p.invite){ FK.toast(t("fr_invNo",{n:p.invite.name}),"info",2600); cleanup(); FK.backHandler=null; FK.back(); return; }
+      if(d.la&&side==="b"){ FK.toast(t("ol_left"),"info",2200); cleanup(); FK.backHandler=null; FK.go("home",{},{root:true}); return; }
+      if(side==="b"&&!d.rb) set({rb:1}); if(d.ra&&(d.rb||side==="b")){ clearTimeout(readyT); intro(); } return; }
     const pa=d["p"+os]||{}; Object.keys(pa).forEach(k=>{ if(!op[k]){ op[k]=pa[k]; onOpp(+k); } });
     if(d["e"+os]&&d["e"+os].n>lastEmo){ lastEmo=d["e"+os].n; bubble(d["e"+os].e); }
     if(d["l"+os]&&!ended){ FK.toast(t("ol_left"),"info",2600); finish(false,true); }
@@ -115,6 +117,8 @@ FK.screens.ollive = (el,p) => {
 
   /* ekranlar */
   const chip=(p,isMe,s)=>'<div class="ol-pl'+(isMe?" me":"")+'">'+(p.bot?FK.kafa("bilge",40):FK.avatar(p.av||0,40,null,"none"))+'<div class="grow" style="min-width:0"><b class="ol-nm">'+FK.esc(p.name||"?")+'</b><span class="ol-sc" data-s="'+(isMe?"m":"o")+'">'+FK.fmtNum(s)+'</span></div><span class="ol-bub" data-b="'+(isMe?"m":"o")+'"></span></div>';
+  function invUI(f){ el.innerHTML='<div class="scroll"><div class="stack" style="gap:16px;align-items:center;text-align:center;padding-top:60px"><div class="ol-radar"><i></i><i></i><i></i>'+FK.avatar(f.av||0,84,null,"none")+'</div><div class="h-display" style="font-size:24px">'+t("fr_invited",{n:FK.esc(f.name)})+'</div><button class="btn btn-ghost" data-x style="max-width:240px">'+t("ol_cancel")+'</button></div></div>';
+    el.querySelector("[data-x]").onclick=()=>{ set({la:1}); cleanup(); FK.backHandler=null; FK.back(); }; }
   function waitUI(){ el.innerHTML='<div class="scroll"><div class="stack" style="gap:16px;align-items:center;text-align:center;padding-top:80px">'+FK.kafa("kaptan",110,"bob")+'<div class="h-display" style="font-size:28px">'+t("ol_found")+'</div><div class="small muted">'+t("ol_get")+'</div></div></div>'; }
   function intro(){ if(ended) return; phase="intro"; FK.sfx("whistle");
     const tag=mode==="live"?'<span class="chip ol-live">● '+t("ol_live")+'</span>':mode==="ghost"?'<span class="chip ol-rec">⏺ '+t("ol_ghost")+'</span>':'<span class="chip ol-rec">🤖 '+t("ol_bot")+'</span>';
@@ -181,17 +185,19 @@ FK.screens.ollive = (el,p) => {
       '<div class="du-arena"><div class="du-p me">'+FK.avatar(m.av,64,null,"none")+'<b>'+FK.esc(m.name)+'</b><div class="h-display du-score">'+FK.fmtNum(sMy)+'</div><span class="small muted">'+cMy+'/10</span></div><span class="du-mid">VS</span>'+
       '<div class="du-p">'+(opp.bot?FK.kafa("bilge",64):FK.avatar(opp.av||0,64,null,"none"))+'<b>'+FK.esc(opp.name)+'</b><div class="h-display du-score">'+FK.fmtNum(sOp)+'</div><span class="small muted">'+cOp+'/10</span></div></div>'+
       '<div class="card center"><b style="font-size:18px">'+t("ol_res",{g,c:(dc>0?"+":"")+dc})+'</b><div class="small muted" style="margin-top:4px">🏆 '+t("ol_cup",{n:o.cup})+' · '+t("ol_lg"+FK.olLeague(o.cup))+'</div></div>'+
+      (mode==="live"&&opp&&opp.uid?FK.friendBtn(opp):'')+
       '<button class="btn btn-purple" data-again style="height:58px">'+FK.ic("swords",20,2.2)+t("ol_again")+'</button>'+
       '<button class="btn btn-ghost" data-share>'+FK.ic("share",16)+t("share")+'</button>'+
       '<button class="btn btn-ghost" data-home>'+t("du_title")+'</button></div></div>';
     if(res==="w"){ FK.sfx("win"); FK.confetti(el); } else FK.sfx("gem");
     el.querySelector("[data-again]").onclick=()=>{ FK.stack=[{name:"home",params:{}},{name:"duel",params:{}}]; FK.quickMatch(); };
+    if(mode==="live"&&opp&&opp.uid) FK.bindFriendBtn(el,opp);
     el.querySelector("[data-home]").onclick=()=>FK.go("duel",{},{root:true});
     el.querySelector("[data-share]").onclick=()=>FK.shareCard&&FK.shareCard({mode:"live",score:sMy,correct:cMy,total:10,pose:res==="w"?"sampiyon":"atesli"});
   }
 
-  if(mode==="live"){ waitUI(); call("liveWatch",room); if(side==="b") set({rb:1});
-    readyT=setTimeout(()=>{ if(phase==="wait"&&!ended){ FK.toast(t("ol_noConn"),"info",2600); H.lr=null; call("liveStop"); startGhost(); } },9000); }
+  if(mode==="live"){ if(p.invite) invUI(p.invite); else waitUI(); call("liveWatch",room); if(side==="b") set({rb:1});
+    readyT=setTimeout(()=>{ if(phase==="wait"&&!ended){ if(p.invite){ FK.toast(t("fr_invNo",{n:p.invite.name}),"info",2600); cleanup(); FK.backHandler=null; FK.back(); return; } FK.toast(t("ol_noConn"),"info",2600); H.lr=null; call("liveStop"); startGhost(); } },p.invite?60000:9000); }
   else startGhost();
 };
 })();

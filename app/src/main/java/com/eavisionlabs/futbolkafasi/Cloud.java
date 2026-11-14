@@ -230,6 +230,43 @@ class Cloud {
         });
     }
 
+    // ---- Arkadaşlar: fk_codes/{KOD}, davet: fk_inv/{alıcıUid} ----
+    ListenerRegistration invReg;
+    void codeSet(String code, String json) {
+        String me = uid(); if (me == null || code == null || !code.matches("^[A-Z0-9]{6}$")) return;
+        try {
+            @SuppressWarnings("unchecked") Map<String, Object> m = (Map<String, Object>) conv(new JSONObject(json));
+            m.put("uid", me);
+            db().collection("fk_codes").document(code).set(m);
+        } catch (Exception ignored) {}
+    }
+    void codeGet(final String code) {
+        if (uid() == null || code == null || !code.matches("^[A-Z0-9]{6}$")) { a.js("code", code == null ? "" : code, ""); return; }
+        db().collection("fk_codes").document(code).get().addOnCompleteListener(t -> {
+            try {
+                if (t.isSuccessful() && t.getResult() != null && t.getResult().exists() && t.getResult().getData() != null)
+                    a.js("code", code, toJson(t.getResult().getData()).toString());
+                else a.js("code", code, "");
+            } catch (Exception e) { a.js("code", code, ""); }
+        });
+    }
+    void invSend(String to, String json) {
+        String me = uid(); if (me == null || to == null || to.isEmpty()) return;
+        try {
+            @SuppressWarnings("unchecked") Map<String, Object> m = (Map<String, Object>) conv(new JSONObject(json));
+            db().collection("fk_inv").document(to).set(m);
+        } catch (Exception ignored) {}
+    }
+    void invWatch() {
+        final String me = uid(); if (me == null) return;
+        if (invReg != null) { invReg.remove(); invReg = null; }
+        invReg = db().collection("fk_inv").document(me).addSnapshotListener((d, e) -> {
+            if (d == null || !d.exists() || d.getData() == null) return;
+            try { a.js("inv", "", toJson(d.getData()).toString()); } catch (Exception ignored) {}
+        });
+    }
+    void invClear() { String me = uid(); if (me != null) db().collection("fk_inv").document(me).delete(); }
+
     void deleteAccount() {
         FirebaseUser u = auth.getCurrentUser(); if (u == null) { a.js("del", "0", "nouser"); return; }
         FirebaseFirestore.getInstance().collection("fk_users").document(u.getUid()).delete().addOnCompleteListener(t1 ->
