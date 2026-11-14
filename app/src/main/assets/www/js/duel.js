@@ -65,6 +65,7 @@ FK.screens.duel = el => {
    (!u ? '<div class="card center stack" style="gap:12px"><div class="small muted" style="line-height:1.5">'+t("du_login")+'</div><button class="btn btn-white" data-login style="color:#1E3A8A">'+t("acc_signin")+'</button></div>'
        : '<button class="ol-card" data-quick><div class="rays2" style="opacity:.25"></div><span class="chip ol-live">● '+t("ol_live")+'</span><div class="row" style="gap:12px;position:relative"><span style="font-size:42px">⚡</span><div class="grow" style="text-align:left"><div class="h-display" style="font-size:28px">'+t("ol_quick")+'</div><div class="small" style="opacity:.9">'+t("ol_quickS")+'</div></div><span class="ol-en">⚡1</span></div><div class="ol-cupb">🏆 '+t("ol_cup",{n:(FK.state.ol||{}).cup||0})+' · '+t("ol_lg"+FK.olLeague((FK.state.ol||{}).cup||0))+' · '+t("ol_stats",{w:(FK.state.ol||{}).w||0,l:(FK.state.ol||{}).l||0})+'</div></button>'+
          '<button class="small" data-olr style="color:var(--muted);text-decoration:underline;background:none;border:0;margin-top:-6px">'+t("howTo")+'</button>'+
+         '<button class="row card ch-mini" data-chain style="gap:12px;width:100%;text-align:left"><span style="font-size:30px">⛓️</span><div class="grow"><b style="font-size:16px">'+t("m_chain")+'</b><div class="small muted">'+t("m_chainS")+'</div></div><span class="chip chip-new">'+t("newTag")+'</span></button>'+
          '<div class="sec-title" style="margin-top:4px">'+t("ol_friend")+'</div>'+
          '<button class="btn btn-purple" data-create style="height:60px">'+FK.ic("swords",22,2.2)+t("du_create")+'</button>'+
          '<div class="du-join"><input class="input" data-code maxlength="6" placeholder="'+t("du_codePh")+'" autocapitalize="characters" autocomplete="off" spellcheck="false"><button class="btn btn-primary" data-join>'+t("du_join")+'</button></div>'+
@@ -74,6 +75,7 @@ FK.screens.duel = el => {
   '</div></div>';
   el.querySelector("[data-back]").onclick=FK.back;
   const lg=el.querySelector("[data-login]"); if(lg) lg.onclick=()=>FK.signIn(()=>FK.render());
+  const chb=el.querySelector("[data-chain]"); if(chb) chb.onclick=()=>{ FK.sfx("tap"); FK.go("chain"); };
   const qb=el.querySelector("[data-quick]"); if(qb) qb.onclick=()=>{ FK.sfx("tap"); FK.quickMatch(); };
   const orl=el.querySelector("[data-olr]"); if(orl) orl.onclick=()=>FK.modal('<div class="stack" style="gap:12px"><div style="display:flex;justify-content:center">'+FK.kafa("bilge",80,"bob")+'</div><div class="h-display h2 center">'+t("howTo")+'</div><div style="line-height:1.55;font-size:15px">'+t("ol_rules")+'</div><button class="btn btn-primary" data-ok>'+t("close")+'</button></div>',w=>w.querySelector("[data-ok]").onclick=FK.closeModal);
   const cr=el.querySelector("[data-create]"); if(cr) cr.onclick=()=>{ FK.sfx("tap"); create(); };

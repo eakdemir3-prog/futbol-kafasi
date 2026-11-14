@@ -133,6 +133,7 @@ S.games = el => {
   const card=m=>{ const M=FK.MODES[m], bst=best(m);
     const tag = m==="daily" ? (d10?'<span class="mode-best" style="color:'+M.fg+'">'+FK.ic("check",16,2.8)+'</span>':'<span class="mode-best" style="color:'+M.fg+'">'+t("today")+'</span>')
       : m==="word" ? (wd?'<span class="mode-best" style="color:'+M.fg+'">'+FK.ic("check",16,2.8)+'</span>':'<span class="chip chip-new">'+t("newTag")+'</span>')
+      : m==="chain" ? '<span class="chip chip-new">'+t("newTag")+'</span>'
       : (m==="more"||m==="tf")&&!bst ? '<span class="chip chip-new">'+t("newTag")+'</span>' : (bst?'<span class="mode-best" style="color:'+M.fg+'">'+t("best",{s:FK.fmtNum(bst)})+'</span>':'');
     return '<button class="mode" data-mode="'+m+'"><div class="mode-top" style="background:linear-gradient(135deg,'+M.g[0]+','+M.g[1]+');color:'+M.fg+'">'+FK.ic(M.icon,34,2)+tag+'</div><div class="mode-body"><div class="mode-name">'+FK.modeName(m)+'</div><div class="mode-desc">'+t("m_"+m+"S")+'</div></div></button>'; };
   el.classList.add("has-nav");
@@ -140,10 +141,10 @@ S.games = el => {
    '<div class="row" style="justify-content:space-between;align-items:flex-end"><div><h1 class="h-display h1">'+t("games")+'</h1><div class="small muted" style="margin-top:4px;font-size:13px">'+t("gamesS")+'</div></div><span class="pill">'+FK.gemIc()+FK.fmtNum(s.gems)+'</span></div>'+
    '<button class="card-hero" data-mode="guess" style="width:100%;text-align:left;padding:0;overflow:hidden;background:radial-gradient(circle at 75% 40%,#D946EF,#7E22CE 55%,#3B0764);box-shadow:0 14px 30px rgba(168,85,247,.4)"><div class="rays2" style="opacity:.8"></div><div class="row" style="position:relative;padding:16px;gap:12px;align-items:flex-end"><div class="grow"><span class="chip" style="background:#FACC15;color:#422006;font-size:11px">'+FK.ic("star",12,2.6)+' '+t("bestMode")+'</span><div class="h-display" style="font-size:26px;margin-top:8px">'+t("m_guess")+'</div><div style="margin-top:6px;font-size:12px;color:#F5D0FE">'+t("m_guessS")+'</div>'+(best("guess")?'<div class="small" style="margin-top:6px;font-weight:700;color:#FDE047">'+t("best",{s:FK.fmtNum(best("guess"))})+'</div>':'')+'</div>'+FK.bust({cls:"hero-bust",w:104})+'</div></button>'+
    '<button class="row card-hero" data-duel style="width:100%;text-align:left;gap:14px;padding:16px;background:linear-gradient(120deg,#7C3AED,#4338CA);box-shadow:0 14px 28px rgba(109,40,217,.35)"><div style="width:58px;height:58px;border-radius:18px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+FK.ic("swords",32,1.8)+'</div><div class="grow"><div style="font-family:var(--display);font-weight:900;font-style:italic;font-size:24px;line-height:1">'+t("duel")+'</div><div style="margin-top:4px;font-size:12px;color:#E0E7FF">'+t("duelS")+'</div></div><span class="chip ol-live">● '+(t("ol_live"))+'</span></button>'+
-   '<div class="grid2">'+["more","tf","player","club","flag","daily","career","word"].map(card).join("")+'</div>'+
+   '<div class="grid2">'+["chain","more","tf","player","club","flag","daily","career","word"].map(card).join("")+'</div>'+
   '</div></div>'+FK.nav("games");
   FK.bindNav(el); bindCommon(el);
-  el.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{ FK.sfx("tap"); const m=b.dataset.mode; if(m==="word") FK.go("word"); else FK.go("intro",{mode:m}); });
+  el.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{ FK.sfx("tap"); const m=b.dataset.mode; if(m==="word") FK.go("word"); else if(m==="chain") FK.go("chain"); else FK.go("intro",{mode:m}); });
 };
 
 /* ---------- sıralama ---------- */

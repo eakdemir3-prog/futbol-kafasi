@@ -40,7 +40,7 @@ let H={};   // aktif dinleyiciler: lq, lr, gh
 const _nat=window.fkNative;
 window.fkNative=(ev,a,b)=>{
   if(ev==="lq"){ if(H.lq) H.lq(a,b); return; }
-  if(ev==="lr"){ if(H.lr) H.lr(a,b); return; }
+  if(ev==="lr"){ if(FK.chainH) FK.chainH(a,b); if(H.lr) H.lr(a,b); return; }
   if(ev==="gh"){ if(H.gh) H.gh(a,b); return; }
   if(_nat) _nat(ev,a,b);
 };
@@ -53,17 +53,18 @@ FK.quickMatch = () => {
 };
 
 /* ---- rakip arama ---- */
-FK.screens.olwait = el => {
-  const m=me(); let done=false, poll=null, tmo=null, claiming=false; const t0=Date.now();
+FK.screens.olwait = (el,pp) => {
+  const MODE=(pp&&pp.mode)||"quiz", NEXT=MODE==="chain"?"chplay":"ollive";
+  const m=me(); if(MODE==="chain") m.cup=(FK.state.ch||{}).cup||0; let done=false, poll=null, tmo=null, claiming=false; const t0=Date.now();
   el.innerHTML='<div class="scroll"><div class="stack ol-wait" style="gap:18px;align-items:center;text-align:center;padding-top:40px">'+
     '<div class="ol-radar"><i></i><i></i><i></i>'+FK.avatar(m.av,84,null,FK.frameOf?FK.frameOf():"none")+'</div>'+
     '<div class="h-display" style="font-size:28px">'+t("ol_search")+'</div><div class="small muted">'+t("ol_searchS")+'</div>'+
     '<div class="h-display ol-sec" data-sec>20</div>'+
-    '<div class="chip" style="background:rgba(250,204,21,.18);color:#EAB308">🏆 '+t("ol_cup",{n:ol().cup})+' · '+t("ol_lg"+FK.olLeague(ol().cup))+'</div>'+
+    '<div class="chip" style="background:rgba(250,204,21,.18);color:#EAB308">'+(MODE==="chain"?"⛓️ "+t("m_chain")+" · ":"")+'🏆 '+t("ol_cup",{n:m.cup})+' · '+t("ol_lg"+FK.olLeague(m.cup))+'</div>'+
     '<button class="btn btn-ghost" data-x style="max-width:260px">'+t("ol_cancel")+'</button></div></div>';
   const stop=()=>{ done=true; clearInterval(poll); clearTimeout(tmo); H.lq=null; };
-  const go=(room,side)=>{ if(done) return; stop(); call("liveCancel"); FK.sfx("win"); FK.go("ollive",{room,side},{replace:true}); };
-  const ghost=()=>{ if(done) return; stop(); call("liveCancel"); FK.go("ollive",{ghost:true},{replace:true}); };
+  const go=(room,side)=>{ if(done) return; stop(); call("liveCancel"); FK.sfx("win"); FK.go(NEXT,{room,side,mode:"live"},{replace:true}); };
+  const ghost=()=>{ if(done) return; stop(); call("liveCancel"); if(MODE==="chain") FK.go("chplay",{mode:"bot",noOpp:1},{replace:true}); else FK.go("ollive",{ghost:true},{replace:true}); };
   FK.backHandler=()=>{ stop(); call("liveCancel"); FK.backHandler=null; FK.back(); return true; };
   el.querySelector("[data-x]").onclick=()=>FK.backHandler();
   H.lq=(k,v)=>{ if(done) return;
@@ -71,14 +72,14 @@ FK.screens.olwait = el => {
     if(k==="claim"){ claiming=false; if(v) go(v,"a"); return; }
     if(k==="err"){ ghost(); return; }
     if(k==="list"&&!claiming){ let L2=[]; try{ L2=JSON.parse(v)||[]; }catch(e){}
-      const now=Date.now(), c=L2.filter(x=>x.uid&&x.uid!==m.uid&&x.open&&!x.room&&Math.abs(now-(x.at||0))<90000)
+      const now=Date.now(), c=L2.filter(x=>x.uid&&x.uid!==m.uid&&x.open&&!x.room&&(x.mode||"quiz")===MODE&&Math.abs(now-(x.at||0))<90000)
         .sort((x,y)=>Math.abs((x.cup||0)-m.cup)-Math.abs((y.cup||0)-m.cup));
       const o=c.find(x=>x.uid>m.uid);     // çakışmasın diye: küçük uid'li taraf odayı kurar
       if(o){ claiming=true; const room=rid();
-        call("liveClaim",o.uid,room,JSON.stringify({seed:room,a:{uid:m.uid,name:m.name,av:m.av,cup:m.cup},b:{uid:o.uid,name:o.name||"?",av:o.av||0,cup:o.cup||0},at:now,ra:1})); }
+        call("liveClaim",o.uid,room,JSON.stringify({mode:MODE,seed:room,a:{uid:m.uid,name:m.name,av:m.av,cup:m.cup},b:{uid:o.uid,name:o.name||"?",av:o.av||0,cup:o.cup||0},at:now,ra:1})); }
     }
   };
-  if(!call("liveQueue",JSON.stringify({name:m.name,av:m.av,cup:m.cup,at:Date.now()}))){ setTimeout(ghost,1500); }
+  if(!call("liveQueue",JSON.stringify({mode:MODE,name:m.name,av:m.av,cup:m.cup,at:Date.now()}))){ setTimeout(ghost,1500); }
   poll=setInterval(()=>{ if(done||!el.isConnected){ if(!el.isConnected&&!done){ stop(); call("liveCancel"); } return; }
     const left=Math.max(0,Math.ceil((WAIT-(Date.now()-t0))/1000)); const sc=el.querySelector("[data-sec]"); if(sc) sc.textContent=left;
     if(left<=0){ ghost(); return; }
