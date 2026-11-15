@@ -129,7 +129,7 @@ FK.screens.play = (el,{g}) => {
   let timer=null, ended=false;
   const stopTimer=()=>{ if(timer){ cancelAnimationFrame(timer); timer=null; } };
   FK.onLeave=stopTimer;
-  FK.backHandler=()=>{ FK.confirm(t(g.mode==="duel"?"duelQuit":"exitConfirm"),t("exit"),()=>{ stopTimer(); ended=true; if(g.mode==="duel"){ FK.duelDone(g); return; } if(g.level){ FK.stack=[{name:"games",params:{}}]; FK.go("intro",{mode:g.mode}); return; } FK.go("games",{},{root:true}); }); return true; };
+  FK.backHandler=()=>{ FK.confirm(t(g.mode==="duel"?"duelQuit":"exitConfirm"),t("exit"),()=>{ stopTimer(); ended=true; if(g.mode==="duel"){ FK.duelDone(g); return; } FK.modeHome(g.mode); }); return true; };
 
   const M=FK.MODES[g.mode];
   const head=()=>'<div class="game-head"><button class="icon-btn" data-quit aria-label="'+t("exit")+'">'+FK.ic("x",20,2.4)+'</button><div class="grow"><div class="h-display" style="font-size:22px">'+FK.modeName(g.mode)+'</div><div class="small muted" style="margin-top:3px">'+(g.diff?t("d"+g.diff)+' · ':'')+t("questionN",{a:g.i+1,b:g.qs.length})+(g.practice?' <span class="chip chip-prac">'+t("practice")+'</span>':'')+'</div></div><span class="pill fire">'+FK.fireIc()+g.streak+'</span></div>'+
@@ -306,14 +306,14 @@ FK.screens.result = (el,{g,res}) => {
   '<div style="padding:12px 16px calc(18px + var(--safe-b));display:flex;flex-direction:column;gap:10px">'+
    (res.lvl&&res.lvl.next?'<button class="btn btn-primary" data-nextlv>'+t("lvNext")+' · '+res.lvl.nextN+' <span class="en-cost">⚡1</span></button><button class="btn btn-ghost" data-again>'+FK.ic("replay",20,2.4)+t("lvRetry")+'</button>'
      :'<button class="btn btn-primary" data-again>'+FK.ic("replay",22,2.4)+(res.lvl?t("lvRetry"):t("playAgain"))+'</button>')+
-   '<div class="grid2"><button class="btn btn-ghost" data-share>'+FK.ic("share",18)+t("share")+'</button><button class="btn btn-ghost" data-home>'+t("home")+'</button></div></div>';
+   FK.endRow(g.mode,"data-share")+'</div>';
   setTimeout(()=>{ const b=el.querySelector("[data-xpbar]"); if(b) b.style.width=li.pct+"%"; },200);
   if(pct>=.6){ FK.sfx("win"); FK.confetti(el); }
   el.querySelector("[data-again]").onclick=()=>{ if(res.lvl){ FK.playLevel(g.mode,g.level); return; } FK.go("intro",{mode:g.mode},{replace:true}); };
   const nl=el.querySelector("[data-nextlv]"); if(nl) nl.onclick=()=>FK.playLevel(g.mode,res.lvl.nextN);
-  el.querySelector("[data-home]").onclick=()=>FK.go("home",{},{root:true});
+  FK.bindEndRow(el,g.mode);
   el.querySelector("[data-share]").onclick=()=>FK.shareCard({mode:g.mode,score:g.score,correct:g.correct,total,level:g.level,stars:res.lvl?res.lvl.stars:null,pose:pct>=.8?"sampiyon":pct>=.5?"taraftar":"uzgun"});
-  FK.backHandler=()=>{ if(res.lvl){ FK.stack=[{name:"games",params:{}}]; FK.go("intro",{mode:g.mode}); return true; } FK.go("games",{},{root:true}); return true; };
+  FK.backHandler=()=>{ FK.modeHome(g.mode); return true; };
   let delay=600;
   if(res.lvl&&res.lvl.chest){ setTimeout(()=>FK.chestModal(res.lvl.chest,res.lvl.n),delay); delay+=900; }
   res.ach.forEach(a=>{ setTimeout(()=>FK.toast(t("achUnlocked")+" <b>"+t("ach_"+a.id)+"</b>","trophy",3000),delay); delay+=1200; });

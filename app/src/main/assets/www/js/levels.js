@@ -13,7 +13,7 @@ Object.assign(FK_I18N.tr,{
   lvNext:"Sonraki bölüm", lvRetry:"Tekrar dene", lvFail:"Bölümü geçmek için en az {n} doğru gerekiyor", lvStars:"{a}/{b} yıldız",
   lvChest:"Sandık açıldı!", lvChestS:"{n}. bölümü geçtin", lvLeagueDone:"{l} ligi tamamlandı! 🏆", lvRules:"Nasıl oynanır?", lvMap:"Bölümler",
   lvSoon:"Bu lig yakında açılacak", c_was:"Kariyerinde {v} forması giydi", c_now:"Şu an {v} forması giyiyor", c_last:"Son kulübü: {v}", c_born:"{v} doğumlu", c_wcWin:"Dünya Kupası kazandı",
-  c_league:"Lig: {v}", c_pl:"Bu kulüpte oynamış bir isim: {v}", c_plStar:"Bu kulüpte oynamış bir yıldız: {v}", c_cont:"Kıta: {v}",
+  c_league:"Lig: {v}", c_pl:"Bu kulüpte oynamış bir isim: {v}", c_plNow:"Şu an burada oynuyor: {v}", c_lgNow:"Şu an bu ligde oynuyor: {v}", c_initialS:"Soyadının baş harfi: {v}", c_lgLast:"Son oynadığı lig: {v}", c_plLeg:"Bu kulübün eski oyuncusu: {v}", c_plStar:"Bu kulüpte oynamış bir yıldız: {v}", c_cont:"Kıta: {v}",
   cont_EU:"Avrupa", cont_SA:"Güney Amerika", cont_NA:"Kuzey Amerika", cont_AF:"Afrika", cont_AS:"Asya", cont_OC:"Okyanusya"
 });
 Object.assign(FK_I18N.en,{
@@ -22,7 +22,7 @@ Object.assign(FK_I18N.en,{
   lvNext:"Next level", lvRetry:"Try again", lvFail:"You need at least {n} correct to pass", lvStars:"{a}/{b} stars",
   lvChest:"Chest opened!", lvChestS:"You passed level {n}", lvLeagueDone:"{l} league complete! 🏆", lvRules:"How to play?", lvMap:"Levels",
   lvSoon:"This league opens soon", c_was:"Played for {v} in his career", c_now:"Currently plays for {v}", c_last:"Last club: {v}", c_born:"Born in {v}", c_wcWin:"Won the World Cup",
-  c_league:"League: {v}", c_pl:"A player who played here: {v}", c_plStar:"A star who played here: {v}", c_cont:"Continent: {v}",
+  c_league:"League: {v}", c_pl:"A player who played here: {v}", c_plNow:"Currently plays here: {v}", c_lgNow:"Currently plays in: {v}", c_initialS:"Surname starts with: {v}", c_lgLast:"Last league: {v}", c_plLeg:"Former player here: {v}", c_plStar:"A star who played here: {v}", c_cont:"Continent: {v}",
   cont_EU:"Europe", cont_SA:"South America", cont_NA:"North America", cont_AF:"Africa", cont_AS:"Asia", cont_OC:"Oceania"
 });
 
@@ -48,9 +48,12 @@ const big = () => _big||(_big=new Set(Object.keys(FK_GCLUBS).filter(k=>BIGN.inde
 FK.gp = () => {
   if(_gp) return _gp;
   const act=new Set(window.FK_ACTIVE||[]), B=big();
-  _gp=FK_GPLAYERS.map(r=>{ const clubs=r[7].split(",").filter(c=>FK_GCLUBS[c]); const p={name:r[0],by:r[1],nat:r[2],pos:r[3],no:r[4],wc:r[5],fame:r[6],clubs,act:act.has(r[0])};
-    const cur=clubs[clubs.length-1]; let sc=[0,.05,.38,.68][p.fame]||.68;
-    if(!p.act) sc+=.14; if(p.act&&B.has(cur)) sc-=.06; if(!clubs.some(c=>B.has(c))) sc+=.1; if(p.wc) sc-=.04;
+  const CUR=window.FK_GP_CUR||FK_GPLAYERS.length;
+  _gp=FK_GPLAYERS.map((r,i)=>{ const clubs=r[7].split(",").filter(c=>FK_GCLUBS[c]); const p={name:r[0],by:r[1],nat:r[2],pos:r[3],no:r[4],wc:r[5],fame:r[6],clubs,act:act.has(r[0]),wd:i>=CUR};
+    const cur=clubs[clubs.length-1];
+    /* elle seçilmiş yıldızlar önce; Wikidata'dan gelen oyuncular (ünü otomatik) daha sonraki bölümlerde */
+    let sc = p.wd ? ([0,.45,.62,.82][p.fame]||.82) : ([0,.02,.32,.68][p.fame]||.68);
+    if(!p.act) sc+=.14; if(p.act&&B.has(cur)) sc-=(p.fame===2&&!p.wd?.1:.06); if(!clubs.some(c=>B.has(c))) sc+=.1; if(p.wc) sc-=.04;
     p.sc=Math.max(0,Math.min(1,sc+(hash(p.name)-.5)*.1)); return p; }).filter(p=>p.clubs.length);
   return _gp;
 };
@@ -63,7 +66,7 @@ FK.gpx = () => { if(_gpx) return _gpx; const B=big();
   return _gpx; };
 /* hedef zorluğa en yakın, yakın zamanda sorulmamış öğeler */
 FK.pickBy = (mode,items,x,count,key) => {
-  const w=Math.max(count*7,70);
+  const w = x<.25 ? Math.max(count*4,40) : Math.max(count*7,70);
   const near=items.slice().sort((a,b)=>Math.abs(a.sc-x)-Math.abs(b.sc-x)).slice(0,w);
   const out=FK.fresh(mode,near,key,count); FK.markSeen(mode,out.map(key)); return out;
 };
@@ -73,25 +76,31 @@ const uniq = a => [...new Set(a)];
 
 /* ---------- FUTBOLCUYU BUL ---------- */
 const HAND = () => { const m={}; (window.FK_PLAYERS||[]).forEach(p=>m[p.name]=p); return m; };
+/* ipucu seçici: rastgele 4 tür; kolayda güçlüler öne çıkar, sıra her soruda farklı (zayıftan güçlüye, gürültülü) */
+FK.pickClues = (C,x) => FK.shuffle(C).map(e=>({e,w:e[0]*(1-x)+(1-e[0])*x*.6+Math.random()*.5})).sort((a,b)=>b.w-a.w).slice(0,4)
+  .map(o=>({k:o.e[0]+Math.random()*.45,s:o.e[1]})).sort((a,b)=>a.k-b.k).map(o=>o.s);
 function buildPlayerLv(n){
   const x=xOf("player",n), all=FK.gp(), H=HAND();
   return FK.pickBy("player",all,x,10,p=>p.name).map(p=>{
     const cur=p.clubs[p.clubs.length-1], past=uniq(p.clubs.slice(0,-1)).filter(c=>c!==cur), h=H[p.name];
     const pastC = past.length ? past.slice().sort((a,b)=>hash(p.name+a)-hash(p.name+b)) : [];
-    let c3, c4;
-    if(h && x<.5){ c3=L(h.c[0]); c4=L(h.c[1]); }
-    else {
-      c3 = pastC[0] ? t("c_was",{v:cn(pastC[0])}) : t("c_born",{v:p.by});
-      if(x<.6) c4 = p.act ? t("c_now",{v:cn(cur)}) : t("c_last",{v:cn(cur)});
-      else c4 = pastC[1] ? t("c_was",{v:cn(pastC[1])}) : p.wc ? t("c_wcWin") : t("c_born",{v:p.by});
-    }
+    /* uyruk, mevki ve numara kartta görünüyor; ipuçları başka bilgiler */
+    const C=[[.2,t("c_born",{v:p.by})]], LGc=FK_LEAGUES[(FK_GCLUBS[cur]||[])[2]];
+    if(LGc) C.push([.4,(p.act?t("c_lgNow",{v:L([LGc[2],LGc[3]])}):t("c_lgLast",{v:L([LGc[2],LGc[3]])}))]);
+    if(pastC[0]) C.push([.55,t("c_was",{v:cn(pastC[0])})]);
+    if(pastC[1]) C.push([.5,t("c_was",{v:cn(pastC[1])})]);
+    C.push([.8,(window.FK_FREE&&FK_FREE[p.name])?t("c_last",{v:cn(cur)})+" 🆓":p.act?t("c_now",{v:cn(cur)}):t("c_last",{v:cn(cur)})]);
+    if(p.wc) C.push([.55,t("c_wcWin")]);
+    if(h){ C.push([.9,L(h.c[0])]); if(h.c[1]) C.push([.9,L(h.c[1])]); }
+    C.push([.45,p.name.indexOf(" ")>0?t("c_initialS",{v:p.name.split(" ").pop()[0]}):t("c_initial",{v:p.name[0]})]);
+    const clues=FK.pickClues(C,x);
     // yanlış şıklar: aynı mevki, benzer zorluk; zor bölümlerde aynı kıtadan
     const cont=FK_CONTINENT[p.nat];
     let cand=all.filter(o=>o.name!==p.name && o.pos===p.pos && Math.abs(o.sc-p.sc)<.25);
     if(x>.45){ const c2=cand.filter(o=>FK_CONTINENT[o.nat]===cont); if(c2.length>=3) cand=c2; }
     if(cand.length<3) cand=all.filter(o=>o.name!==p.name && o.pos===p.pos);
     const wrong=FK.shuffle(cand).slice(0,3).map(o=>o.name);
-    return { answer:p.name, opts:FK.shuffle([p.name].concat(wrong)), clues:[ t("c_nat",{v:FK.cAdj(p.nat)}), t("c_pos",{v:t("pos_"+p.pos)}), c3, c4 ], cc:p.nat, pos:p.pos, no:p.no };
+    return { answer:p.name, opts:FK.shuffle([p.name].concat(wrong)), clues, cc:p.nat, pos:p.pos, no:p.no };
   });
 }
 
@@ -105,7 +114,7 @@ FK.clubPool = () => {
   const B=big(), TOP=new Set(["ENG","ESP","ITA","GER","FRA","TUR"]);
   _clubs=Object.keys(by).map(code=>{ const g=FK_GCLUBS[code], lg=g[2], LG=FK_LEAGUES[lg]||[null,lg,lg,lg], r=rich[g[0]];
     const pl=by[code].slice().sort((a,b)=>a.sc-b.sc);
-    let sc = r ? (r[7]-1)/3*.8 : (B.has(code)?.05:TOP.has(lg)?.35:.6) - Math.min(pl.length,12)*.025;
+    let sc = r ? (r[7]-1)/3*.8 : B.has(code) ? .05 : (TOP.has(lg)?.42:.66) - Math.min(pl.length,12)*.01;
     if(!r && pl.length<2) sc+=.15;
     return {code,name:g[0],lg,cc:LG[0],lgName:[LG[2],LG[3]],short:LG[1],pl,rich:r,sc:Math.max(0,Math.min(1,sc+(hash(code)-.5)*.08))};
   }).filter(c=>c.cc&&(c.rich||c.pl.length>=3));
@@ -114,15 +123,26 @@ FK.clubPool = () => {
 function buildClubLv(n){
   const x=xOf("club",n), all=FK.clubPool();
   return FK.pickBy("club",all,x,10,c=>c.code).map(c=>{
-    const star=c.pl[0], low=c.pl[c.pl.length-1], mid=c.pl[Math.floor(c.pl.length/2)];
-    const clues=[ t("c_country",{v:FK.flag(c.cc)+" "+FK.cName(c.cc)}), t("c_league",{v:L(c.lgName)}) ];
-    if(c.rich && x<.5){ clues.push(t("c_city",{v:L([c.rich[2],c.rich[3]])})); clues.push(L([c.rich[5],c.rich[6]])); }
-    else if(x<.4){ clues.push(t("c_plStar",{v:star.name})); clues.push(c.pl[1]?t("c_pl",{v:c.pl[1].name}):(c.rich?L([c.rich[5],c.rich[6]]):t("c_plStar",{v:star.name}))); }
-    else { clues.push(t("c_pl",{v:(low||mid).name})); clues.push(c.pl.length>1?t("c_pl",{v:(mid!==low?mid:star).name}):(c.rich?t("c_year",{v:c.rich[4]}):t("c_plStar",{v:star.name}))); }
-    let cand=all.filter(o=>o.code!==c.code && o.lg===c.lg);
-    if(cand.length<3) cand=cand.concat(all.filter(o=>o.code!==c.code && o.cc!==c.cc && Math.abs(o.sc-c.sc)<.3));
-    const wrong=FK.shuffle(cand).slice(0,3).map(o=>o.name);
-    return { answer:c.name, opts:FK.shuffle([c.name].concat(wrong)), clues, cc:c.cc, year:c.rich?c.rich[4]:c.short };
+    /* ipucu havuzu: [güç 0-1, metin] — ülke yok (bayrak kartta görünüyor) */
+    const C=[], pl=c.pl, R=c.rich, nm=c.name.replace(/^(FC|AFC|SC|AC|AS|CF|SV|VfB|VfL|1\. FC) /,"");
+    const used={}; const P=(arr,f)=>{ const o=arr.filter(p=>!used[p.name]&&f(p)); return o.length?o[Math.floor(Math.random()*Math.min(3,o.length))]:null; };
+    C.push([.3,t("c_league",{v:L(c.lgName)})]);
+    const inName=v=>FK.norm(c.name).indexOf(FK.norm(v))>=0;
+    if(R){ if(!inName(R[2])&&!inName(R[3])) C.push([.65,t("c_city",{v:L([R[2],R[3]])})]); C.push([.25,t("c_year",{v:R[4]})]); if(!inName(nm)||!FK.norm(L([R[5],R[6]])).includes(FK.norm(nm))) C.push([.9,L([R[5],R[6]])]); if(R[8]) C.push([.45,t("c_colors",{v:R[8]})]); }
+    const star=P(pl,()=>true); if(star){ used[star.name]=1; C.push([star.fame<=2?.85:.45,t(star.fame<=2?"c_plStar":"c_pl",{v:star.name})]); }
+    const now=P(pl,p=>p.act&&p.clubs[p.clubs.length-1]===c.code); if(now){ used[now.name]=1; C.push([.6,t("c_plNow",{v:now.name})]); }
+    const leg=P(pl,p=>p.clubs[p.clubs.length-1]!==c.code); if(leg){ used[leg.name]=1; C.push([.7,t("c_plLeg",{v:leg.name})]); }
+    const low=pl.slice().reverse().find(p=>!used[p.name]); if(low){ used[low.name]=1; C.push([.35,t("c_pl",{v:low.name})]); }
+    C.push([.5,t("c_initial",{v:FK.upper?FK.upper(nm[0]):nm[0].toUpperCase()})]);
+    C.push([.15,t("c_len",{v:nm.replace(/[^A-Za-zÀ-ÿĞğİıŞşÇçÖöÜü]/g,"").length})]);
+    /* rastgele 4 tür seç; kolay bölümlerde güçlü ipuçlarını tercih et, sonra gürültülü güç sırasına diz */
+    const clues=FK.pickClues(C,x);
+    /* yanlış şıklar: kolayda tanınmış ve farklı ülkelerden, zorda aynı ligden */
+    let cand = x<.35 ? all.filter(o=>o.code!==c.code && o.cc!==c.cc && Math.abs(o.sc-c.sc)<.2)
+                     : all.filter(o=>o.code!==c.code && o.lg===c.lg);
+    if(cand.length<3) cand=cand.concat(all.filter(o=>o.code!==c.code && Math.abs(o.sc-c.sc)<.3));
+    const seen={}; seen[c.name]=1; const wrong=[]; FK.shuffle(cand).forEach(o=>{ if(wrong.length<3&&!seen[o.name]){ seen[o.name]=1; wrong.push(o.name); } });
+    return { answer:c.name, opts:FK.shuffle([c.name].concat(wrong)), clues, cc:c.cc, year:R?R[4]:c.short };
   });
 }
 
@@ -150,7 +170,7 @@ FK.playLevel = (mode,n) => {
     if(mode==="guess"){
       const era=n<=120?"now":n<=160?"old":"mix";
       const pool=FK.gp().filter(p=>era==="now"?p.act:era==="old"?!p.act:true), T=FK.pickBy("guess",pool,xOf("guess",n),1,p=>p.name)[0];
-      FK.go("guess",{diff:[1,2,3,3,4][lg],era,level:n,target:T.name,max:[8,8,7,7,6][lg]},{replace:true}); return; }
+      FK.go("guess",{diff:[1,2,3,3,4][lg],era,level:n,target:T.name,max:[10,8,7,7,6][lg]},{replace:true}); return; }
     let qs;
     if(mode==="player") qs=buildPlayerLv(n);
     else if(mode==="club") qs=buildClubLv(n);

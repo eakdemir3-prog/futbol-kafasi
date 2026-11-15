@@ -84,9 +84,13 @@ const app=()=>document.getElementById("app");
 FK.stack=[];
 FK.go = (name,params={},opts={}) => {
   if(FK.onLeave){ try{FK.onLeave();}catch(e){} FK.onLeave=null; }
+  const prev=FK.stack[FK.stack.length-1];
   if(opts.replace) FK.stack.pop();
   if(opts.root) FK.stack=[];
-  FK.stack.push({name,params});
+  const ent={name,params};
+  /* aynı ekran yeniden açılıyorsa (yenileme) kaydırma konumunu koru */
+  if(prev && prev.name===name && (opts.replace||opts.root) && FK._shown===prev){ FK.saveScroll(); ent.scroll=prev.scroll; ent.same=1; }
+  FK.stack.push(ent);
   FK.render();
 };
 FK.back = () => {
@@ -98,15 +102,27 @@ FK.back = () => {
   if(window.FKAndroid && FKAndroid.exit) FKAndroid.exit();
 };
 window.fkBack = FK.back;
+/* kaydırma hafızası: ekrandan çıkarken konumu kaydet, geri dönünce aynı yerde aç */
+const SCR=".scroll,.lv-tabs,.hscroll";
+FK.saveScroll = () => { const sh=FK._shown, el=app().querySelector(".screen"); if(!sh||!el) return;
+  sh.scroll=[...el.querySelectorAll(SCR)].map(x=>[x.scrollTop,x.scrollLeft]); FK._smem[skey(sh)]=sh.scroll; };
+FK._smem={};
+const skey = e => e.name+"|"+((e.params&&(e.params.mode||e.params.tab))||"");
+const restoreScroll = (el,arr) => { if(!arr) return; const go=()=>{ const xs=el.querySelectorAll(SCR); arr.forEach((v,i)=>{ const x=xs[i]; if(x){ if(v[0]) x.scrollTop=v[0]; if(v[1]) x.scrollLeft=v[1]; } }); };
+  go(); requestAnimationFrame(go); setTimeout(go,60); setTimeout(go,250); };
 FK.render = () => {
   const top=FK.stack[FK.stack.length-1]; if(!top) return;
+  FK.saveScroll();
+  const again = FK._shown===top || top.same; top.same=0;
   document.documentElement.lang=FK.lang();
   FK.backHandler=null;
   const fn=FK.screens[top.name];
-  const el=document.createElement("div"); el.className="screen";
+  const el=document.createElement("div"); el.className="screen"+(again?" noanim":"");
   app().querySelectorAll(".screen").forEach(s=>s.remove());
   app().appendChild(el);
+  FK._shown=top;
   fn(el,top.params);
+  restoreScroll(el,top.scroll||(top.name!=="intro"?FK._smem[skey(top)]:null));
 };
 
 /* ---------- alt navigasyon ---------- */

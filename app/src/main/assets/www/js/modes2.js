@@ -9,7 +9,7 @@ FK.clubBadge = (code,size=40) => {
   const c=FK_GCLUBS[code]; if(!c) return '';
   const light=["#FFFFFF","#FACC15","#7DD3FC","#F9A8D4","#38BDF8"].indexOf(c[3])>=0;
   const fs=c[1].length>=4?Math.round(size*.26):Math.round(size*.32);
-  return '<span class="cbadge" style="width:'+size+'px;height:'+size+'px;background:linear-gradient(135deg,'+c[3]+' 0 58%,'+c[4]+' 58% 100%);color:'+(light?'#0B1426':'#fff')+';font-size:'+fs+'px">'+FK.esc(c[1])+'</span>';
+  return '<span class="cbadge" style="width:'+size+'px;height:'+size+'px;background:linear-gradient(135deg,'+c[3]+' 0 58%,'+c[4]+' 58% 100%);color:'+(light?'#0B1426':'#fff')+';text-shadow:'+(light?'0 0 2px #fff,0 0 3px #fff':'0 0 2px rgba(0,0,0,.85),0 1px 3px rgba(0,0,0,.6)')+';font-size:'+fs+'px">'+FK.esc(c[1])+'</span>';
 };
 
 /* ======================= OYUNCUYU TAHMİN ET ======================= */
@@ -61,8 +61,8 @@ FK.screens.guess = (el,{diff,era,level,target,max}) => {
   if(!target) FK.markSeen("guess",[T.name]); s.guessRecent=[T.name];
   const names=all.map(p=>p.name).sort((a,b)=>a.localeCompare(b,"tr"));
   const guesses=[]; let done=false, win=false, res=null, query="";
-  const exitTo=()=>{ if(level){ FK.stack=[{name:"games",params:{}}]; FK.go("intro",{mode:"guess"}); } else FK.go("games",{},{root:true}); };
-  FK.backHandler=()=>{ if(done||!guesses.length){ exitTo(); return true; } FK.confirm(t("exitConfirm"),t("exit"),exitTo); return true; };
+  const exitTo=()=>FK.modeHome("guess");
+  FK.backHandler=()=>{ if(done||!guesses.length){ exitTo(); return true; } FK.confirm(t("quitMid"),t("exit"),exitTo); return true; };
 
   const CONT={EU:["AVRUPA","EUROPE"],SA:["G.AMERİKA","S.AMERICA"],AF:["AFRİKA","AFRICA"],AS:["ASYA","ASIA"],NA:["K.AMERİKA","N.AMERICA"],OC:["OKYANUSYA","OCEANIA"]};
   const hinted={};
@@ -93,7 +93,7 @@ FK.screens.guess = (el,{diff,era,level,target,max}) => {
   };
   const bindExplain=()=>el.querySelectorAll("[data-ex]").forEach(b=>b.onclick=()=>{ const [n,col]=b.dataset.ex.split("|"); const g=all.find(x=>x.name===n); if(g){ document.querySelectorAll(".toast").forEach(x=>x.remove()); explain(g,col);} });
   const draw=(newIdx)=>{
-    el.innerHTML='<div class="game-head"><button class="icon-btn" data-quit aria-label="'+t("back")+'">'+FK.ic("left",22,2.4)+'</button><div class="grow"><div class="h-display" style="font-size:22px">'+t("m_guess")+'</div><div class="small muted" style="margin-top:3px">'+t("era_"+era)+' · '+t("d"+diff)+' · '+t("guessCount",{a:guesses.length,b:MAX})+'</div></div><span class="pill">'+FK.gemIc()+FK.fmtNum(s.gems)+'</span></div>'+
+    el.innerHTML='<div class="game-head"><button class="icon-btn" data-quit aria-label="'+t("exit")+'">'+FK.ic("x",20,2.4)+'</button><div class="grow"><div class="h-display" style="font-size:22px">'+t("m_guess")+'</div><div class="small muted" style="margin-top:3px">'+t("era_"+era)+' · '+t("d"+diff)+' · '+t("guessCount",{a:guesses.length,b:MAX})+'</div></div><span class="pill">'+FK.gemIc()+FK.fmtNum(s.gems)+'</span></div>'+
     '<div class="scroll" style="padding-top:8px" data-sc><div class="stack" style="gap:12px">'+
      '<div class="stage gstage'+(era==="old"?" gold":"")+'"><div class="rays2"></div>'+
       (done&&win?'<div class="gwin-name" lang="en">'+FK.esc(T.name)+'</div>':'')+
@@ -105,14 +105,14 @@ FK.screens.guess = (el,{diff,era,level,target,max}) => {
          (res?'<div class="row" style="justify-content:center;gap:8px"><span class="chip chip-xp">+'+res.xp+' XP</span><span class="chip chip-gem">'+FK.gemIc(12)+'+'+res.gems+'</span></div>'+FK.doubleBtn(res):'')+
          (res&&res.lvl&&res.lvl.next?'<button class="btn btn-primary" data-nextlv>'+t("lvNext")+' · '+res.lvl.nextN+' <span class="en-cost">⚡1</span></button><button class="btn btn-ghost" data-new>'+FK.ic("replay",20,2.4)+t("lvRetry")+'</button>'
            :'<button class="btn btn-primary" data-new>'+FK.ic("replay",22,2.4)+(level?t("lvRetry"):t("newPlayer"))+'</button>')+
-         '<button class="btn btn-ghost" data-share>'+FK.ic("share",18)+t("share")+'</button></div>'
+         FK.endRow("guess","data-share")+'</div>'
        : FK.boostBar(["hint"])+'<div class="ac"><div class="row"><input class="input" data-in placeholder="'+t("guessPh")+'" autocomplete="off" autocapitalize="words" spellcheck="false" value="'+FK.esc(query)+'"></div><div class="ac-list down hide" data-ac></div></div>')+
      (guesses.length?'<div class="ghead">'+COLS.map(c=>'<span>'+t("col_"+c)+'</span>').join("")+'</div>':'<div class="small muted center" style="line-height:1.5">'+t("rules_guess")+'</div>')+
      guesses.slice().reverse().map((g,i)=>guessCard(g, newIdx!=null && i===0)).join("")+
     '</div></div>';
     el.querySelector("[data-quit]").onclick=()=>FK.backHandler();
     if(done){
-      bindExplain();
+      bindExplain(); FK.bindEndRow(el,"guess");
       el.querySelector("[data-new]").onclick=()=>{ FK.sfx("tap"); if(level){ FK.playLevel("guess",level); return; } FK.go("guess",{diff,era},{replace:true}); };
       const nl=el.querySelector("[data-nextlv]"); if(nl) nl.onclick=()=>FK.playLevel("guess",res.lvl.nextN);
       if(res&&res.lvl&&res.lvl.chest&&!res._ch){ res._ch=1; setTimeout(()=>FK.chestModal(res.lvl.chest,res.lvl.n),900); }
@@ -128,7 +128,10 @@ FK.screens.guess = (el,{diff,era,level,target,max}) => {
       if(guesses.some(g=>g.name===p.name)) return;
       guesses.push(p); query="";
       if(p.name===T.name){ done=true; win=true; FK.sfx("win"); FK.vib([30,40,60]); }
-      else { FK.sfx("no"); FK.vib(40); if(guesses.length>=MAX) done=true; }
+      else { FK.sfx("no"); FK.vib(40); if(guesses.length>=MAX) done=true;
+        /* ilk bölümlerde Kafa yardım eder: 3 yanlışta lig, 6 yanlışta mevki açılır */
+        else if(level && level<=40){ const k=known(), give=guesses.length===3?"lg":guesses.length===6?"pos":null;
+          if(give && !k[give]){ hinted[give]=true; setTimeout(()=>FK.toast(t("kafaHint",{c:t("col_"+give)}),"bulb",2600),350); } } }
       if(done){
         const score = win ? Math.round((MAX+1-guesses.length)*25*[1,1,1.2,1.4,1.7][diff]) : 0;
         res=FK.finishGame({mode:"guess",diff,level,correct:win?1:0,total:1,score,bestStreak:win?1:0,timeSum:0,extra:{win,guesses:guesses.length}}); res.score=score;
