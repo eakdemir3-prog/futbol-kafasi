@@ -184,3 +184,63 @@ sh(P.filter(p=>p.fame>=2)).slice(0,40).forEach(p=>{ const cont=FK_CONTINENT[p.na
 sh(P.filter(p=>p.fame===1)).slice(0,25).forEach(p=>{ const d=sh([-3,-2,-1,1,2,3]).slice(0,3); gen.push(Q("pl",3,p.name+" hangi yıl doğdu?","In which year was "+p.name+" born?",[String(p.by)].concat(d.map(x=>String(p.by+x))))); });
 gen.forEach(q=>{ q.gen=1; window.FK_QUESTIONS.push(q); });
 })();
+
+/* ==========================================================
+   v1.4.3 — ikinci genişletme: 2026 Dünya Kupası + yeni otomatik soru tipleri
+   (lig, takım arkadaşı, mevki, emekli/aktif, uyruk) — ayrı tohum: eski sorular değişmez
+   ========================================================== */
+(function(){
+const FK=window.FK;
+const Q=(k,d,tr,en,a)=>({k,d,q:[tr,en],a});
+const C=(tr,en)=>[tr,en];
+window.FK_QUESTIONS.push(
+ Q("wc",1,"2026 Dünya Kupası'nı hangi ülke kazandı?","Who won the 2026 World Cup?",[C("İspanya","Spain"),C("Arjantin","Argentina"),C("Fransa","France"),C("İngiltere","England")]),
+ Q("wc",1,"2026 Dünya Kupası hangi ülkelerde düzenlendi?","Where was the 2026 World Cup held?",[C("ABD, Meksika ve Kanada","USA, Mexico and Canada"),C("ABD ve Kanada","USA and Canada"),C("Meksika ve ABD","Mexico and USA"),C("Kanada, ABD ve Kosta Rika","Canada, USA and Costa Rica")]),
+ Q("wc",2,"2026 Dünya Kupası finalinde İspanya'nın golünü kim attı?","Who scored Spain's goal in the 2026 World Cup final?",["Ferran Torres","Mikel Oyarzabal","Lamine Yamal","Nico Williams"]),
+ Q("wc",2,"2026 Dünya Kupası finali nasıl bitti?","How did the 2026 World Cup final end?",[C("İspanya 1-0 Arjantin (uzatmalarda)","Spain 1-0 Argentina (after extra time)"),C("İspanya 2-1 Arjantin","Spain 2-1 Argentina"),C("Arjantin penaltılarla kazandı","Argentina won on penalties"),C("İspanya 3-1 Fransa","Spain 3-1 France")]),
+ Q("wc",2,"2026 Dünya Kupası'nda Altın Top'u (en iyi oyuncu) kim kazandı?","Who won the Golden Ball at the 2026 World Cup?",["Rodri","Lionel Messi","Kylian Mbappé","Lamine Yamal"]),
+ Q("wc",1,"2026 Dünya Kupası'nın gol kralı kim oldu?","Who was the top scorer of the 2026 World Cup?",["Kylian Mbappé","Lionel Messi","Jude Bellingham","Erling Haaland"]),
+ Q("wc",2,"2026 Dünya Kupası'nda Altın Eldiven'i hangi kaleci kazandı?","Which goalkeeper won the Golden Glove at the 2026 World Cup?",["Unai Simón","Emiliano Martínez","Jordan Pickford","Mike Maignan"]),
+ Q("wc",3,"2026 Dünya Kupası'nın en iyi genç oyuncusu seçilen futbolcu kim?","Who was named Best Young Player at the 2026 World Cup?",["Pau Cubarsí","Lamine Yamal","Désiré Doué","Kobbie Mainoo"]),
+ Q("wc",3,"2026 Dünya Kupası finalinde kırmızı kart gören Arjantinli oyuncu kim?","Which Argentina player was sent off in the 2026 World Cup final?",["Enzo Fernández","Nicolás Otamendi","Rodrigo De Paul","Cristian Romero"]),
+ Q("wc",2,"2026 Dünya Kupası'nda üçüncülük maçını hangi takım kazandı?","Who won the third-place match at the 2026 World Cup?",[C("İngiltere","England"),C("Fransa","France"),C("Brezilya","Brazil"),C("Portekiz","Portugal")]),
+ Q("wc",2,"2026 Dünya Kupası sonunda Dünya Kupası tarihinin en golcü oyuncusu kim oldu?","After the 2026 tournament, who is the World Cup's all-time top scorer?",["Kylian Mbappé","Miroslav Klose","Lionel Messi","Ronaldo Nazário"]),
+ Q("wc",3,"2026 Dünya Kupası finali hangi stadyumda oynandı?","Which stadium hosted the 2026 World Cup final?",[C("MetLife Stadyumu (New Jersey)","MetLife Stadium (New Jersey)"),C("Azteca Stadyumu (Mexico City)","Estadio Azteca (Mexico City)"),C("SoFi Stadyumu (Los Angeles)","SoFi Stadium (Los Angeles)"),C("AT&T Stadyumu (Dallas)","AT&T Stadium (Dallas)")]),
+ Q("wc",2,"İspanya ilk Dünya Kupası'nı hangi yıl kazandı?","In which year did Spain win their first World Cup?",["2010","2006","2014","1982"]),
+ Q("wc",3,"Dünya Kupası'nda iki kez gol kralı olan ilk futbolcu kim?","Who was the first player to be World Cup top scorer twice?",["Kylian Mbappé","Miroslav Klose","Gerd Müller","Harry Kane"])
+);
+const r=FK.rng("qgen-v2"), sh=a=>FK.shuffle(a.slice(),r);
+const ACT=new Set(window.FK_ACTIVE||[]), FREE=window.FK_FREE||{};
+const POS={GK:C("Kaleci","Goalkeeper"),DF:C("Defans","Defender"),MF:C("Orta saha","Midfielder"),FW:C("Forvet","Forward")};
+const P=FK_GPLAYERS.map(x=>({name:x[0],by:x[1],nat:x[2],pos:x[3],wc:x[5],fame:x[6],clubs:x[7].split(",").filter(c=>FK_GCLUBS[c])})).filter(p=>p.clubs.length);
+const cur=p=>p.clubs[p.clubs.length-1], lgOf=c=>FK_GCLUBS[c][2];
+const LG=c=>{ const l=FK_LEAGUES[c]; return l?C(l[2],l[3]):null; };
+const TOPL=["ENG","ESP","ITA","GER","FRA","TUR","POR","NED","KSA","MLS","BRA","ARG"];
+const act=P.filter(p=>ACT.has(p.name)&&!FREE[p.name]&&p.fame<=2&&FK_LEAGUES[lgOf(cur(p))]);
+const gen=[];
+// F) şu an hangi ligde
+sh(act.filter(p=>TOPL.indexOf(lgOf(cur(p)))>=0)).slice(0,50).forEach(p=>{ const l=lgOf(cur(p)); const w=sh(TOPL.filter(x=>x!==l&&FK_LEAGUES[x])).slice(0,3);
+  gen.push(Q("pl",p.fame+1,p.name+" şu an hangi ligde oynuyor?","Which league does "+p.name+" currently play in?",[LG(l)].concat(w.map(LG)))); });
+// G) takım arkadaşı (şu an aynı kulüp)
+const byClub={}; act.forEach(p=>(byClub[cur(p)]=byClub[cur(p)]||[]).push(p));
+sh(Object.keys(byClub).filter(c=>byClub[c].length>=2)).slice(0,45).forEach(c=>{ const two=sh(byClub[c]).slice(0,2), a=two[0], b=two[1]; const l=lgOf(c);
+  const w=sh(act.filter(o=>cur(o)!==c&&lgOf(cur(o))===l)).slice(0,3); if(w.length<3) return;
+  gen.push(Q("pl",Math.max(a.fame,b.fame)+1,"Bu futbolculardan hangisi şu an "+a.name+" ile aynı takımda oynuyor?","Which of these players is currently a teammate of "+a.name+"?",[b.name].concat(w.map(o=>o.name)))); });
+// H) mevki
+sh(P.filter(p=>p.fame===1&&POS[p.pos])).slice(0,35).forEach(p=>{ const w=Object.keys(POS).filter(x=>x!==p.pos);
+  gen.push(Q("pl",2,p.name+" hangi mevkide oynuyor/oynadı?","What position does/did "+p.name+" play?",[POS[p.pos]].concat(w.map(x=>POS[x])))); });
+// I) hangisi futbolu bıraktı
+const retd=sh(P.filter(p=>!ACT.has(p.name)&&!FREE[p.name]&&p.fame===1&&p.by>=1975)), act1=sh(act.filter(p=>p.fame===1));
+for(let i=0;i<Math.min(25,retd.length);i++){ const w=act1.slice(i*3,i*3+3); if(w.length<3) break;
+  gen.push(Q("pl",2,"Bu futbolculardan hangisi futbolu bıraktı?","Which of these players has retired?",[retd[i].name].concat(w.map(x=>x.name)))); }
+// J) uyruk (hangisi X'li)
+const nats=[...new Set(P.filter(p=>p.fame<=2).map(p=>p.nat))].filter(n=>FK.countries&&FK.countries[n]);
+sh(nats).slice(0,40).forEach(n=>{ const ok=sh(P.filter(p=>p.nat===n&&p.fame<=2))[0]; const cont=FK_CONTINENT[n];
+  const w=sh(P.filter(p=>p.nat!==n&&p.fame<=2&&FK_CONTINENT[p.nat]===cont)).slice(0,3); if(!ok||w.length<3) return; const c=FK.countries[n];
+  gen.push(Q("pl",ok.fame+1,"Bu futbolculardan hangisi "+c.adjTr+"?","Which of these players is "+c.adjEn+"?",[ok.name].concat(w.map(x=>x.name)))); });
+// K) eski kulüp → şu anki kulüp (transfer)
+sh(act.filter(p=>p.clubs.length>=2&&p.fame<=2)).slice(0,40).forEach(p=>{ const c=cur(p), prev=p.clubs[p.clubs.length-2]; if(prev===c) return;
+  const w=sh(Object.keys(byClub).filter(x=>x!==c&&x!==prev&&p.clubs.indexOf(x)<0&&lgOf(x)===lgOf(c))).slice(0,3); if(w.length<3) return;
+  gen.push(Q("pl",p.fame+1,p.name+" "+FK_GCLUBS[prev][0]+" kulübünden sonra hangi takıma geçti?","Which club did "+p.name+" join after "+FK_GCLUBS[prev][0]+"?",[FK_GCLUBS[c][0]].concat(w.map(x=>FK_GCLUBS[x][0])))); });
+gen.forEach(q=>{ q.gen=2; window.FK_QUESTIONS.push(q); });
+})();

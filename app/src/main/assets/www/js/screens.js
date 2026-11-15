@@ -217,7 +217,7 @@ S.profile = el => {
     FK.accountRows()+
     '<button class="setting" data-url="gizlilik.html">'+FK.ic("doc",20)+'<span class="grow">'+t("privacy")+'</span>'+FK.ic("right",18)+'</button>'+
     '<button class="setting" data-url="kullanim-kosullari.html">'+FK.ic("doc",20)+'<span class="grow">'+t("terms")+'</span>'+FK.ic("right",18)+'</button>'+(window.FKAndroid&&FKAndroid.privacyRequired&&FKAndroid.privacyRequired()?'<button class="setting" data-privopt>'+FK.ic("shield",20)+'<span class="grow">'+t("privacyOpt")+'</span>'+FK.ic("right",18)+'</button>':'')+
-    '<button class="setting" data-soon="soonMsg">'+FK.ic("help",20)+'<span class="grow">'+t("help")+'</span>'+FK.ic("right",18)+'</button>'+
+    '<button class="setting" data-help>'+FK.ic("help",20)+'<span class="grow">'+t("help")+'</span>'+FK.ic("right",18)+'</button>'+
     '<button class="setting" data-reset style="color:#FCA5A5">'+FK.ic("trash",20)+'<span class="grow">'+t("resetData")+'</span></button>'+
    '</div><div class="center small muted" style="margin-top:14px">'+t("version",{v:FK.VERSION})+' · EA Vision Labs</div></div>'+
   '</div></div>'+FK.nav("profile");
@@ -229,6 +229,7 @@ S.profile = el => {
   FK.bindAccount(el);
   el.querySelectorAll("[data-th]").forEach(b=>b.onclick=()=>{ s.settings.theme=b.dataset.th; FK.save(); FK.applyTheme(); FK.render(); });
   el.querySelectorAll("[data-url]").forEach(b=>b.onclick=()=>FK.openUrl(FK.LEGAL+b.dataset.url));
+  el.querySelector("[data-help]").onclick=()=>{ FK.sfx("tap"); FK.go("help"); };
   const gp=el.querySelector("[data-gopro]"); if(gp) gp.onclick=()=>FK.go("pro");
   const po=el.querySelector("[data-privopt]"); if(po) po.onclick=()=>{ try{ FKAndroid.privacyOptions(); }catch(e){} };
   el.querySelector("[data-reset]").onclick=()=>FK.confirm(t("resetConfirm"),t("resetData"),()=>{ FK.resetAll(); FK.go("welcome",{},{root:true}); },true);

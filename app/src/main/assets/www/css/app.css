@@ -854,3 +854,17 @@ html[data-theme=light] .stat b[style*="color:#38BDF8"]{color:#0369A1!important}
 .ch-mini-demo{flex-direction:row!important;justify-content:center;gap:6px!important;position:relative;margin-top:12px;background:rgba(0,0,0,.18);border-radius:14px;padding:8px}
 .gcell{position:relative}
 .retf{position:absolute;right:6%;top:6%;font-size:13px;font-style:normal;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+/* ---- Yardım merkezi (v1.4.3) ---- */
+.hp-hero{display:flex;gap:14px;align-items:center;padding:16px;border-radius:20px;background:linear-gradient(135deg,#1D4ED8,#0EA5E9);color:#fff}
+.hp-q{background:var(--card);border:1px solid var(--line,rgba(255,255,255,.08));border-radius:16px;overflow:hidden}
+.hp-q summary{list-style:none;display:flex;gap:12px;align-items:center;padding:14px 16px;cursor:pointer;font-size:15px}
+.hp-q summary::-webkit-details-marker{display:none}
+.hp-q summary svg{transition:transform .2s;opacity:.7}
+.hp-q[open] summary svg{transform:rotate(90deg)}
+.hp-ic{font-size:22px;width:30px;text-align:center}
+.hp-q ul{margin:0;padding:0 18px 14px 40px;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.5;color:var(--text2,var(--text))}
+.hp-q li b{color:var(--text)}
+.hp-rep .btn{width:100%}
+.retf.free{font-size:12px}
+.btn-green{background:linear-gradient(135deg,#4ADE80,#16A34A);color:#052E16;box-shadow:0 4px 0 #14532D}.btn-green:active{box-shadow:0 1px 0 #14532D;transform:translateY(3px)}
+.rcell{position:relative}

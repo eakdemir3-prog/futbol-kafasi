@@ -5,7 +5,7 @@
    ========================================================== */
 (function(){
 const FK = window.FK = {};
-FK.VERSION="1.4.2";
+FK.VERSION="1.4.3";
 FK.PEN=5; /* yanlış cevapta süre cezası (sn) */
 FK.penFx = el => { const d=document.createElement("div"); d.className="pen-fx"; d.textContent="−"+FK.PEN+(FK.lang()==="en"?"s":" sn"); el.appendChild(d); setTimeout(()=>d.remove(),1100); };
 const KEY = "fk_state_v1";
@@ -57,6 +57,7 @@ FK.flag = code => {
   if(code==="GB-ENG") return "\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}";
   if(code==="GB-SCT") return "\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}";
   if(code==="GB-WLS") return "\u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}";
+  if(code==="GB-NIR") return "\u{1F1EC}\u{1F1E7}";
   if(code==="SU") return "☭";
   return code.toUpperCase().replace(/./g,ch=>String.fromCodePoint(127397+ch.charCodeAt(0)));
 };

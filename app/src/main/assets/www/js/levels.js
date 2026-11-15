@@ -56,6 +56,7 @@ FK.gp = () => {
 };
 /* geçmişe dayalı modlar için (Kariyer, Kulübü Tanı): + kadrosu doğrulanamayan Wikidata oyuncuları */
 let _gpx=null;
+FK.resetPools = () => { _gp=null; _gpx=null; };
 FK.gpx = () => { if(_gpx) return _gpx; const B=big();
   _gpx=FK.gp().concat((window.FK_XPLAYERS||[]).map(r=>{ const clubs=r[7].split(",").filter(c=>FK_GCLUBS[c]); const p={name:r[0],by:r[1],nat:r[2],pos:r[3],no:0,wc:r[5],fame:r[6],clubs,act:false};
     let sc=([0,.05,.38,.68][p.fame]||.68)+.08; if(!clubs.some(c=>B.has(c))) sc+=.1; p.sc=Math.max(0,Math.min(1,sc+(hash(p.name)-.5)*.1)); return p; }).filter(p=>p.clubs.length));
