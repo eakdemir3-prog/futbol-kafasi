@@ -184,8 +184,9 @@ FK.screens.shop = (el,params) => {
   const styleTab=()=>{
     const P=s.profile, lv=FK.levelInfo().level;
     return '<div class="shop-prev">'+FK.avatar(P.avatar,96,null,FK.frameOf())+'<b>'+FK.esc(P.name)+'</b></div>'+
-    '<div class="sec-title">'+t("avatars")+' · <span style="color:var(--yellow-l)">'+t("animated")+'</span></div>'+
-    '<div class="cos-grid">'+FK.AVATARS.map((a,i)=>!a.cost?'':'<button class="cos'+(P.avatar===i?" on":"")+'" data-av="'+i+'">'+FK.avatar(i,60,null,"none")+'<span class="cp">'+(FK.ownsAv(i)?(P.avatar===i?t("equipped"):t("equip")):FK.gemIc(12)+a.cost)+'</span></button>').join("")+'</div>'+
+    (()=>{ const cell=(a,i)=>'<button class="cos'+(P.avatar===i?" on":"")+'" data-av="'+i+'">'+FK.avatar(i,60,null,"none")+'<span class="cp">'+(FK.ownsAv(i)?(P.avatar===i?t("equipped"):t("equip")):FK.gemIc(12)+a.cost)+'</span></button>';
+      const grp=(title,f)=>'<div class="sec-title">'+title+'</div><div class="cos-grid">'+FK.AVATARS.map((a,i)=>a.cost&&f(a)?cell(a,i):'').join("")+'</div>';
+      return grp(t("cosKafa")+' · '+t("cosKafaA")+'<span class="cos-tag">✨</span>',a=>a.k&&a.fx&&a.fx!=="retro")+grp(t("cosKafa")+' · '+t("cosKafaS"),a=>a.k&&(!a.fx||a.fx==="retro"))+grp(t("cosOld")+' · <span style="color:var(--yellow-l)">'+t("animated")+'</span>',a=>!a.k); })()+
     '<div class="sec-title">'+t("frames")+'</div>'+
     '<div class="cos-grid">'+FK.FRAMES.map(f=>'<button class="cos'+(FK.frameOf()===f.id?" on":"")+'" data-fr="'+f.id+'">'+FK.avatar(P.avatar,52,null,f.id)+'<span class="cp">'+(f.id==="none"?t("noFrame"):FK.ownsFr(f.id)?(FK.frameOf()===f.id?t("equipped"):t("equip")):f.pro?"👑 PRO":FK.gemIc(12)+f.cost)+'</span></button>').join("")+'</div>';
   };

@@ -57,6 +57,10 @@ FK.duelDone = g => { const {code,side}=g.duel, m=me();
   FK.go("duelres",{code},{root:true}); };
 
 /* ---------------- lobi ---------------- */
+FK.chainCard = () => { const c=(FK.state.ch||{}), en=FK.lang()==="en";
+  const pos=[["GS",8,6],["PSG",60,52],["RMA",8,98],["TOT",60,144]];
+  return '<button class="ch-card chB" data-chain><div class="rays2" style="opacity:.25"></div><div class="chB-l"><span class="chB-new">'+(en?"NEW MODE":"YENİ MOD")+'</span><div class="chB-t">'+t("m_chain").replace(" ","<br>")+'</div><div class="chB-s">'+(en?"Name a player, jump to another club he played for. Break the chain and you lose!":"Bir futbolcu söyle, oynadığı başka kulübe geç. Zinciri kıran kaybeder!")+'</div><div class="chB-r">🏆 '+(c.cup||0)+' '+(en?"cups":"kupa")+' · ⛓️ '+(en?"Best":"Rekor")+': '+(c.best||0)+' '+(en?"links":"halka")+'</div><span class="chB-play">⚡1 · '+(en?"PLAY":"OYNA")+' ›</span></div>'+
+   '<div class="chB-z"><svg viewBox="0 0 112 190"><path d="M30 28 L82 74 L30 120 L82 166" stroke="#FDE047" stroke-width="4" stroke-dasharray="8 6" fill="none"/></svg>'+pos.map((x,i)=>'<span class="chB-b" style="left:'+x[1]+'px;top:'+x[2]+'px;animation-delay:'+(i*.25)+'s">'+FK.clubBadge(x[0],44)+'</span>').join("")+'</div></button>'; };
 FK.screens.duel = el => {
   const u=FK.user(), list=Object.keys(mine()).map(c=>Object.assign({code:c},mine()[c])).sort((a,b)=>b.at-a.at).slice(0,8);
   el.innerHTML='<div class="topbar"><button class="icon-btn" data-back aria-label="'+t("back")+'">'+FK.ic("left",22,2.4)+'</button><div class="grow"><h1 class="h-display" style="font-size:26px;margin:0">'+t("du_title")+'</h1></div><span class="pill">'+FK.gemIc()+FK.fmtNum(FK.state.gems)+'</span></div>'+
@@ -65,7 +69,7 @@ FK.screens.duel = el => {
    (!u ? '<div class="card center stack" style="gap:12px"><div class="small muted" style="line-height:1.5">'+t("du_login")+'</div><button class="btn btn-white" data-login style="color:#1E3A8A">'+t("acc_signin")+'</button></div>'
        : '<button class="ol-card" data-quick><div class="rays2" style="opacity:.25"></div><div class="row" style="gap:12px;position:relative"><span style="font-size:42px">⚡</span><div class="grow" style="text-align:left"><div class="h-display" style="font-size:28px">'+t("ol_quick")+'</div><div class="small" style="opacity:.9">'+t("ol_quickS")+'</div></div><span class="ol-en">⚡1</span></div><div class="ol-cupb">🏆 '+t("ol_cup",{n:(FK.state.ol||{}).cup||0})+' · '+t("ol_lg"+FK.olLeague((FK.state.ol||{}).cup||0))+' · '+t("ol_stats",{w:(FK.state.ol||{}).w||0,l:(FK.state.ol||{}).l||0})+'</div></button>'+
          '<button class="small" data-olr style="color:var(--muted);text-decoration:underline;background:none;border:0;margin-top:-6px">'+t("howTo")+'</button>'+
-         '<button class="ch-card" data-chain><div class="rays2" style="opacity:.3"></div><div class="row" style="gap:12px;position:relative;align-items:center"><span style="font-size:40px">⛓️</span><div class="grow" style="text-align:left"><div class="h-display" style="font-size:26px">'+t("m_chain")+'</div><div class="small" style="opacity:.9">'+t("m_chainS")+'</div></div><span class="chip chip-new">'+t("newTag")+'</span></div><div class="ch-mini-demo">'+["GS","ARS","OM","TOT","RMA"].map((c,i)=>(i?'<i>'+FK.ic("link",14,2.6)+'</i>':'')+(FK.clubBadge?FK.clubBadge(c,30):'')).join("")+'</div></button>'+
+         FK.chainCard()+
          '<button class="fr-card" data-friends>'+FK.ic("user",22,2.2)+'<div class="grow" style="text-align:left"><b>'+t("fr_btn")+'</b><div class="small muted">'+((FK.state.friends||[]).length)+' · '+t("fr_invQ")+' / '+t("fr_invC")+'</div></div>'+FK.ic("right",18,2.4)+'</button>'+
          '<div class="sec-title" style="margin-top:4px">'+t("ol_friend")+'</div>'+
          '<button class="btn btn-purple" data-create style="height:60px">'+FK.ic("swords",22,2.2)+t("du_create")+'</button>'+

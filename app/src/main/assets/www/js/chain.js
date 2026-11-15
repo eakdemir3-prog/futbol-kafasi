@@ -136,7 +136,7 @@ FK.screens.chplay = (el,p) => {
   function myBot(mv){ clearTimeout(botT); mv.s="b"; mv.n=applied; if(mv.r==="ok") FK.toast("🤖 "+mv.p+" → "+cn(mv.c),"info",1600); apply(mv); }
 
   function end(winner,quit,oppLeft){ if(ended) return; cleanup(); FK.backHandler=null;
-    const iWin=mode==="local"?null:(winner===side); let g=0,dc=0; const o=chs();
+    const iWin=mode==="local"?null:(winner===side); let g=0,dc=0; const o=chs(); o.best=Math.max(o.best||0,G.chain.length-1);
     if(mode==="live"){ dc=iWin?25:-15; g=iWin?30:5; o.cup=Math.max(0,o.cup+dc); if(iWin) o.w++; else o.l++; FK.state.gems+=g; if(iWin) FK.state.stats.duelWins=(FK.state.stats.duelWins||0)+1; }
     else if(mode==="bot"){ g=iWin?15:3; FK.state.gems+=g; }
     FK.save(); if(mode==="live"&&!quit) set({["f"+side]:1});
