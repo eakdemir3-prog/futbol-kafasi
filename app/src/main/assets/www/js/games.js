@@ -154,7 +154,7 @@ FK.screens.play = (el,{g}) => {
     g.res[g.i]=ok; g.timeSum+=used||0; (g.ut=g.ut||[])[g.i]=used||0;
     if(ok){ g.correct++; g.streak++; g.bestStreak=Math.max(g.bestStreak,g.streak); g.score+=pts; FK.sfx("ok"); FK.vib(30); fb(true,t("correct")); }
     else { g.streak=0; FK.sfx("no"); FK.vib([60,40,60]); }
-    setTimeout(next, ok?1100:1700);
+    setTimeout(next, ok?1100:2500);
   }
   function skipQ(){ if(ended) return; stopTimer(); g.extra.boost=1; g.res[g.i]=null; FK.toast(t("b_pass")+" ⏭️","check",1200); setTimeout(next,350); }
   const canBoost = () => g.mode!=="daily" && g.mode!=="duel";

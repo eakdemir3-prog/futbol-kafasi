@@ -7,7 +7,7 @@
 const FK=window.FK, t=FK.t;
 Object.assign(FK_I18N.tr,{
   m_career:"Transfer Rotası", m_careerS:"Kulüplerden futbolcuyu bul", rt_ask:"Bu futbolcu kim?",
-  m_kadro:"Kadroyu Tamamla", m_kadroS:"Sahadaki eksik oyuncuyu bul", kd_ask:"{c} kadrosunda eksik {p} kim?", kd_sub:"Güncel kadrodan 11 · 4-3-3",
+  m_kadro:"Kadroyu Tamamla", m_kadroS:"Sahadaki eksik oyuncuyu bul", kd_ask:"{c} · eksik {p} kim?", kd_sub:"Güncel kadrodan 11 · 4-3-3",
   rules_career:"Transfer Rotası: Bir futbolcunun kulüpleri oynadığı sırayla (yıllarıyla) gösterilir. Bu rotayı izleyen futbolcuyu 4 şıktan bul. İleri bölümlerde bazı kulüpler ? ile gizlenir.",
   rules_kadro:"Kadroyu Tamamla: Bir kulübün güncel kadrosundan 4-3-3 diziliş sahada. Bir mevki ? ile boş. Eksik oyuncuyu 3 şıktan bul. KL: kaleci, DF: defans, OS: orta saha, FV: forvet.",
   mi_career:"Transfer Rotası'nda {n} futbolcu bul", ach_career:"Rota Uzmanı", ach_careerD:"Transfer Rotası'nda 5 futbolcu bul",
@@ -15,7 +15,7 @@ Object.assign(FK_I18N.tr,{
 });
 Object.assign(FK_I18N.en,{
   m_career:"Transfer Route", m_careerS:"Find the player from his clubs", rt_ask:"Who is this player?",
-  m_kadro:"Complete the Squad", m_kadroS:"Find the missing player on the pitch", kd_ask:"Who is the missing {p} in {c}'s squad?", kd_sub:"Current squad XI · 4-3-3",
+  m_kadro:"Complete the Squad", m_kadroS:"Find the missing player on the pitch", kd_ask:"{c} · who is the missing {p}?", kd_sub:"Current squad XI · 4-3-3",
   rules_career:"Transfer Route: a player's clubs are shown in the order he played for them (with years). Find the player from 4 options. In later levels some clubs are hidden with ?.",
   rules_kadro:"Complete the Squad: a club's current squad in a 4-3-3 on the pitch. One spot is empty. Find the missing player from 3 options. GK: goalkeeper, DF: defender, MF: midfielder, FW: forward.",
   mi_career:"Find {n} players in Transfer Route", ach_career:"Route Expert", ach_careerD:"Find 5 players in Transfer Route",
@@ -66,7 +66,12 @@ FK.kadroPool = () => { if(_kd) return _kd; const S=window.FK_SQUADS||{}, gp={}; 
     xi.FW=fw; xi.MF=att.filter(p=>fw.indexOf(p)<0);
     const c=cp[code]; return {code,name:FK_GCLUBS[code][0],lg:FK_GCLUBS[code][2],xi,sc:c?c.sc:.7}; }).filter(Boolean);
   return _kd; };
-const shortNm=n=>{ const w=n.split(" "); if(w.length===1) return n; const last=w[w.length-1]; return last.length<=3&&w.length>1?w.slice(-2).join(" "):last; };
+const COMMON=new Set(["Silva","Santos","Martínez","Fernández","Fernandes","García","González","Rodríguez","López","Pérez","Gómez","Sánchez","Díaz","Hernández","Costa","Souza","Pereira","Oliveira","Alves","Gomes","Ramos","Lopes","Yılmaz","Kim","Lee","Park","Mendy","Diallo","Traoré","Koné","Touré","Diop","Camara","Sow","Jones","Williams","Johnson","Martin","Thomas","Fofana","Cissé","Doumbia","Mendes","Ndiaye"]);
+const shortNm=n=>{ const w=n.split(" "); if(w.length===1) return n; let last=w[w.length-1];
+  if(/^(Júnior|Junior|Jr\.?|Neto|Filho)$/.test(last)) return w[0];
+  if(last.length<=3&&w.length>2) return w.slice(-2).join(" ");
+  if(COMMON.has(last)) return w[0][0]+". "+last;
+  return last; };
 FK.buildKadro = (x,count,seed) => { const P=FK.kadroPool(), r=FK.rng(seed);
   const pool=P.slice().sort((a,b)=>Math.abs(a.sc-x*.8)-Math.abs(b.sc-x*.8)).slice(0,x<.25?24:50);
   const out=[]; let guard=0, usedC={};
@@ -82,7 +87,7 @@ FK.buildKadro = (x,count,seed) => { const P=FK.kadroPool(), r=FK.rng(seed);
   return out; };
 const shirt=(c1,c2,no)=>'<svg width="34" height="34" viewBox="0 0 40 40"><path d="M12 4 L6 7 L2 15 L8 18 L10 16 V36 H30 V16 L32 18 L38 15 L34 7 L28 4 C26 8 14 8 12 4Z" fill="'+c1+'" stroke="#0A0B26" stroke-width="1.6"/><path d="M20 7 V36" stroke="'+c2+'" stroke-width="6"/></svg>';
 FK.kadroStage = (q,timer) => { const C=FK_GCLUBS[q.club]||["","","","#DC2626","#FACC15"];
-  return '<div class="stage kd-pitch"><div class="kd-l mid"></div><div class="kd-l circ"></div><div class="kd-l box b"></div><div class="kd-l box t"></div>'+
+  return '<div class="stage kd-pitch"><span class="kd-433">4-3-3</span><div class="kd-l mid"></div><div class="kd-l circ"></div><div class="kd-l box b"></div><div class="kd-l box t"></div>'+
     q.slots.map((s,i)=>'<div class="kd-p'+(i===q.miss?' miss':'')+'" data-slot="'+i+'" style="left:'+s.x+'%;top:'+s.y+'%">'+(i===q.miss?'<div class="kd-q">?</div>':shirt(C[3],C[4]))+'<span class="kd-pos">'+t("kdl_"+s.k)+'</span><span class="kd-nm">'+(i===q.miss?'?':FK.esc(shortNm(s.n)))+'</span></div>').join("")+timer+'</div>'; };
 FK.kadroReveal = (el,q) => { const d=el.querySelector('[data-slot="'+q.miss+'"]'); if(!d) return; const C=FK_GCLUBS[q.club]||["","","","#DC2626","#FACC15"];
   d.classList.remove("miss"); d.classList.add("got"); d.innerHTML=shirt(C[3],C[4])+'<span class="kd-pos">'+t("kdl_"+q.pos)+'</span><span class="kd-nm">'+FK.esc(shortNm(q.answer))+'</span>'; };

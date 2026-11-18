@@ -126,3 +126,71 @@ html[data-theme=light] .nav-item.active::after{background:#65A30D}
 html[data-theme=light] .qask,html[data-theme=light] .rt-ask{box-shadow:0 4px 0 #4D7C0F}
 html[data-theme=light] .rt-y{background:#1E1B4B;color:#fff}
 html[data-theme=dark] .g2{color:var(--lime)}
+
+/* ===== v1.5.1: Ortak Futbolcu klavye modu ===== */
+.or-kbcnt{display:none}
+.screen.kb .or-stage{min-height:0!important;padding:6px 8px 8px;gap:2px}
+.screen.kb .or-stage .spot,.screen.kb .or-stage .lamps{display:none}
+.screen.kb .or-venn{transform:scale(.6);margin:-34px 0 -36px}
+.screen.kb .or-stage .timer{width:42px;height:42px;position:absolute;right:8px;top:8px}
+.screen.kb .or-stage .timer svg{width:42px;height:42px}
+.screen.kb .or-stage .timer b{font-size:18px}
+.screen.kb .or-askc{display:none}
+.screen.kb .or-kbcnt{display:block;position:absolute;left:10px;top:8px;font-size:11px;font-weight:800;background:rgba(0,0,0,.45);color:#fff;border-radius:8px;padding:3px 8px;z-index:2}
+.screen.kb .scroll{padding-top:6px!important}
+.screen.kb .stack{gap:8px!important}
+/* cevap kutusu: dolan çubuk + Devam */
+.or-list{line-height:1.5;font-size:13px}
+.or-next{display:flex;align-items:center;gap:10px;margin-top:10px}
+.or-next i{flex:1;height:5px;border-radius:3px;background:currentColor;opacity:.55;transform-origin:left;animation:orBar linear forwards}
+@keyframes orBar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.or-nextb{width:auto!important;height:36px!important;padding:0 16px!important;background:var(--lime);color:#0A0B26;font-weight:900;border-radius:12px}
+/* ===== Kadroyu Tamamla: tek ekrana sığsın ===== */
+.kd-pitch{height:min(300px,37vh)!important}
+.kd-p svg{width:28px;height:28px}
+.kd-nm{font-size:10px}
+.kd-ask{padding:8px 10px!important;margin-top:8px!important;gap:8px!important}
+.kd-ask .cbadge{width:30px!important;height:30px!important}
+.kd-ask b{font-size:14px!important}
+.kd-ask .small{display:none}
+.kd-433{position:absolute;right:8px;top:8px;z-index:2;font-size:10px;font-weight:900;background:rgba(0,0,0,.45);color:#fff;border-radius:7px;padding:2px 7px}
+.qx .opts.three{gap:8px}
+.qx .opts.three .opt{min-height:46px}
+.qx:has(.kd-pitch) .boost{padding:5px 4px 4px}
+.qx:has(.kd-pitch) .boost .be{font-size:18px}
+.qx:has(.kd-pitch){padding-top:8px!important}
+.qx:has(.kd-pitch) .boost-bar{margin-top:8px}
+/* Transfer Rotası da sığsın */
+.rt-stage.stadium{min-height:0!important;padding:12px 8px 12px}
+.qx:has(.rt-stage) .opt{min-height:50px}
+.screen.kb .ac-list{position:static!important;display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;margin-top:6px;background:none!important;border:0!important;box-shadow:none!important;max-height:none}
+.screen.kb .ac-list button{flex-shrink:0;white-space:nowrap;border-radius:99px!important;padding:8px 12px!important;border:1.5px solid var(--neon-l)!important;background:var(--card)!important;font-size:13px}
+.screen.kb .ac-list.hide{display:none!important}
+.screen.kb .ac-list button{width:auto!important;display:inline-block!important;border-bottom:1.5px solid var(--neon-l)!important}
+.kd-433{top:auto!important;bottom:8px}
+
+/* ===== v1.5.1: açık tema — gündüz stadyumu ===== */
+html[data-theme=light] #stad{display:block;background:linear-gradient(180deg,#DCEBFF 0%,#EEF4FF 30%,#E4ECF7 50%,#CFE8D6 66%,#BFE3C8 100%)}
+html[data-theme=light] #stad .sky{background:radial-gradient(ellipse 70% 45% at 50% 0%,rgba(255,255,255,.9),transparent 70%)}
+html[data-theme=light] #stad .crowd{background:
+  radial-gradient(circle,rgba(30,41,59,.18) 0 1px,transparent 1.6px) 0 0/7px 6px,
+  radial-gradient(circle,rgba(124,58,237,.16) 0 1.2px,transparent 1.8px) 3px 3px/9px 7px,
+  linear-gradient(180deg,rgba(203,213,225,0),#CBD5E1 40%,#D7DEE9);opacity:.75}
+html[data-theme=light] #stad .lt{box-shadow:0 0 14px 4px rgba(255,255,255,.9),0 0 40px 14px rgba(255,255,255,.6);opacity:.85}
+html[data-theme=light] #stad .beam{background:linear-gradient(180deg,rgba(255,255,255,.55),transparent 70%)}
+html[data-theme=light] #stad .grass{background:repeating-linear-gradient(90deg,#4ADE80 0 40px,#22C55E 40px 80px);box-shadow:inset 0 40px 60px rgba(238,244,255,.85)}
+html[data-theme=light] #stad .fog{background:linear-gradient(180deg,rgba(241,245,255,.35),rgba(241,245,255,.2) 35%,rgba(241,245,255,.55) 62%,rgba(241,245,255,.78))}
+html[data-theme=light] #app{z-index:1}
+html[data-theme=light] .screen{background:transparent}
+html[data-theme=light] .nav{background:rgba(255,255,255,.96)}
+html[data-theme=light] .mode,html[data-theme=light] .card{background:rgba(255,255,255,.94)}
+html[data-theme=light] #stad{background:linear-gradient(180deg,#9CC8FF 0%,#CFE3FF 26%,#E6EEFA 44%,#9BD9AE 62%,#6FCB8C 100%)}
+html[data-theme=light] #stad .crowd{background:
+  radial-gradient(circle,rgba(30,41,59,.38) 0 1.1px,transparent 1.7px) 0 0/7px 6px,
+  radial-gradient(circle,rgba(124,58,237,.35) 0 1.2px,transparent 1.8px) 3px 3px/9px 7px,
+  radial-gradient(circle,rgba(220,38,38,.25) 0 1.1px,transparent 1.7px) 5px 1px/11px 8px,
+  linear-gradient(180deg,rgba(148,163,184,0),#AEBBD0 40%,#C3CDDD);opacity:1}
+html[data-theme=light] #stad .lt{opacity:1;box-shadow:0 0 18px 6px rgba(255,255,255,1),0 0 60px 22px rgba(255,251,214,.8)}
+html[data-theme=light] #stad .grass{height:50%;background:repeating-linear-gradient(90deg,#34D058 0 40px,#16A34A 40px 80px);box-shadow:inset 0 30px 40px rgba(230,238,250,.6)}
+html[data-theme=light] #stad .grass::after{content:"";position:absolute;left:30%;right:30%;top:22%;height:3px;background:rgba(255,255,255,.85)}
+html[data-theme=light] #stad .fog{background:linear-gradient(180deg,rgba(241,245,255,.12),rgba(241,245,255,.05) 40%,rgba(241,245,255,.18) 70%,rgba(241,245,255,.3))}

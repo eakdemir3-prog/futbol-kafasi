@@ -11,7 +11,7 @@ Object.assign(FK_I18N.tr,{
   or_ph:"Futbolcu adı…", or_pass:"Pas", or_ok:"Doğru! {p}", or_wrong:"{p} bu iki kulübün ikisinde birden oynamadı", or_also:"Diğer doğru cevaplar: {l}", or_ans:"Cevaplar: {l}",
   or_time:"Süre doldu!", or_online:"Online maç", or_onlineS:"Önce doğru yazan turu alır · 7 tur", or_bot:"Kafa Bot'a karşı", or_botS:"Tek başına antrenman", or_levels:"Bölümler", or_levelsS:"Kolaydan zora 200 bölüm",
   or_round:"Tur {i}/{n}", or_youGot:"Turu sen aldın!", or_oppGot:"Turu {n} aldı", or_noOne:"Kimse bilemedi", or_rules:"Ortak Futbolcu: Ekranda iki kulüp var. İkisinde de forma giymiş (kiralık dahil) bir futbolcu yaz. Birden fazla doğru cevap olabilir, hangisini yazarsan yaz doğru sayılır. Bölümlerde 3 canın var: yanlış cevap, pas ve süre bitimi 1 can götürür. Online maçta 7 tur oynanır; turu önce doğru yazan alır. Galibiyet +25 kupa ve 30 💎, mağlubiyet −15 kupa. Kafa Bot'a karşı kupa yoktur.",
-  or_lives:"Can", or_noOpp:"Şu an online rakip yok, Kafa Bot'a karşı oynuyorsun."
+  or_lives:"Can", or_next:"Devam", or_cntS:"{n} ortak oyuncu", or_cnt1S:"Tek ortak oyuncu", or_noOpp:"Şu an online rakip yok, Kafa Bot'a karşı oynuyorsun."
 });
 Object.assign(FK_I18N.en,{
   m_ortak:"Common Player", m_ortakS:"Find a player who played for both clubs", or_title:"COMMON PLAYER",
@@ -19,7 +19,7 @@ Object.assign(FK_I18N.en,{
   or_ph:"Player name…", or_pass:"Pass", or_ok:"Correct! {p}", or_wrong:"{p} didn't play for both clubs", or_also:"Other correct answers: {l}", or_ans:"Answers: {l}",
   or_time:"Time's up!", or_online:"Online match", or_onlineS:"First correct answer takes the round · 7 rounds", or_bot:"Vs Kafa Bot", or_botS:"Solo practice", or_levels:"Levels", or_levelsS:"200 levels from easy to hard",
   or_round:"Round {i}/{n}", or_youGot:"You took the round!", or_oppGot:"{n} took the round", or_noOne:"Nobody got it", or_rules:"Common Player: two clubs are on screen. Name a player who played for both (loans count). There can be several correct answers; any of them counts. In levels you have 3 lives: a wrong answer, a pass or running out of time costs 1 life. Online matches have 7 rounds; whoever answers correctly first takes the round. Win +25 cups and 30 💎, loss −15 cups. No cups against Kafa Bot.",
-  or_lives:"Lives", or_noOpp:"No one is online right now, you're playing Kafa Bot."
+  or_lives:"Lives", or_next:"Next", or_cntS:"{n} common players", or_cnt1S:"Just one common player", or_noOpp:"No one is online right now, you're playing Kafa Bot."
 });
 FK.MODES.ortak={ icon:"user", g:["#0EA5E9","#1E3A8A"], fg:"#fff", diff:false, total:10 };
 if(FK.LV) FK.LV.ortak={ N:200, per:40, open:200, pass:[5,7,9] };
@@ -52,18 +52,24 @@ FK.orPairs = (x,count,seed) => { const D=FK.orDB(), r=FK.rng(seed), used={}, out
   return out; };
 
 const badge=(c,s)=>FK.clubBadge(c,s);
-const stage=(q,timerHtml)=>'<div class="stage stadium or-stage"><div class="spot l"></div><div class="spot r"></div><div class="lamps"><i></i><i></i><i></i><i></i><i></i><i></i></div>'+
+const stage=(q,timerHtml)=>'<div class="stage stadium or-stage">'+(q.ans?'<div class="or-kbcnt">'+(q.ans.length>1?t("or_cntS",{n:q.ans.length}):t("or_cnt1S"))+'</div>':'')+'<div class="spot l"></div><div class="spot r"></div><div class="lamps"><i></i><i></i><i></i><i></i><i></i><i></i></div>'+
   '<div class="or-venn"><div class="or-c a"></div><div class="or-c b"></div><span class="or-ba">'+badge(q.a,52)+'</span><span class="or-bb">'+badge(q.b,52)+'</span>'+
   '<span class="or-na">'+FK.esc(cn(q.a))+'</span><span class="or-nb">'+FK.esc(cn(q.b))+'</span><div class="or-q">?</div></div>'+(timerHtml||'')+'</div>';
 const timerUI=s=>'<div class="timer or-timer" data-timer><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="rgba(5,20,15,.6)" stroke="rgba(255,255,255,.15)" stroke-width="5"/><circle data-ring cx="28" cy="28" r="24" fill="none" stroke="#FACC15" stroke-width="5" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="0"/></svg><b data-sec>'+s+'</b></div>';
+/* cevap kutusunun altındaki dolan çubuk + Devam */
+FK.orNext=(ms,noBtn)=>'<div class="or-next"><i style="animation-duration:'+ms+'ms"></i>'+(noBtn?'':'<button class="btn btn-sm or-nextb" data-next>'+t("or_next")+' ›</button>')+'</div>';
 const listN=(arr,n)=>arr.slice(0,n).join(", ")+(arr.length>n?" …":"");
 /* otomatik tamamlama */
 function bindAC(el,onPick){ const D=FK.orDB(), inp=el.querySelector("[data-in]"), ac=el.querySelector("[data-ac]"); if(!inp) return;
   inp.oninput=()=>{ const q=FK.norm(inp.value); if(q.length<2){ ac.classList.add("hide"); return; }
-    const mm=D.P.filter(x=>x.n.indexOf(q)>=0).sort((x,y)=>(x.n.indexOf(q)===0?0:1)-(y.n.indexOf(q)===0?0:1)||x.fame-y.fame).slice(0,6);
+    const mm=D.P.filter(x=>x.n.indexOf(q)>=0).sort((x,y)=>{ const w=z=>(" "+z.n).indexOf(" "+q)>=0?0:1; return w(x)-w(y)||x.fame-y.fame; }).slice(0,6);
     ac.innerHTML=mm.map(x=>'<button data-nm="'+FK.esc(x.name)+'">'+FK.esc(x.name)+'</button>').join(""); ac.classList.toggle("hide",!mm.length);
     ac.querySelectorAll("[data-nm]").forEach(b=>b.onclick=()=>{ ac.classList.add("hide"); inp.value=""; onPick(b.dataset.nm); }); };
   inp.onkeydown=e=>{ if(e.key==="Enter"){ const b=ac.querySelector("[data-nm]"); if(b) b.click(); } };
+  /* klavye açıkken saha küçülür, açıklama kartı gizlenir, giriş kutusu sahanın altında kalır */
+  const scr=inp.closest(".screen"), sc=inp.closest(".scroll");
+  inp.addEventListener("focus",()=>{ if(scr) scr.classList.add("kb"); if(sc) setTimeout(()=>{ sc.scrollTop=0; },50); });
+  inp.addEventListener("blur",()=>{ setTimeout(()=>{ if(scr&&document.activeElement!==inp) scr.classList.remove("kb"); },180); });
   setTimeout(()=>{ try{ inp.focus(); }catch(e){} },60); }
 const inputUI=()=>'<div class="row" style="gap:8px;align-items:flex-start"><div class="ac grow"><input class="input" data-in placeholder="'+t("or_ph")+'" autocomplete="off" autocapitalize="words" spellcheck="false"><div class="ac-list hide" data-ac></div></div><button class="btn btn-ghost or-pass" data-pass>⏭ '+t("or_pass")+'</button></div>';
 
@@ -92,7 +98,7 @@ FK.screens.orplay = (el,p) => {
     el.innerHTML='<div class="game-head"><button class="icon-btn" data-quit aria-label="'+t("exit")+'">'+FK.ic("x",20,2.4)+'</button><div class="grow"><div class="h-display" style="font-size:22px">'+t("m_ortak")+'</div><div class="small muted" style="margin-top:3px">'+t("lvN",{n})+' · '+t("questionN",{a:i+1,b:pairs.length})+'</div></div><span class="pill">'+"❤️".repeat(lives)+'<span style="opacity:.3">'+"❤️".repeat(3-lives)+'</span></span></div>'+
      '<div class="qbar" style="grid-template-columns:repeat('+pairs.length+',1fr)">'+pairs.map((_,k)=>'<span class="'+(res[k]===true?"ok":res[k]===false?"no":k===i?"cur":"")+'"></span>').join("")+'</div>'+
      '<div class="scroll" style="padding-top:12px"><div class="stack" style="gap:12px">'+stage(q,timerUI(SEC))+
-     '<div class="card center" style="font-weight:800;font-size:15px;padding:12px">'+t("or_ask")+'<div class="small muted" style="margin-top:4px;font-weight:600">'+(q.ans.length>1?t("or_cnt",{n:q.ans.length}):t("or_cnt1"))+'</div></div>'+
+     '<div class="card center or-askc" style="font-weight:800;font-size:15px;padding:12px">'+t("or_ask")+'<div class="small muted" style="margin-top:4px;font-weight:600">'+(q.ans.length>1?t("or_cnt",{n:q.ans.length}):t("or_cnt1"))+'</div></div>'+
      inputUI()+'<div data-fb></div></div></div>';
     el.querySelector("[data-quit]").onclick=()=>FK.backHandler();
     el.querySelector("[data-pass]").onclick=()=>{ if(!locked){ FK.sfx("tap"); done(false,"pass"); } };
@@ -108,9 +114,11 @@ FK.screens.orplay = (el,p) => {
     else { lives--; streak=0; FK.sfx("no"); FK.vib([60,40,60]); }
     const others=q.ans.filter(a=>a!==name);
     const fb=el.querySelector("[data-fb]"); if(fb) fb.innerHTML='<div class="card or-fb '+(ok?"ok":"no")+'"><b>'+(ok?t("or_ok",{p:FK.esc(name)}):why==="wrong"?t("or_wrong",{p:FK.esc(name)}):why==="time"?t("or_time"):"⏭ "+t("or_pass"))+'</b>'+
-      '<div class="small" style="margin-top:4px">'+(ok?(others.length?t("or_also",{l:FK.esc(listN(others,3))}):''):t("or_ans",{l:FK.esc(listN(q.ans,4))}))+'</div></div>';
-    el.querySelectorAll("[data-in],[data-pass]").forEach(x=>x.disabled=true);
-    setTimeout(()=>{ if(ended) return; i++; if(lives<=0||i>=pairs.length) finish(); else draw(); },ok?1300:2300); }
+      '<div class="small or-list" style="margin-top:4px">'+(ok?(others.length?t("or_also",{l:FK.esc(listN(others,12))}):''):t("or_ans",{l:FK.esc(listN(q.ans,12))}))+'</div>'+FK.orNext(ok?3000:6000)+'</div>';
+    el.querySelectorAll("[data-in],[data-pass]").forEach(x=>x.disabled=true); try{ document.activeElement.blur(); }catch(e){} el.classList.remove("kb"); el.querySelectorAll("[data-ac]").forEach(x=>x.classList.add("hide"));
+    const go=()=>{ clearTimeout(nt); if(ended||gone) return; gone=true; i++; if(lives<=0||i>=pairs.length) finish(); else draw(); };
+    let gone=false; const nt=setTimeout(go,ok?3000:6000); const nb=el.querySelector("[data-next]"); if(nb) nb.onclick=()=>{ FK.sfx("tap"); go(); };
+    const f2=el.querySelector("[data-fb]"); if(f2) setTimeout(()=>f2.scrollIntoView({block:"nearest",behavior:"smooth"}),60); }
   function finish(){ ended=true; FK.backHandler=null;
     Object.assign(g,{correct,score,bestStreak:best,timeSum:tsum,res,i:pairs.length});
     const r=FK.finishGame({mode:"ortak",diff:g.diff,level:n,correct,total:pairs.length,score,bestStreak:best,timeSum:tsum,extra:{}});
@@ -133,7 +141,7 @@ FK.screens.orvs = (el,p) => {
   function start(seed){ pairs=FK.orPairs(.22,RN,"ortak-live-"+seed); FK.sfx("whistle"); ask(); }
   function ask(){ if(ended) return; if(i>=pairs.length){ finish(false); return; } phase="play"; const q=pairs[i];
     el.innerHTML='<div class="ol-top">'+pl(m,true,sMy)+'<div class="ol-mid"><div class="small" style="font-weight:800">'+t("or_round",{i:i+1,n:RN})+'</div><div class="ol-ring"><svg viewBox="0 0 54 54"><circle cx="27" cy="27" r="24" class="bg"/><circle cx="27" cy="27" r="24" class="fg" data-ring/></svg><b data-sec>'+RSEC+'</b></div></div>'+pl(opp,false,sOp)+'</div>'+
-     '<div class="scroll" style="padding-top:8px"><div class="stack" style="gap:12px">'+stage(q)+'<div class="card center" style="font-weight:800;font-size:15px;padding:12px">'+t("or_ask")+'</div>'+inputUI()+'<div data-fb></div></div></div>';
+     '<div class="scroll" style="padding-top:8px"><div class="stack" style="gap:12px">'+stage(q)+'<div class="card center or-askc" style="font-weight:800;font-size:15px;padding:12px">'+t("or_ask")+'</div>'+inputUI()+'<div data-fb></div></div></div>';
     el.querySelector("[data-pass]").remove();
     bindAC(el,name=>{ if(my[i]!=null||phase!=="play") return; const pp=FK.orDB().byName[name];
       if(pp&&pp.clubs.indexOf(q.a)>=0&&pp.clubs.indexOf(q.b)>=0){ my[i]=Math.round(performance.now()-t0); FK.sfx("ok"); set({["r"+side]:{[i]:my[i]}}); const fb=el.querySelector("[data-fb]"); if(fb) fb.innerHTML='<div class="card or-fb ok"><b>'+t("or_ok",{p:FK.esc(name)})+'</b></div>'; el.querySelectorAll("[data-in]").forEach(x=>x.disabled=true); }
@@ -154,10 +162,10 @@ FK.screens.orvs = (el,p) => {
     let w=null; if(a!=null&&(b==null||a<b||(a===b&&side==="a"))) w="me"; else if(b!=null) w="op";
     if(w==="me") sMy++; else if(w==="op") sOp++;
     FK.sfx(w==="me"?"ok":w==="op"?"no":"tap");
-    const fb=el.querySelector("[data-fb]"); if(fb) fb.innerHTML='<div class="card or-fb '+(w==="me"?"ok":"no")+'"><b>'+(w==="me"?t("or_youGot"):w==="op"?t("or_oppGot",{n:FK.esc(opp.name)}):t("or_noOne"))+'</b><div class="small" style="margin-top:4px">'+t("or_ans",{l:FK.esc(listN(q.ans,4))})+'</div></div>';
-    el.querySelectorAll("[data-in]").forEach(x=>x.disabled=true);
+    const fb=el.querySelector("[data-fb]"); if(fb) fb.innerHTML='<div class="card or-fb '+(w==="me"?"ok":"no")+'"><b>'+(w==="me"?t("or_youGot"):w==="op"?t("or_oppGot",{n:FK.esc(opp.name)}):t("or_noOne"))+'</b><div class="small" style="margin-top:4px">'+t("or_ans",{l:FK.esc(listN(q.ans,12))})+'</div>'+FK.orNext(4000,true)+'</div>';
+    el.querySelectorAll("[data-in]").forEach(x=>x.disabled=true); try{ document.activeElement.blur(); }catch(e){} el.classList.remove("kb"); el.querySelectorAll("[data-ac]").forEach(x=>x.classList.add("hide"));
     const sc=el.querySelectorAll(".ol-sc"); if(sc[0]) sc[0].textContent=sMy; if(sc[1]) sc[1].textContent=sOp;
-    setTimeout(()=>{ if(ended) return; i++; ask(); },2400); }
+    setTimeout(()=>{ if(ended) return; i++; ask(); },4000); }
   function finish(quit,oppLeft){ if(ended) return; cleanup(); FK.backHandler=null;
     const o=chs(); const res=quit?"l":oppLeft?"w":sMy>sOp?"w":sMy<sOp?"l":"d"; let dc=0,g=0;
     if(mode==="live"){ dc=quit?-15:res==="w"?25:res==="l"?-15:0; g=quit?0:res==="w"?30:res==="d"?10:5; o.cup=Math.max(0,o.cup+dc); o[res]=(o[res]||0)+1; }
