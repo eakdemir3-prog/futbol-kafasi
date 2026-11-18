@@ -7,19 +7,19 @@
 const FK=window.FK, t=FK.t, N=()=>window.FKAndroid;
 Object.assign(FK_I18N.tr,{
   m_ortak:"Ortak Futbolcu", m_ortakS:"İki kulüpte de oynamış futbolcuyu bul", or_title:"ORTAK FUTBOLCU",
-  or_ask:"İki kulüpte de forma giymiş bir futbolcu yaz", or_cnt:"Bu iki kulübün {n} ortak oyuncusu var · hepsi doğru sayılır", or_cnt1:"Bu iki kulübün tek bir ortak oyuncusu var",
+  or_ask:"İki kulüpte de forma giymiş bir futbolcu yaz", or_cnt:"Bu iki kulübün en az {n} ortak oyuncusu var · hepsi doğru sayılır", or_cnt1:"Bu iki kulübün en az 1 ortak oyuncusu var", or_unsure:"{p} bu iki kulübün birinde kayıtlı değil. Emin değiliz, canın gitmedi.", or_rep:"Hata bildir", or_none:"{p} bu iki kulüpte de oynamadı",
   or_ph:"Futbolcu adı…", or_pass:"Pas", or_ok:"Doğru! {p}", or_wrong:"{p} bu iki kulübün ikisinde birden oynamadı", or_also:"Diğer doğru cevaplar: {l}", or_ans:"Cevaplar: {l}",
   or_time:"Süre doldu!", or_online:"Online maç", or_onlineS:"Önce doğru yazan turu alır · 7 tur", or_bot:"Kafa Bot'a karşı", or_botS:"Tek başına antrenman", or_levels:"Bölümler", or_levelsS:"Kolaydan zora 200 bölüm",
   or_round:"Tur {i}/{n}", or_youGot:"Turu sen aldın!", or_oppGot:"Turu {n} aldı", or_noOne:"Kimse bilemedi", or_rules:"Ortak Futbolcu: Ekranda iki kulüp var. İkisinde de forma giymiş (kiralık dahil) bir futbolcu yaz. Birden fazla doğru cevap olabilir, hangisini yazarsan yaz doğru sayılır. Bölümlerde 3 canın var: yanlış cevap, pas ve süre bitimi 1 can götürür. Online maçta 7 tur oynanır; turu önce doğru yazan alır. Galibiyet +25 kupa ve 30 💎, mağlubiyet −15 kupa. Kafa Bot'a karşı kupa yoktur.",
-  or_lives:"Can", or_next:"Devam", or_cntS:"{n} ortak oyuncu", or_cnt1S:"Tek ortak oyuncu", or_noOpp:"Şu an online rakip yok, Kafa Bot'a karşı oynuyorsun."
+  or_lives:"Can", or_next:"Devam", or_cntS:"En az {n} ortak oyuncu", or_cnt1S:"En az 1 ortak oyuncu", or_noOpp:"Şu an online rakip yok, Kafa Bot'a karşı oynuyorsun."
 });
 Object.assign(FK_I18N.en,{
   m_ortak:"Common Player", m_ortakS:"Find a player who played for both clubs", or_title:"COMMON PLAYER",
-  or_ask:"Name a player who played for both clubs", or_cnt:"These clubs share {n} players · any of them counts", or_cnt1:"These clubs share just one player",
+  or_ask:"Name a player who played for both clubs", or_cnt:"These clubs share at least {n} players · any of them counts", or_cnt1:"These clubs share at least 1 player", or_unsure:"We have no record of {p} at one of these clubs. We're not sure, so you keep your life.", or_rep:"Report a mistake", or_none:"{p} played for neither club",
   or_ph:"Player name…", or_pass:"Pass", or_ok:"Correct! {p}", or_wrong:"{p} didn't play for both clubs", or_also:"Other correct answers: {l}", or_ans:"Answers: {l}",
   or_time:"Time's up!", or_online:"Online match", or_onlineS:"First correct answer takes the round · 7 rounds", or_bot:"Vs Kafa Bot", or_botS:"Solo practice", or_levels:"Levels", or_levelsS:"200 levels from easy to hard",
   or_round:"Round {i}/{n}", or_youGot:"You took the round!", or_oppGot:"{n} took the round", or_noOne:"Nobody got it", or_rules:"Common Player: two clubs are on screen. Name a player who played for both (loans count). There can be several correct answers; any of them counts. In levels you have 3 lives: a wrong answer, a pass or running out of time costs 1 life. Online matches have 7 rounds; whoever answers correctly first takes the round. Win +25 cups and 30 💎, loss −15 cups. No cups against Kafa Bot.",
-  or_lives:"Lives", or_next:"Next", or_cntS:"{n} common players", or_cnt1S:"Just one common player", or_noOpp:"No one is online right now, you're playing Kafa Bot."
+  or_lives:"Lives", or_next:"Next", or_cntS:"At least {n} common players", or_cnt1S:"At least 1 common player", or_noOpp:"No one is online right now, you're playing Kafa Bot."
 });
 FK.MODES.ortak={ icon:"user", g:["#0EA5E9","#1E3A8A"], fg:"#fff", diff:false, total:10 };
 if(FK.LV) FK.LV.ortak={ N:200, per:40, open:200, pass:[5,7,9] };
@@ -28,8 +28,13 @@ const chs=()=>{ const s=FK.state; s.ch=s.ch||{cup:0,w:0,l:0}; return s.ch; };   
 const cn=c=>FK_GCLUBS[c]?FK_GCLUBS[c][0]:c;
 let DB=null;
 FK.orDB = () => { if(DB) return DB; const P=[], byClub={}, LO=window.FK_LOANS||{};
-  FK_GPLAYERS.concat(window.FK_XPLAYERS||[]).forEach(x=>{ const cl=[...new Set((String(x[7])+","+(x[8]||"")+","+(LO[x[0]]||"")).split(",").filter(c=>c&&FK_GCLUBS[c]))]; if(!cl.length) return;
-    const p={name:x[0],fame:x[6],clubs:cl,n:FK.norm(x[0])}; P.push(p); cl.forEach(c=>(byClub[c]=byClub[c]||[]).push(p)); });
+  /* oyun verisi + Wikidata kariyer kayıtlarından eksik kulüpler/kiralıklar (FK_ORADD) + veride olmayan bilinen oyuncular (FK_ORNEW) */
+  const AD=window.FK_ORADD||{}, CUR=window.FK_GP_CUR||1e9, SEEN=new Set();
+  const rows=FK_GPLAYERS.map((x,i)=>[x[0],i>=CUR?3:x[6],String(x[7])+","+(x[8]||"")]).concat((window.FK_XPLAYERS||[]).map(x=>[x[0],x[6]||3,String(x[7])+","+(x[8]||"")])).concat(String(window.FK_ORNEW_S||"").split("\n").filter(Boolean).map(l=>{ const z=l.split(";"); return [z[0],+z[2]||3,z[3]||"",1]; }));
+  rows.forEach(([name,fame,cs,nw])=>{ if(/hakan ş[uü]k[uü]r/i.test(name)) return; const cl=[...new Set((cs+","+(LO[name]||"")+","+(AD[name]||"")).split(",").filter(c=>c&&FK_GCLUBS[c]))]; if(!cl.length) return;
+    if(SEEN.has(name)) return; SEEN.add(name);
+    const p={name,fame:fame||3,clubs:cl,n:FK.norm(name),nw:!!nw}; P.push(p); cl.forEach(c=>(byClub[c]=byClub[c]||[]).push(p)); });
+  Object.values(byClub).forEach(L=>L.sort((a,b)=>a.fame-b.fame));
   const sc={}; (FK.clubPool?FK.clubPool():[]).forEach(c=>sc[c.code]=c.sc);
   DB={P,byClub,sc,byName:Object.fromEntries(P.map(p=>[p.name,p]))}; return DB; };
 FK.orCommon = (a,b) => { const D=FK.orDB(); return (D.byClub[a]||[]).filter(p=>p.clubs.indexOf(b)>=0); };
@@ -42,7 +47,8 @@ FK.orPairs = (x,count,seed) => { const D=FK.orDB(), r=FK.rng(seed), used={}, out
   let guard=0;
   while(out.length<count&&guard++<600){
     const a=near[Math.floor(r()*near.length)]; const pc={};
-    D.byClub[a].forEach(p=>p.clubs.forEach(c=>{ if(c!==a&&D.sc[c]!=null) pc[c]=(pc[c]||0)+1; }));
+    /* ortak sayısı sadece bilinen oyunculardan (ün 1-2) hesaplanır: kolay bölümlerde bilinen çiftler gelsin */
+    D.byClub[a].forEach(p=>{ if((p.fame<=2&&!p.nw)||x>=.5) p.clubs.forEach(c=>{ if(c!==a&&D.sc[c]!=null) pc[c]=(pc[c]||0)+1; }); });
     const cand=Object.keys(pc).filter(c=>pc[c]>=need&&(x>=.4||pc[c]<=40)&&Math.abs(D.sc[c]-x*.8)<(x<.3?.25:.45));
     if(!cand.length) continue;
     const b=cand[Math.floor(r()*cand.length)], k=[a,b].sort().join("|");
@@ -102,7 +108,8 @@ FK.screens.orplay = (el,p) => {
      inputUI()+'<div data-fb></div></div></div>';
     el.querySelector("[data-quit]").onclick=()=>FK.backHandler();
     el.querySelector("[data-pass]").onclick=()=>{ if(!locked){ FK.sfx("tap"); done(false,"pass"); } };
-    bindAC(el,name=>{ if(locked) return; const pp=FK.orDB().byName[name]; if(pp&&pp.clubs.indexOf(q.a)>=0&&pp.clubs.indexOf(q.b)>=0) done(true,name); else done(false,"wrong",name); });
+    bindAC(el,name=>{ if(locked) return; const pp=FK.orDB().byName[name]; const ha=pp&&pp.clubs.indexOf(q.a)>=0, hb=pp&&pp.clubs.indexOf(q.b)>=0;
+      if(ha&&hb) done(true,"ok",name); else if(ha||hb) done(false,"unsure",name); else done(false,"wrong",name); });
     t0=performance.now(); loop(); }
   function loop(){ cancelAnimationFrame(raf); const ring=el.querySelector("[data-ring]"), lbl=el.querySelector("[data-sec]"); let lastS=-1;
     const step=now=>{ if(ended||locked) return; const left=Math.max(0,SEC-(now-t0)/1000); if(ring) ring.style.strokeDashoffset=String(150.8*(1-left/SEC));
@@ -111,10 +118,11 @@ FK.screens.orplay = (el,p) => {
     raf=requestAnimationFrame(step); }
   function done(ok,why,name){ locked=true; cancelAnimationFrame(raf); const q=pairs[i], used=(performance.now()-t0)/1000; tsum+=used; res[i]=ok;
     if(ok){ correct++; streak++; best=Math.max(best,streak); score+=100+Math.round(100*Math.max(0,1-used/SEC)); FK.sfx("ok"); FK.vib(30); }
-    else { lives--; streak=0; FK.sfx("no"); FK.vib([60,40,60]); }
+    else { if(why!=="unsure") lives--; streak=0; FK.sfx("no"); FK.vib([60,40,60]); }
     const others=q.ans.filter(a=>a!==name);
-    const fb=el.querySelector("[data-fb]"); if(fb) fb.innerHTML='<div class="card or-fb '+(ok?"ok":"no")+'"><b>'+(ok?t("or_ok",{p:FK.esc(name)}):why==="wrong"?t("or_wrong",{p:FK.esc(name)}):why==="time"?t("or_time"):"⏭ "+t("or_pass"))+'</b>'+
-      '<div class="small or-list" style="margin-top:4px">'+(ok?(others.length?t("or_also",{l:FK.esc(listN(others,12))}):''):t("or_ans",{l:FK.esc(listN(q.ans,12))}))+'</div>'+FK.orNext(ok?3000:6000)+'</div>';
+    const fb=el.querySelector("[data-fb]"); if(fb) fb.innerHTML='<div class="card or-fb '+(ok?"ok":"no")+'"><b>'+(ok?t("or_ok",{p:FK.esc(name)}):why==="unsure"?t("or_unsure",{p:FK.esc(name)}):why==="wrong"?t("or_none",{p:FK.esc(name)}):why==="time"?t("or_time"):"⏭ "+t("or_pass"))+'</b>'+
+      '<div class="small or-list" style="margin-top:4px">'+(ok?(others.length?t("or_also",{l:FK.esc(listN(others,12))}):''):t("or_ans",{l:FK.esc(listN(q.ans,12))}))+'</div>'+(why==="unsure"||why==="wrong"?'<button class="or-rep" data-rep>⚠️ '+t("or_rep")+'</button>':'')+FK.orNext(ok?3000:6000)+'</div>';
+    const rp=el.querySelector("[data-rep]"); if(rp) rp.onclick=()=>{ clearTimeout(nt); gone=true; FK.openUrl("mailto:eakdemir3@gmail.com?subject="+encodeURIComponent("Futbol Kafası veri hatası")+"&body="+encodeURIComponent("Ortak Futbolcu: "+name+" — "+FK_GCLUBS[q.a][0]+" / "+FK_GCLUBS[q.b][0]+" (v"+FK.VERSION+")")); rp.disabled=true; rp.textContent="✓"; setTimeout(()=>{ gone=false; go(); },1500); };
     el.querySelectorAll("[data-in],[data-pass]").forEach(x=>x.disabled=true); try{ document.activeElement.blur(); }catch(e){} el.classList.remove("kb"); el.querySelectorAll("[data-ac]").forEach(x=>x.classList.add("hide"));
     const go=()=>{ clearTimeout(nt); if(ended||gone) return; gone=true; i++; if(lives<=0||i>=pairs.length) finish(); else draw(); };
     let gone=false; const nt=setTimeout(go,ok?3000:6000); const nb=el.querySelector("[data-next]"); if(nb) nb.onclick=()=>{ FK.sfx("tap"); go(); };
