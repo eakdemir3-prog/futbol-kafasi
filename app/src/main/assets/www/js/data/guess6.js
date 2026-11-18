@@ -34,22 +34,41 @@ Object.keys(SH).forEach(k=>{ if(C[k]) C[k][1]=SH[k]; });
    Kaynak: https://eakdemir3-prog.github.io/fitnex-legal/futbol-kafasi/fk-data.json
    Biçim: {v, date, moves:[[oyuncu,kulüpKodu]], free:[...], unfree:[...], retire:[...], by:{oyuncu:yıl}, nat:{oyuncu:ülke},
            clubs:{kod:[ad,kısa,lig,renk1,renk2]}, active:[...] } */
+/* v1.5: önce bütün dosya doğrulanır; tek bir hatalı kayıt varsa hiçbir şey uygulanmaz. Uygulama kopya üzerinde yapılır, sonunda tek seferde devreye alınır */
+window.FK_CHECK_PATCH = function(P){
+  const isO=o=>o&&typeof o==="object"&&!Array.isArray(o), isS=x=>typeof x==="string"&&x.length>0&&x.length<80, arrS=a=>a==null||(Array.isArray(a)&&a.every(isS));
+  if(!isO(P)) return false; if(P.v!=null&&typeof P.v!=="number") return false;
+  const G=window.FK_GPLAYERS, X=window.FK_XPLAYERS||[], names=new Set(G.concat(X).map(p=>p[0]));
+  const C=Object.assign({},window.FK_GCLUBS);
+  if(P.clubs!=null){ if(!isO(P.clubs)) return false; for(const k of Object.keys(P.clubs)){ const v=P.clubs[k]; if(!/^[A-Za-z0-9_]{1,12}$/.test(k)||!Array.isArray(v)||v.length<5||!v.slice(0,5).every(isS)) return false; C[k]=v; } }
+  if(P.moves!=null){ if(!Array.isArray(P.moves)) return false; for(const m of P.moves){ if(!Array.isArray(m)||!names.has(m[0])||!C[m[1]]) return false; } }
+  if(P.by!=null){ if(!isO(P.by)) return false; for(const n of Object.keys(P.by)){ const y=P.by[n]; if(!names.has(n)||typeof y!=="number"||y<=1850||y>=2015) return false; } }
+  if(P.nat!=null){ if(!isO(P.nat)) return false; for(const n of Object.keys(P.nat)){ if(!names.has(n)||!/^[A-Z]{2}(-[A-Z]{2,4})?$/.test(P.nat[n])) return false; } }
+  for(const k of ["free","unfree","active","retire"]){ if(!arrS(P[k])) return false; if(P[k]&&P[k].some(n=>!names.has(n))) return false; }
+  return true; };
 window.FK_APPLY_PATCH = function(P){
-  if(!P||typeof P!=="object") return false;
+  if(!window.FK_CHECK_PATCH(P)) return false;
+  /* yedek al → uygula → hata olursa geri yükle (ya hep ya hiç) */
+  const G=window.FK_GPLAYERS, X=window.FK_XPLAYERS||[];
+  const bak={G:G.map(r=>r.slice()),X:X.map(r=>r.slice()),C:JSON.parse(JSON.stringify(window.FK_GCLUBS)),A:window.FK_ACTIVE.slice(),F:Object.assign({},window.FK_FREE),v:window.FK_PATCH_V,d:window.FK_PATCH_DATE};
   try{
-    const G=window.FK_GPLAYERS, X=window.FK_XPLAYERS||[], C=window.FK_GCLUBS, ALL=G.concat(X);
+    const C=window.FK_GCLUBS, ALL=G.concat(X);
     const find=n=>ALL.find(p=>p[0]===n);
-    const clubs=P.clubs||{}; Object.keys(clubs).forEach(k=>{ const v=clubs[k]; if(Array.isArray(v)&&v.length>=5) C[k]=v.slice(0,5); });
-    (P.moves||[]).forEach(m=>{ if(Array.isArray(m)) window.FK_MOVE(m[0],m[1]); });
-    const by=P.by||{}; Object.keys(by).forEach(n=>{ const p=find(n); if(p&&by[n]>1850&&by[n]<2015) p[1]=by[n]; });
-    const nat=P.nat||{}; Object.keys(nat).forEach(n=>{ const p=find(n); if(p&&typeof nat[n]==="string") p[2]=nat[n]; });
+    const clubs=P.clubs||{}; Object.keys(clubs).forEach(k=>{ C[k]=clubs[k].slice(0,5); });
+    (P.moves||[]).forEach(m=>window.FK_MOVE(m[0],m[1]));
+    const by=P.by||{}; Object.keys(by).forEach(n=>{ find(n)[1]=by[n]; });
+    const nat=P.nat||{}; Object.keys(nat).forEach(n=>{ find(n)[2]=nat[n]; });
     (P.free||[]).forEach(n=>{ window.FK_FREE[n]=1; });
-    (P.unfree||[]).forEach(n=>{ delete window.FK_FREE[n]; if(window.FK_ACTIVE.indexOf(n)<0&&find(n)) window.FK_ACTIVE.push(n); });
-    (P.active||[]).forEach(n=>{ if(window.FK_ACTIVE.indexOf(n)<0&&find(n)) window.FK_ACTIVE.push(n); });
+    (P.unfree||[]).forEach(n=>{ delete window.FK_FREE[n]; if(window.FK_ACTIVE.indexOf(n)<0) window.FK_ACTIVE.push(n); });
+    (P.active||[]).forEach(n=>{ if(window.FK_ACTIVE.indexOf(n)<0) window.FK_ACTIVE.push(n); });
     const ret=new Set(P.retire||[]); if(ret.size) window.FK_ACTIVE=window.FK_ACTIVE.filter(n=>!ret.has(n));
     window.FK_SETFREE();
     window.FK_PATCH_V=P.v||0; window.FK_PATCH_DATE=P.date||"";
     return true;
-  }catch(e){ return false; }
+  }catch(e){
+    bak.G.forEach((r,i)=>{ G[i]=r; }); bak.X.forEach((r,i)=>{ X[i]=r; });
+    Object.keys(window.FK_GCLUBS).forEach(k=>delete window.FK_GCLUBS[k]); Object.assign(window.FK_GCLUBS,bak.C);
+    window.FK_ACTIVE=bak.A; Object.keys(window.FK_FREE).forEach(k=>delete window.FK_FREE[k]); Object.assign(window.FK_FREE,bak.F);
+    window.FK_PATCH_V=bak.v; window.FK_PATCH_DATE=bak.d; return false; }
 };
-try{ const c=localStorage.getItem("fk_patch"); if(c) window.FK_APPLY_PATCH(JSON.parse(c)); }catch(e){}
+try{ const c=localStorage.getItem("fk_patch"); if(c&&!window.FK_APPLY_PATCH(JSON.parse(c))) localStorage.removeItem("fk_patch"); }catch(e){}

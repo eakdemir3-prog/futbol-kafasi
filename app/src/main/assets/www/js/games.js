@@ -66,12 +66,10 @@ FK.duelGame = (code,side) => {
   const r=FK.rng("duel-"+code), q=FK_QUESTIONS;
   const pick=[].concat(FK.shuffle(q.filter(x=>x.d===1),r).slice(0,4),FK.shuffle(q.filter(x=>x.d===2),r).slice(0,4),FK.shuffle(q.filter(x=>x.d===3),r).slice(0,2));
   const qs=pick.map(x=>({ k:x.k, text:L(x.q), answer:L(x.a[0]), opts:FK.shuffle(x.a.map(L),r) }));
-  const g={ mode:"duel", duel:{code,side}, diff:0, qs, i:0, score:0, correct:0, streak:0, bestStreak:0, timeSum:0, res:[], jokers:0, practice:false, extra:{} };
+  const g={ mode:"duel", duel:{code,side}, diff:0, sec:10, qs, i:0, score:0, correct:0, streak:0, bestStreak:0, timeSum:0, res:[], jokers:0, practice:false, extra:{} };
   FK.go("play",{g},{replace:true});
 };
-function buildCareer(diff){
-  return byDiff(FK_CAREERS,diff,5,c=>c.d,"career",c=>c.name).map(c=>({ answer:c.name, order:c.clubs.map(nameOf), pool:FK.shuffle(c.clubs.map(nameOf)) }));
-}
+function buildCareer(diff){ return FK.buildRoute(FK.careerPool(),[0,.1,.35,.6,.85][diff]||.3,10); }
 
 /* ---------- başlangıç ekranı ---------- */
 FK.screens.intro = (el,{mode}) => {
@@ -153,7 +151,7 @@ FK.screens.play = (el,{g}) => {
 
   function finishQ(ok,pts,used){
     stopTimer();
-    g.res[g.i]=ok; g.timeSum+=used||0;
+    g.res[g.i]=ok; g.timeSum+=used||0; (g.ut=g.ut||[])[g.i]=used||0;
     if(ok){ g.correct++; g.streak++; g.bestStreak=Math.max(g.bestStreak,g.streak); g.score+=pts; FK.sfx("ok"); FK.vib(30); fb(true,t("correct")); }
     else { g.streak=0; FK.sfx("no"); FK.vib([60,40,60]); }
     setTimeout(next, ok?1100:1700);
@@ -223,19 +221,20 @@ FK.screens.play = (el,{g}) => {
 
   /* ---- hızlı seçmeli modlar: bayrak & günün 10'u ---- */
   function drawQuick(){
-    const q=g.qs[g.i], isFlag=g.mode==="flag", SEC=g.sec||(isFlag?10:15); if(q.t0==null){ q.t0=performance.now(); q.gone={}; }
+    const q=g.qs[g.i], isFlag=g.mode==="flag", isRoute=g.mode==="career", isKadro=g.mode==="kadro", SEC=g.sec||(isFlag?10:15); if(q.t0==null){ q.t0=performance.now(); q.gone={}; }
     const QI={wc:"🏆",cl:"⭐",cl2:"🏟️",co:"📋",eu:"🥇",nt:"🌍",org:"🏛️",pl:"👟",ru:"📏",tr:"🇹🇷"};
     const cFlag=o=>{ if(!window.FK_COUNTRIES) return ''; const c=FK_COUNTRIES.find(x=>FK.cName(x[0])===o); return c?'<span class="oflag">'+FK.flag(c[0])+'</span>':''; };
     el.innerHTML=head()+'<div class="scroll qx" style="padding-top:12px">'+
-     (isFlag
+     (isRoute ? FK.routeStage(q,timerUI(SEC)) : isKadro ? FK.kadroStage(q,timerUI(SEC)) : isFlag
       ? '<div class="stage qstage flagst"><div class="rays2" style="opacity:.25"></div><span class="qcat">🚩 '+t("qc_flag")+'</span><div class="flag-big">'+FK.flag(q.code)+'</div>'+timerUI(SEC)+'<div class="qask">'+t("whichCountry")+'</div></div>'
       : '<div class="stage qstage"><div class="qpitch"></div><span class="qcat">'+(QI[q.k]||"⚽")+' '+t("qc_"+(q.k||"wc"))+'</span><div class="qtext">'+FK.esc(q.text)+'</div>'+timerUI(SEC)+'<div class="pts-badge">+100 · '+FK.ic("bolt",12,2.4,'style="display:inline;vertical-align:-1px"')+' +50</div><div class="qkafa">'+(FK.kafa?FK.kafa("bilge",62):'')+'</div></div>')+
-     '<div class="opts qopts '+(isFlag?'two':'one')+'">'+q.opts.map((o,k)=>'<button class="opt qopt'+(q.gone[k]?" gone":"")+'" data-o="'+k+'"><i class="ol l'+k+'">'+"ABCD"[k]+'</i><span class="grow">'+FK.esc(o)+'</span>'+(isFlag?'':cFlag(o))+'</button>').join("")+'</div>'+
+     (isKadro?'<div class="card kd-ask">'+FK.clubBadge(q.club,38)+'<div class="grow"><b>'+t("kd_ask",{c:FK.esc(q.clubName),p:t("kdp_"+q.pos)})+'</b><div class="small muted">'+t("kd_sub")+'</div></div></div>':'')+
+     '<div class="opts qopts '+(isFlag?'two':isKadro?'three':'one')+'">'+q.opts.map((o,k)=>'<button class="opt qopt'+(q.gone[k]?" gone":"")+'" data-o="'+k+'">'+(isKadro?'':'<i class="ol l'+k+'">'+"ABCD"[k]+'</i>')+'<span class="grow">'+FK.esc(o)+'</span>'+(isFlag||isRoute||isKadro?'':cFlag(o))+'</button>').join("")+'</div>'+
      (canBoost()?FK.boostBar(["fifty","time","pass"]):'')+
     '</div>';
     bindCommon();
     const used=runTimer(SEC,null,()=>{ fb(false,t("timeUp")); FK.sfx("whistleEnd"); el.querySelectorAll("[data-o]").forEach(x=>{x.disabled=true; if(q.opts[+x.dataset.o]===q.answer) x.classList.add("ok");}); finishQ(false,0,SEC); },q.t0);
-    if(canBoost()) FK.bindBoosts(el,{ fifty:()=>{ g.extra.boost=1; const w=q.opts.map((o,k)=>k).filter(k=>q.opts[k]!==q.answer&&!q.gone[k]); FK.shuffle(w).slice(0,2).forEach(k=>q.gone[k]=1); drawQuick(); },
+    if(canBoost()) FK.bindBoosts(el,{ fifty:()=>{ g.extra.boost=1; const w=q.opts.map((o,k)=>k).filter(k=>q.opts[k]!==q.answer&&!q.gone[k]); FK.shuffle(w).slice(0,isKadro?1:2).forEach(k=>q.gone[k]=1); drawQuick(); },
       time:()=>{ g.extra.boost=1; q.t0+=10000; drawQuick(); }, pass:()=>skipQ() });
     el.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{
       const u=used(); const ok=q.opts[+b.dataset.o]===q.answer;
@@ -243,6 +242,8 @@ FK.screens.play = (el,{g}) => {
       b.classList.add(ok?"ok":"no");
       if(!ok) fb(false,t("wrong"));
       const speed=Math.max(0,1-u/SEC);
+      if(isKadro&&ok) FK.kadroReveal(el,q);
+      if(isRoute&&ok){ g.extra.careersOk=(g.extra.careersOk||0)+1; g.extra.firstTry=(g.extra.firstTry||0)+1; }
       finishQ(ok, ok? (isFlag?50+Math.round(50*speed):100+Math.round(50*speed)) : 0, u);
     });
   }
@@ -276,7 +277,7 @@ FK.screens.play = (el,{g}) => {
   }
 
   function bindCommon(){ el.querySelector("[data-quit]").onclick=()=>FK.backHandler(); }
-  function draw(){ if(g.mode==="player"||g.mode==="club") drawClues(); else if(g.mode==="career") drawCareer(); else drawQuick(); }
+  function draw(){ if(g.mode==="player"||g.mode==="club") drawClues(); else if(g.mode==="career"&&!g.qs[g.i].clubs) drawCareer(); else drawQuick(); }
 
   // geri sayım
   el.innerHTML=head();

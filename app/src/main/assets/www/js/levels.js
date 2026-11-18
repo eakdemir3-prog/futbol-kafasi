@@ -32,7 +32,7 @@ FK.LV = {
   club:  { N:200, per:40, open:200, pass:[5,7,9] },
   guess: { N:200, per:40, open:200 },
   flag:  { N:100, per:20, open:100, pass:[5,7,9] },
-  career:{ N:100, per:20, open:100, pass:[3,4,5] }
+  career:{ N:100, per:20, open:100, pass:[5,7,9] }
 };
 const LGC=[["#D97706","#7C2D12"],["#22C55E","#14532D"],["#3B82F6","#1E3A8A"],["#F59E0B","#78350F"],["#A855F7","#4C1D95"]];
 const LGE=["🥉","⚽","🌍","📜","👑"];
@@ -157,11 +157,12 @@ FK.careerPool = () => {
   return _car;
 };
 function buildCareerLv(n){
-  return FK.pickBy("career",FK.careerPool(),xOf("career",n),5,c=>c.name).map(c=>({ answer:c.name, order:c.clubs.slice(), pool:FK.shuffle(c.clubs.slice()) }));
+  /* v1.5 Transfer Rotası: kulüpler sırayla, futbolcu 4 şıktan */
+  return FK.buildRoute(FK.careerPool(),xOf("career",n),10);
 }
 
 /* ---------- oyun başlatma ---------- */
-FK.lvSec = (mode,n) => { const x=xOf(mode,n); return mode==="flag" ? Math.round(10-x*4) : Math.round(15-x*5); };
+FK.lvSec = (mode,n) => { const x=xOf(mode,n); return mode==="flag" ? Math.round(10-x*4) : mode==="career"||mode==="kadro" ? Math.round(20-x*6) : Math.round(15-x*5); };
 FK.lvClueTime = (mode,n) => Math.round(40-xOf(mode,n)*12);
 FK.playLevel = (mode,n) => {
   const S=FK.lvState(mode); if(n>S.cur) { FK.toast(t("lvLocked"),"lock"); return; }
@@ -171,8 +172,10 @@ FK.playLevel = (mode,n) => {
       const era=n<=120?"now":n<=160?"old":"mix";
       const pool=FK.gp().filter(p=>era==="now"?p.act:era==="old"?!p.act:true), T=FK.pickBy("guess",pool,xOf("guess",n),1,p=>p.name)[0];
       FK.go("guess",{diff:[1,2,3,3,4][lg],era,level:n,target:T.name,max:[10,8,7,7,6][lg]},{replace:true}); return; }
+    if(mode==="ortak"){ const x=xOf(mode,n); FK.go("orplay",{level:n,x,diff:d,pairs:FK.orPairs(x,10,"or"+n+"-"+Date.now()),sec:Math.round(30-x*10)},{replace:true}); return; }
     let qs;
-    if(mode==="player") qs=buildPlayerLv(n);
+    if(mode==="kadro") qs=FK.buildKadro(xOf(mode,n),10,"kd"+n+"-"+Date.now());
+    else if(mode==="player") qs=buildPlayerLv(n);
     else if(mode==="club") qs=buildClubLv(n);
     else if(mode==="career") qs=buildCareerLv(n);
     else if(mode==="flag") qs=FK.buildFlag(1+Math.min(3,Math.floor(xOf("flag",n)*4)));

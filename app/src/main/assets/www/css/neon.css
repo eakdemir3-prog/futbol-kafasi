@@ -1,0 +1,128 @@
+/* ==========================================================
+   v1.5 — "GECE STADYUMU" neon tema (koyu tema = varsayılan)
+   Lacivert/mor zemin + stadyum (ışıklar, huzme, tribün, çim), lime #C6FF3D vurgular, mor #7C3AED parlak kenarlar.
+   Açık temada sadece lime vurgular kullanılır.
+   ========================================================== */
+:root{ --lime:#C6FF3D; --lime-d:#A3E635; --lime-dd:#4D7C0F; --neon:#7C3AED; --neon-l:#A78BFA; }
+
+/* ---------- stadyum arka planı ---------- */
+#stad{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;max-width:520px;margin:0 auto;display:none}
+html[data-theme=dark] #stad{display:block}
+#stad{background:linear-gradient(180deg,#0B0A2E 0%,#15124A 38%,#0E1B3A 55%,#0B2A1C 70%,#0A3A20 100%)}
+#stad .sky{position:absolute;left:0;right:0;top:0;height:46%;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(139,92,246,.35),transparent 70%)}
+#stad .crowd{position:absolute;left:-5%;right:-5%;top:24%;height:30%;background:
+  radial-gradient(circle,rgba(255,255,255,.22) 0 1px,transparent 1.6px) 0 0/7px 6px,
+  radial-gradient(circle,rgba(167,139,250,.28) 0 1.2px,transparent 1.8px) 3px 3px/9px 7px,
+  linear-gradient(180deg,rgba(30,27,75,0),#1B1650 40%,#141238);
+  -webkit-mask:linear-gradient(180deg,transparent,#000 30%,#000 80%,transparent);mask:linear-gradient(180deg,transparent,#000 30%,#000 80%,transparent);opacity:.9}
+#stad .lt{position:absolute;top:6%;width:70px;height:26px;border-radius:6px;background:repeating-linear-gradient(90deg,#fff 0 6px,#E0E7FF 6px 8px);box-shadow:0 0 18px 6px rgba(255,255,255,.65),0 0 60px 24px rgba(165,180,252,.35)}
+#stad .lt.l{left:-18px;transform:rotate(-14deg)} #stad .lt.r{right:-18px;transform:rotate(14deg)}
+#stad .beam{position:absolute;top:8%;width:260px;height:520px;background:linear-gradient(180deg,rgba(224,231,255,.2),transparent 70%);filter:blur(8px)}
+#stad .beam.l{left:-40px;transform:rotate(-28deg);transform-origin:0 0;clip-path:polygon(0 0,30% 0,100% 100%,0 100%)}
+#stad .beam.r{right:-40px;transform:rotate(28deg);transform-origin:100% 0;clip-path:polygon(70% 0,100% 0,100% 100%,0 100%)}
+#stad .grass{position:absolute;left:-30%;right:-30%;bottom:0;height:44%;background:repeating-linear-gradient(90deg,#15803D 0 40px,#16A34A 40px 80px);transform:perspective(300px) rotateX(48deg);transform-origin:50% 100%;box-shadow:inset 0 40px 60px rgba(5,6,26,.75)}
+#stad .fog{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,38,.35),rgba(10,11,38,.25) 30%,rgba(10,11,38,.6) 60%,rgba(10,11,38,.82))}
+html[data-theme=dark] #app{z-index:1}
+
+/* ---------- koyu tema değişkenleri ---------- */
+html[data-theme=dark]{
+  --bg:#0A0B26; --bg2:#0F1036; --card:rgba(17,18,56,.86); --card2:#1A1850; --line:rgba(167,139,250,.26); --line2:rgba(167,139,250,.5);
+  --text:#FFFFFF; --muted:#B4BCE8; --dim:#7C83B8;
+  --green-l:#C6FF3D; --yellow-l:#C6FF3D;
+}
+html[data-theme=dark] body{background:#05061A}
+html[data-theme=dark] .screen{background:transparent}
+
+/* başlıklar: italik, koyu konturlu, mor parıltılı */
+html[data-theme=dark] .h-display{-webkit-text-stroke:1.2px #0A0B26;paint-order:stroke fill;text-shadow:0 3px 0 #0A0B26,0 0 20px rgba(139,92,246,.55)}
+html[data-theme=dark] .h1,html[data-theme=dark] .topbar h1{color:#fff}
+.nx-two .g{color:var(--lime)}
+
+/* üst bar / pill / ikon */
+html[data-theme=dark] .icon-btn{border-radius:50%;background:rgba(15,16,50,.8);border:1.5px solid rgba(167,139,250,.55);color:#E0E7FF;box-shadow:0 0 10px rgba(124,58,237,.3)}
+html[data-theme=dark] .pill{background:rgba(15,16,50,.82);border:1.5px solid rgba(198,255,61,.5);color:#fff;font-weight:800}
+html[data-theme=dark] .pill.fire{border-color:rgba(255,138,31,.55)}
+
+/* kartlar */
+html[data-theme=dark] .card{background:rgba(15,16,50,.84);border:1.5px solid rgba(167,139,250,.32);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+html[data-theme=dark] .mode{background:rgba(15,16,50,.88);border:1.5px solid rgba(167,139,250,.42);box-shadow:0 0 14px rgba(124,58,237,.25)}
+html[data-theme=dark] .mode-name{font-family:var(--display);font-style:italic;font-weight:900;font-size:19px;text-transform:uppercase;letter-spacing:.3px}
+html[data-theme=dark] .mode-desc{color:#C7D2FE}
+html[data-theme=dark] .card-hero{box-shadow:0 0 0 1.5px rgba(167,139,250,.45),0 12px 30px rgba(0,0,0,.35)}
+html[data-theme=dark] .lrow{background:rgba(15,16,50,.82);border:1px solid rgba(167,139,250,.22)}
+html[data-theme=dark] .lrow.me{background:linear-gradient(90deg,rgba(198,255,61,.22),rgba(15,16,50,.9));border:1.5px solid var(--lime)}
+html[data-theme=dark] .modal{background:linear-gradient(180deg,#16134A,#0F1036);border:1.5px solid rgba(167,139,250,.55);box-shadow:0 0 30px rgba(124,58,237,.45)}
+html[data-theme=dark] .modal-wrap{background:rgba(5,6,26,.78)}
+html[data-theme=dark] .setting{border-color:rgba(167,139,250,.18)}
+
+/* butonlar */
+.btn-primary,html[data-theme=light] .btn-primary{background:linear-gradient(180deg,#D9FF66,#A3E635);color:#0A0B26;box-shadow:0 5px 0 #4D7C0F,0 0 22px rgba(198,255,61,.35)}
+.btn-primary:active{box-shadow:0 2px 0 #4D7C0F}
+html[data-theme=dark] .btn-ghost{background:rgba(15,16,50,.85);border:2px solid rgba(124,58,237,.75);box-shadow:0 0 12px rgba(124,58,237,.3)}
+html[data-theme=dark] .btn-purple{box-shadow:0 5px 0 #3B0764,0 0 20px rgba(124,58,237,.45)}
+html[data-theme=dark] .btn-green{background:linear-gradient(180deg,#D9FF66,#A3E635);color:#0A0B26;box-shadow:0 5px 0 #4D7C0F}
+
+/* segment / sekmeler */
+html[data-theme=dark] .seg{background:rgba(15,16,50,.85);border:1.5px solid rgba(167,139,250,.35)}
+.seg button.on{background:var(--lime);color:#0A0B26}
+
+/* giriş */
+html[data-theme=dark] .input{background:rgba(15,16,50,.92);border:2px solid #A78BFA;box-shadow:0 0 14px rgba(167,139,250,.3)}
+html[data-theme=dark] .input:focus{border-color:var(--lime);box-shadow:0 0 16px rgba(198,255,61,.35)}
+
+/* alt menü */
+html[data-theme=dark] .nav{background:rgba(10,11,38,.96);border-top:1.5px solid rgba(167,139,250,.35);box-shadow:0 -6px 24px rgba(124,58,237,.18)}
+.nav-item.active{color:var(--lime)}
+.nav-item.active::after{background:var(--lime);box-shadow:0 0 8px var(--lime)}
+.nav-play{background:linear-gradient(145deg,#D9FF66,#84CC16);color:#0A0B26;box-shadow:0 10px 24px rgba(198,255,61,.4)}
+html[data-theme=dark] .nav-play{border-color:#0A0B26}
+.nav-play.active{box-shadow:0 0 0 3px var(--lime),0 10px 24px rgba(198,255,61,.5)}
+
+/* soru ekranı */
+html[data-theme=dark] .stage{border:1.5px solid rgba(167,139,250,.45);box-shadow:0 0 18px rgba(124,58,237,.3)}
+html[data-theme=dark] .qstage{background:linear-gradient(180deg,rgba(30,27,75,.92),rgba(15,16,50,.92))}
+html[data-theme=dark] .stadium{background:radial-gradient(ellipse at 50% 120%,#16A34A 0%,#14532D 28%,rgba(21,18,74,.95) 55%,rgba(11,10,46,.96) 80%)}
+html[data-theme=dark] .opt{background:linear-gradient(180deg,#1A1850,#121037);border:2px solid #7C3AED;box-shadow:0 0 14px rgba(124,58,237,.4),inset 0 1px 0 rgba(255,255,255,.08);color:#fff}
+html[data-theme=dark] .opt:active{box-shadow:0 0 8px rgba(124,58,237,.4)}
+.opt.ok,html[data-theme=dark] .opt.ok{background:linear-gradient(180deg,#D9FF66,#A3E635);border-color:#ECFCCB;color:#0A0B26;box-shadow:0 0 22px rgba(198,255,61,.65)}
+html[data-theme=dark] .opt.no{background:linear-gradient(180deg,#7F1D1D,#450A0A);border-color:#F87171}
+html[data-theme=dark] .opt.sel{border-color:var(--lime)}
+.qbar span.ok{background:var(--lime);box-shadow:0 0 6px rgba(198,255,61,.7)}
+.qbar span.cur{background:#fff}
+html[data-theme=dark] .qbar span{background:rgba(255,255,255,.12)}
+.timer circle[data-ring],.ol-ring .fg{stroke:var(--lime)}
+.timer.warn circle[data-ring]{stroke:#F87171}
+html[data-theme=dark] .timer b{color:#fff}
+/* soru şeridi: lime, eğik */
+.qask,.rt-ask{display:inline-block;background:var(--lime);color:#0A0B26!important;font-family:var(--display);font-style:italic;font-weight:900;text-transform:uppercase;padding:6px 16px;transform:skewX(-10deg) rotate(-2deg);box-shadow:0 4px 0 #4D7C0F,0 0 22px rgba(198,255,61,.4);line-height:1;-webkit-text-stroke:0;text-shadow:none!important}
+.qcat{background:rgba(124,58,237,.35)!important;border:1px solid rgba(167,139,250,.6);color:#fff!important}
+html[data-theme=dark] .qtext{text-shadow:0 2px 6px rgba(0,0,0,.5)}
+.chip-new{background:var(--lime)!important;color:#0A0B26!important}
+
+/* bölüm haritası */
+html[data-theme=dark] .lv-b{border-color:rgba(167,139,250,.45)}
+html[data-theme=dark] .lv-b.cur{box-shadow:0 0 0 3px var(--lime),0 0 18px rgba(198,255,61,.6)}
+
+/* sonuç / düello */
+html[data-theme=dark] .du-hero,html[data-theme=dark] .ol-card{box-shadow:0 0 0 1.5px rgba(167,139,250,.5),0 0 24px rgba(124,58,237,.35)}
+html[data-theme=dark] .ol-top{background:rgba(10,11,38,.6)}
+
+/* kalkan kulüp rozeti */
+.cbadge.sh{background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;text-shadow:none!important;display:inline-flex;align-items:center;justify-content:center}
+.cbadge.sh svg{width:100%;height:100%;filter:drop-shadow(0 3px 5px rgba(0,0,0,.45));overflow:visible}
+.rcell .cbadge.sh,.gcell .cbadge.sh{width:92%!important;height:92%!important}
+.rt-c .cbadge.sh,.or-ba .cbadge.sh,.or-bb .cbadge.sh,.chB-b .cbadge.sh{box-shadow:none!important}
+.chB-b:has(.sh){box-shadow:none;border-radius:0}
+
+/* yeni modlar neon ayarları */
+html[data-theme=dark] .kd-pitch{box-shadow:inset 0 0 0 3px rgba(255,255,255,.55),0 0 22px rgba(124,58,237,.4);border:1.5px solid rgba(167,139,250,.55)}
+html[data-theme=dark] .kd-ask{background:linear-gradient(150deg,rgba(124,58,237,.35),rgba(15,16,50,.92) 70%)}
+html[data-theme=dark] .rt-y{background:#2E1065;border:1.5px solid #A78BFA;box-shadow:0 0 8px rgba(167,139,250,.5);color:#fff}
+
+/* açık tema: lime vurgular okunur kalsın */
+html[data-theme=light] .seg button.on,html[data-theme=light] .chip-new{color:#0A0B26!important}
+html[data-theme=light] .nav-item.active{color:#4D7C0F}
+html[data-theme=light] .nav-item.active::after{background:#65A30D}
+html[data-theme=light] .qask,html[data-theme=light] .rt-ask{box-shadow:0 4px 0 #4D7C0F}
+html[data-theme=light] .rt-y{background:#1E1B4B;color:#fff}
+html[data-theme=dark] .g2{color:var(--lime)}

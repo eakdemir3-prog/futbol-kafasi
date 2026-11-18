@@ -4,8 +4,9 @@ const FK=window.FK, t=FK.t;
 const MAIL="eakdemir3@gmail.com";
 const TR=[
  ["🎮","Oyun modları",[
-  "<b>Hızlı Maç</b>: Rastgele bir rakiple 10 soruluk canlı yarış. Rakip bulunamazsa önceki bir oyuncunun kaydına (hayalet) karşı oynarsın.",
-  "<b>Kulüp Zinciri</b>: Sırayla bir futbolcu ve onun oynadığı başka bir kulübü söyleyerek zinciri uzatırsın. Her hamle 15 sn, 3 can. Bilemiyorsan <b>Pas</b> de (1 can gider).",
+  "<b>Penaltı Düellosu</b>: Her soru bir penaltı. Doğru = gol, son 3 saniyede doğru = kaleci Kafa kurtarır, yanlış = aut. 5 penaltı, eşitlikte seri penaltı. Rakip bulunamazsa başka bir oyuncunun gerçek maç kaydına karşı oynarsın.",
+  "<b>Ortak Futbolcu</b>: İki kulübün ikisinde de oynamış bir futbolcu yaz. Online maçta 7 tur oynanır, turu önce doğru yazan alır.",
+  "<b>Transfer Rotası</b>: Kulüpler oynadığı sırayla gösterilir; futbolcuyu 4 şıktan bul. <b>Kadroyu Tamamla</b>: sahadaki eksik oyuncuyu 3 şıktan bul.",
   "<b>Oyuncuyu Tahmin Et</b>: Gizli futbolcuyu ipuçlarıyla bul. Yeşil = aynı, sarı = yakın/geçmişte, kırmızı = farklı.",
   "<b>Doğru mu Yanlış mı</b> ve bazı modlarda yanlış cevap <b>5 saniye</b> kaybettirir."]],
  ["⚡","Enerji ve elmas",[
@@ -14,13 +15,13 @@ const TR=[
   "Elmasla: 1 enerji <b>40</b>, tam dolum <b>250</b> elmas.",
   "Oyun sonunda elmas kazanırsın: %70 üzeri ve tam isabet ekstra elmas verir."]],
  ["🏆","Kupalar ve ligler",[
-  "Online galibiyet <b>+25 kupa</b>, mağlubiyet <b>−15 kupa</b>.",
+  "Online galibiyet <b>+25 kupa</b>, mağlubiyet <b>−15 kupa</b>. Maçtan çıkan −15 kupa alır. Rakip kaydına veya Kafa Bot'a karşı kupa yoktur.",
   "Ligler: Bronz (0) · Gümüş (200) · Altın (500) · Elmas (1000) · Efsane (1800).",
-  "Kulüp Zinciri kupaları ayrı tutulur."]],
+  "Ortak Futbolcu kupaları ayrı tutulur."]],
  ["👥","Arkadaşlar",[
   "Profil → Arkadaşlar ekranında 6 haneli <b>kişisel kodun</b> var. Kodunu paylaş, arkadaşın kendi ekranından eklesin.",
   "Online maçtan sonra <b>Arkadaş ekle</b> butonuyla rakibini ekleyebilirsin.",
-  "Arkadaş listesindeki ⚡ (Hızlı Maç) veya ⛓️ (Zincir) ile davet gönderirsin. Davet 60 sn geçerlidir.",
+  "Arkadaş listesindeki ⚽ (Penaltı Düellosu) veya 🤝 (Ortak Futbolcu) ile davet gönderirsin. Davet 60 sn geçerlidir.",
   "Online özellikler için Google hesabıyla giriş gerekir."]],
  ["📊","Futbolcu verileri nereden geliyor?",[
   "Oyuncu, kulüp ve kariyer bilgileri açık kaynaklardan derlenir: <b>Wikidata</b> (CC0) ve <b>Wikipedia</b> kadro sayfaları; şüpheli kayıtlar kulüplerin ve liglerin resmî duyurularıyla tek tek kontrol edilir.",
@@ -33,8 +34,9 @@ const TR=[
 ];
 const EN=[
  ["🎮","Game modes",[
-  "<b>Quick Match</b>: a live 10-question race against a random opponent. If nobody is found you play a previous player's recording (ghost).",
-  "<b>Club Chain</b>: take turns naming a player and another club he played for. 15 s per move, 3 lives. Stuck? Tap <b>Pass</b> (costs 1 life).",
+  "<b>Penalty Duel</b>: every question is a penalty. Correct = goal, correct in the last 3 s = keeper Kafa saves, wrong = miss. 5 penalties, then sudden death. If nobody is online you play another player's real recorded match.",
+  "<b>Common Player</b>: name a player who played for both clubs. Online matches have 7 rounds; the first correct answer takes the round.",
+  "<b>Transfer Route</b>: clubs are shown in order; find the player from 4 options. <b>Complete the Squad</b>: find the missing player on the pitch from 3 options.",
   "<b>Guess the Player</b>: find the hidden player from the clues. Green = same, yellow = close/past, red = different.",
   "In <b>True or False</b> and some other modes a wrong answer costs <b>5 seconds</b>."]],
  ["⚡","Energy and gems",[
@@ -43,13 +45,13 @@ const EN=[
   "With gems: 1 energy <b>40</b>, full refill <b>250</b> gems.",
   "You earn gems at the end of each game, with bonuses for 70%+ and perfect runs."]],
  ["🏆","Cups and leagues",[
-  "Online win <b>+25 cups</b>, loss <b>−15 cups</b>.",
+  "Online win <b>+25 cups</b>, loss <b>−15 cups</b>. Leaving a match costs 15 cups. No cups vs recorded matches or Kafa Bot.",
   "Leagues: Bronze (0) · Silver (200) · Gold (500) · Diamond (1000) · Legend (1800).",
-  "Club Chain cups are tracked separately."]],
+  "Common Player cups are tracked separately."]],
  ["👥","Friends",[
   "Profile → Friends shows your 6-character <b>personal code</b>. Share it and your friend adds you from their screen.",
   "After an online match tap <b>Add friend</b> to add your opponent.",
-  "Use ⚡ (Quick Match) or ⛓️ (Chain) in your friends list to send an invite. Invites last 60 s.",
+  "Use ⚽ (Penalty Duel) or 🤝 (Common Player) in your friends list to send an invite. Invites last 60 s.",
   "Online features need a Google sign-in."]],
  ["📊","Where does the player data come from?",[
   "Player, club and career data is compiled from open sources: <b>Wikidata</b> (CC0) and <b>Wikipedia</b> squad pages; doubtful entries are checked one by one against official club and league announcements.",

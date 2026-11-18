@@ -940,3 +940,81 @@ html[data-theme=light] .lv-b.done{background:linear-gradient(160deg,var(--c1),va
 .end-row{display:grid;grid-template-columns:1fr auto auto;gap:10px}
 .end-row .btn{width:auto;min-width:56px;padding-left:16px;padding-right:16px}
 html[data-theme=light] .countdown b{color:#FACC15}
+
+/* ===== v1.5 Transfer Rotası ===== */
+.rt-stage{padding:18px 10px 14px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.rt-row{position:relative;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px 0;max-width:100%}
+.rt-c{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 2px}
+.rt-c .cbadge{box-shadow:0 0 0 2px rgba(255,255,255,.9),0 6px 14px rgba(0,0,0,.4);border-radius:50%}
+.rt-q{display:flex;align-items:center;justify-content:center;border-radius:50%;background:#1E1B4B;color:#C6FF3D;font-family:var(--display);font-weight:900;font-size:22px;border:2px dashed #C6FF3D}
+.rt-y{font-size:10px;font-weight:800;color:#E2E8F0;background:rgba(0,0,0,.4);border-radius:6px;padding:1px 5px;white-space:nowrap}
+.rt-arr{flex-shrink:0;margin-bottom:16px;filter:drop-shadow(0 0 4px rgba(250,204,21,.6))}
+.rt-ask{position:relative;font-family:var(--display);font-style:italic;font-weight:900;font-size:22px;text-transform:uppercase}
+/* ===== Kadroyu Tamamla ===== */
+.kd-pitch{position:relative;height:330px;border-radius:22px;overflow:hidden;background:repeating-linear-gradient(180deg,#15803D 0 33px,#16A34A 33px 66px);box-shadow:inset 0 0 0 3px rgba(255,255,255,.55)}
+.kd-l{position:absolute;border:2px solid rgba(255,255,255,.55)}
+.kd-l.mid{left:0;right:0;top:50%;height:0;border-width:2px 0 0}
+.kd-l.circ{left:50%;top:50%;width:70px;height:70px;border-radius:50%;transform:translate(-50%,-50%)}
+.kd-l.box{left:28%;right:28%;height:46px}.kd-l.box.b{bottom:-2px}.kd-l.box.t{top:-2px}
+.kd-p{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;width:70px;z-index:1}
+.kd-p svg{filter:drop-shadow(0 3px 3px rgba(0,0,0,.4))}
+.kd-pos{position:absolute;top:-6px;right:12px;font-size:9px;font-weight:900;background:#0A0B26;color:#C6FF3D;border-radius:5px;padding:0 4px}
+.kd-nm{margin-top:1px;font-size:10.5px;font-weight:800;color:#fff;background:rgba(0,0,0,.55);border-radius:6px;padding:1px 5px;max-width:70px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kd-q{width:34px;height:34px;border-radius:50%;background:#C6FF3D;color:#0A0B26;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:900;font-size:22px;box-shadow:0 0 0 3px #fff,0 0 18px #C6FF3D;animation:kdPulse 1.2s ease-in-out infinite}
+.kd-p.got .kd-nm{background:#C6FF3D;color:#0A0B26}
+.kd-p.got{animation:kdPop .45s ease-out}
+@keyframes kdPulse{50%{transform:scale(1.12)}}
+@keyframes kdPop{0%{transform:translate(-50%,-50%) scale(.4)}70%{transform:translate(-50%,-50%) scale(1.15)}100%{transform:translate(-50%,-50%) scale(1)}}
+.kd-pitch .timer{position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:2}
+.kd-ask{display:flex;align-items:center;gap:10px;margin-top:10px;padding:12px}
+.kd-ask b{font-size:15px;line-height:1.25}
+.opts.three{grid-template-columns:1fr}
+/* ===== Ortak Futbolcu ===== */
+.or-stage{padding:16px 10px 12px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.or-venn{position:relative;width:290px;height:170px}
+.or-c{position:absolute;top:10px;width:150px;height:150px;border-radius:50%}
+.or-c.a{left:10px;background:rgba(124,58,237,.35);border:2px solid #A78BFA}
+.or-c.b{right:10px;background:rgba(198,255,61,.18);border:2px solid #C6FF3D}
+.or-ba,.or-bb{position:absolute;top:44px}.or-ba{left:30px}.or-bb{right:30px}
+.or-ba .cbadge,.or-bb .cbadge{box-shadow:0 0 0 3px #fff,0 6px 14px rgba(0,0,0,.4);border-radius:50%}
+.or-na,.or-nb{position:absolute;top:108px;width:110px;text-align:center;font-size:12px;font-weight:800;line-height:1.15}.or-na{left:-2px}.or-nb{right:-2px}
+.or-q{position:absolute;left:50%;top:62px;transform:translateX(-50%);width:40px;height:40px;border-radius:50%;background:#C6FF3D;color:#0A0B26;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:900;font-size:26px;box-shadow:0 0 18px #C6FF3D}
+.or-timer{position:relative}
+.or-fb{border-radius:14px;padding:10px 12px;font-size:14px;font-weight:700;line-height:1.4}
+.or-fb.ok{background:rgba(34,197,94,.15);color:#4ADE80}.or-fb.no{background:rgba(239,68,68,.14);color:#F87171}
+.or-pass{width:auto!important;padding:0 14px!important;height:48px;white-space:nowrap}
+.or-lives{display:flex;gap:4px;font-size:18px}
+.orB{background:linear-gradient(160deg,#1E1B4B 0%,#4C1D95 60%,#7C3AED 100%)}
+.orB-z{position:relative}
+.orB-c{position:absolute;width:86px;height:86px;border-radius:50%}
+.orB-c.a{left:-6px;top:10px;background:rgba(167,139,250,.3);border:2px solid #A78BFA}
+.orB-c.b{left:30px;top:84px;background:rgba(198,255,61,.18);border:2px solid #C6FF3D}
+.orB-q{position:absolute;left:38px;top:80px;width:30px;height:30px;border-radius:50%;background:#C6FF3D;color:#0A0B26;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:20px;box-shadow:0 0 14px #C6FF3D}
+/* ===== Penaltı Düellosu ===== */
+.pk-stage{padding-top:8px}
+.pk-scene{position:relative;width:220px;height:96px;margin:0 auto 6px}
+.pk-goal{position:absolute;left:10px;right:10px;top:4px;height:70px;border:4px solid #fff;border-bottom:0;border-radius:4px 4px 0 0;box-shadow:0 0 12px rgba(255,255,255,.35)}
+.pk-net{position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.18) 0 2px,transparent 2px 9px),repeating-linear-gradient(-45deg,rgba(255,255,255,.18) 0 2px,transparent 2px 9px)}
+.pk-keeper{position:absolute;left:50%;top:14px;transform:translateX(-50%);transition:transform .45s cubic-bezier(.2,.8,.3,1)}
+.pk-ball{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);font-size:22px;transition:all .5s cubic-bezier(.2,.8,.3,1)}
+.pk-scene.go.l .pk-ball{left:22%;bottom:52px}.pk-scene.go.r .pk-ball{left:78%;bottom:52px}
+.pk-scene.go.m.l .pk-ball{left:-6%;bottom:96px;opacity:.6}.pk-scene.go.m.r .pk-ball{left:106%;bottom:96px;opacity:.6}
+.pk-scene.go.g.l .pk-keeper{transform:translateX(10%) rotate(18deg)}.pk-scene.go.g.r .pk-keeper{transform:translateX(-110%) rotate(-18deg)}
+.pk-scene.go.s.l .pk-keeper{transform:translateX(-118%) rotate(-24deg)}.pk-scene.go.s.r .pk-keeper{transform:translateX(18%) rotate(24deg)}
+.pk-scene.go.s .pk-ball{bottom:30px}
+.pk-scene.go.g .pk-goal{animation:pkNet .5s .35s}
+@keyframes pkNet{50%{box-shadow:0 0 30px #C6FF3D;border-color:#C6FF3D}}
+.pk-dots{display:flex;flex-direction:column;gap:4px;align-items:center;padding:4px 12px 0}
+.pk-dots>div{display:flex;gap:6px}
+.pk-d{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3)}
+.pk-d.g{background:#C6FF3D;border-color:#C6FF3D;box-shadow:0 0 8px #C6FF3D}
+.pk-d.s{background:#F59E0B;border-color:#F59E0B}.pk-d.m{background:#EF4444;border-color:#EF4444}
+.pk-d.sd{width:11px;height:11px}
+.pk-sd{position:relative;align-self:center;background:#C6FF3D!important;color:#0A0B26!important}
+.ol-st .pk-r{display:block}.pk-r.g{color:#C6FF3D}.pk-r.s{color:#FBBF24}.pk-r.m{color:#F87171}
+.pk-dl{letter-spacing:1px;font-size:13px}
+.rt-stage.stadium,.or-stage.stadium{height:auto;min-height:232px}
+.rt-stage .timer,.or-stage .timer{position:relative;top:auto;right:auto;transform:none}
+.kd-pitch .timer{left:8px;right:auto;top:8px;transform:none;width:50px;height:50px}
+.kd-pitch .timer svg{width:50px;height:50px}
+.kd-p{width:84px}.kd-nm{max-width:84px}

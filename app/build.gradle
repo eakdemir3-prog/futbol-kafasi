@@ -14,7 +14,7 @@ android {
         minSdk 24
         targetSdk 36
         versionCode vCode
-        versionName "1.4.4"
+        versionName "1.5.0"
         manifestPlaceholders = [admobAppId: admobAppId]
     }
     signingConfigs {
@@ -26,7 +26,12 @@ android {
         }
     }
     buildTypes {
-        release { minifyEnabled false; signingConfig signingConfigs.release }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
     }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }

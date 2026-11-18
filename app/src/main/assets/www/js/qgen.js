@@ -161,7 +161,9 @@ window.FK_QUESTIONS.push(
 const r=FK.rng("qgen-v1"), sh=a=>FK.shuffle(a.slice(),r);
 const ACT=new Set(window.FK_ACTIVE||[]);
 /* v1.1 havuzu sabit tutulur (426 oyuncu) → farklı sürümlerde Günün Sorusu/Düello aynı kalır */
-const P=FK_GPLAYERS.slice(0,426).map(x=>({name:x[0],by:x[1],nat:x[2],wc:x[5],fame:x[6],clubs:x[7].split(",").filter(c=>FK_GCLUBS[c])})).filter(p=>p.clubs.length);
+/* v1.5: bütün oyuncu havuzu; Wikidata'dan gelenler (FK_GP_CUR sonrası) "zor" sayılır */
+const CUR=window.FK_GP_CUR||FK_GPLAYERS.length;
+const P=FK_GPLAYERS.map((x,i)=>({name:x[0],by:x[1],nat:x[2],wc:x[5],fame:i>=CUR?3:x[6],clubs:x[7].split(",").filter(c=>FK_GCLUBS[c])})).filter(p=>p.clubs.length);
 const cn=c=>FK_GCLUBS[c][0], lg=c=>FK_GCLUBS[c][2];
 const nm=cc=>[FK_COUNTRY_NAME(cc,"tr"),FK_COUNTRY_NAME(cc,"en")];
 function FK_COUNTRY_NAME(cc,l){ const c=(window.FK_COUNTRIES||[]).find(x=>x[0]===cc); return c ? (l==="en"?(c[2]||c[1]):c[1]) : cc; }
@@ -212,7 +214,8 @@ window.FK_QUESTIONS.push(
 const r=FK.rng("qgen-v2"), sh=a=>FK.shuffle(a.slice(),r);
 const ACT=new Set(window.FK_ACTIVE||[]), FREE=window.FK_FREE||{};
 const POS={GK:C("Kaleci","Goalkeeper"),DF:C("Defans","Defender"),MF:C("Orta saha","Midfielder"),FW:C("Forvet","Forward")};
-const P=FK_GPLAYERS.map(x=>({name:x[0],by:x[1],nat:x[2],pos:x[3],wc:x[5],fame:x[6],clubs:x[7].split(",").filter(c=>FK_GCLUBS[c])})).filter(p=>p.clubs.length);
+const CUR=window.FK_GP_CUR||FK_GPLAYERS.length;
+const P=FK_GPLAYERS.map((x,i)=>({name:x[0],by:x[1],nat:x[2],pos:x[3],wc:x[5],fame:i>=CUR?3:x[6],clubs:x[7].split(",").filter(c=>FK_GCLUBS[c])})).filter(p=>p.clubs.length);
 const cur=p=>p.clubs[p.clubs.length-1], lgOf=c=>FK_GCLUBS[c][2];
 const LG=c=>{ const l=FK_LEAGUES[c]; return l?C(l[2],l[3]):null; };
 const TOPL=["ENG","ESP","ITA","GER","FRA","TUR","POR","NED","KSA","MLS","BRA","ARG"];

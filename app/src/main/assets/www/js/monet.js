@@ -102,7 +102,7 @@ FK.screens.pro = el => {
 };
 
 /* ---------------- tema ---------------- */
-FK.applyTheme = () => { const s=FK.state, m=(s.settings&&s.settings.theme)||"dark";
+FK.applyTheme = () => { const s=FK.state; if(s.settings&&!s.neonMig){ s.neonMig=1; s.settings.theme="dark"; try{ FK.save(); }catch(e){} } const m=(s.settings&&s.settings.theme)||"dark";
   const light = m==="light" || (m==="system" && window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches);
   document.documentElement.dataset.theme = light?"light":"dark";
   try{ N()&&N().setDark&&N().setDark(!light); }catch(e){} };

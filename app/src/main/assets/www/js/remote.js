@@ -8,8 +8,10 @@ FK.fetchPatch = () => {
     if(!P||typeof P!=="object") return;
     let old=null; try{ old=localStorage.getItem("fk_patch"); }catch(e){}
     const s=JSON.stringify(P); if(old===s) return;
+    /* önce doğrula + uygula; sadece başarılıysa kaydet */
+    if(!window.FK_APPLY_PATCH(P)) return;
     try{ localStorage.setItem("fk_patch",s); }catch(e){}
-    if(window.FK_APPLY_PATCH(P) && FK.resetPools) FK.resetPools();
+    if(FK.resetPools) FK.resetPools();
   }).catch(()=>{});
 };
 setTimeout(FK.fetchPatch,1500);

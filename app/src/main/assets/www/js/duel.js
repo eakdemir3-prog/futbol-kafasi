@@ -5,20 +5,20 @@
 (function(){
 const FK=window.FK, t=FK.t, N=()=>window.FKAndroid;
 Object.assign(FK_I18N.tr,{
-  m_duel:"Düello", du_title:"DÜELLO", du_sub:"Arkadaşına kod gönder, aynı 10 soruda kim daha iyi görelim!", du_create:"Düello oluştur", du_join:"Katıl", du_codePh:"KOD GİR",
+  m_duel:"Penaltı Düellosu", du_title:"PENALTI DÜELLOSU", du_sub:"Her soru bir penaltı! Online rakiple ya da kodla arkadaşınla atış.", du_create:"Düello oluştur", du_join:"Katıl", du_codePh:"KOD GİR",
   du_login:"Düello için Google ile giriş yapmalısın. Böylece rakibin seni tanır ve skorun kaybolmaz.", du_mine:"Düellolarım", du_none:"Henüz düellon yok. İlkini başlat!",
   du_code:"Düello kodu", du_share:"Kodu paylaş", du_shareTxt:"⚔️ Futbol Kafası'nda sana meydan okuyorum!\nDüello kodu: {c}\nAna sayfa → Düello Başlat → kodu gir.\n#FutbolKafası", du_play:"Oyna",
   du_wait:"Rakibin henüz oynamadı", du_waitJoin:"Rakip bekleniyor… Kodu arkadaşına gönder", du_refresh:"Yenile", du_you:"Sen", du_opp:"Rakip", du_pending:"oynamadı", du_played:"oynadı · skor gizli", du_empty:"katılmadı",
   du_win:"KAZANDIN! 🏆", du_lose:"Bu sefer olmadı", du_draw:"BERABERE!", du_pts:"{s} puan · {c}/10 doğru", du_notFound:"Bu kodla düello bulunamadı", du_full:"Bu düello dolu", du_err:"Bağlantı sorunu. Tekrar dene.",
-  du_reward:"Düello ödülü: +{g} elmas", duelQuit:"Düellodan çıkarsan şimdiye kadarki puanın sayılır. Çıkılsın mı?", du_st_play:"Sıra sende", du_st_wait:"Rakip bekleniyor", du_st_done:"Bitti", du_new:"Yeni düello", du_rules:"10 soru · Güçlendirici yok · Hızlı cevap daha çok puan"
+  du_reward:"Düello ödülü: +{g} elmas", duelQuit:"Düellodan çıkarsan şimdiye kadarki puanın sayılır. Çıkılsın mı?", du_st_play:"Sıra sende", du_st_wait:"Rakip bekleniyor", du_st_done:"Bitti", du_new:"Yeni düello", du_rules:"Doğru = GOL ⚽ · Son 3 saniyede doğru = Kafa kurtarır 🧤 · Yanlış = AUT ❌ · 5 penaltı + seri"
 });
 Object.assign(FK_I18N.en,{
-  m_duel:"Duel", du_title:"DUEL", du_sub:"Send a code to a friend and see who does better on the same 10 questions!", du_create:"Create duel", du_join:"Join", du_codePh:"ENTER CODE",
+  m_duel:"Penalty Duel", du_title:"PENALTY DUEL", du_sub:"Every question is a penalty! Shoot it out with an online rival or a friend by code.", du_create:"Create duel", du_join:"Join", du_codePh:"ENTER CODE",
   du_login:"Sign in with Google to duel, so your opponent knows you and your score is safe.", du_mine:"My duels", du_none:"No duels yet. Start your first!",
   du_code:"Duel code", du_share:"Share code", du_shareTxt:"⚔️ I challenge you in Futbol Kafası!\nDuel code: {c}\nHome → Start Duel → enter the code.\n#FutbolKafası", du_play:"Play",
   du_wait:"Your opponent hasn't played yet", du_waitJoin:"Waiting for an opponent… Send the code to a friend", du_refresh:"Refresh", du_you:"You", du_opp:"Opponent", du_pending:"not played", du_played:"played · score hidden", du_empty:"not joined",
   du_win:"YOU WIN! 🏆", du_lose:"Not this time", du_draw:"DRAW!", du_pts:"{s} pts · {c}/10 correct", du_notFound:"No duel found with this code", du_full:"This duel is full", du_err:"Connection problem. Try again.",
-  du_reward:"Duel reward: +{g} gems", duelQuit:"If you leave, your score so far counts. Leave?", du_st_play:"Your turn", du_st_wait:"Waiting for opponent", du_st_done:"Finished", du_new:"New duel", du_rules:"10 questions · No boosters · Faster answers score more"
+  du_reward:"Duel reward: +{g} gems", duelQuit:"If you leave, your score so far counts. Leave?", du_st_play:"Your turn", du_st_wait:"Waiting for opponent", du_st_done:"Finished", du_new:"New duel", du_rules:"Correct = GOAL ⚽ · Correct in the last 3 s = Kafa saves 🧤 · Wrong = MISS ❌ · 5 penalties + sudden death"
 });
 FK.MODES.duel={ icon:"swords", g:["#8B5CF6","#4338CA"], fg:"#fff", diff:false, total:10 };
 const AB="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -49,27 +49,30 @@ const join=code=>{ code=(code||"").toUpperCase().replace(/[^A-Z0-9]/g,""); if(co
     set(code,{b:m},"joinSet",ok=>{ if(!ok){ FK.toast(t("du_err"),"info"); return; } doc.b=m; docs[code]=doc; mine()[code]={side:"b",at:Date.now()}; FK.save(); FK.go("duelres",{code}); }); }); };
 
 FK.duelDone = g => { const {code,side}=g.duel, m=me();
-  const r=Object.assign(m,{score:g.score,correct:g.correct,time:Math.round(g.timeSum||0),done:true});
-  const rec=mine()[code]||(mine()[code]={side,at:Date.now()}); rec.done=true; rec.score=g.score; rec.correct=g.correct;
+  const pk=g.qs.map((q,k)=>g.res[k]?((g.ut&&g.ut[k]||0)<=7?"g":"s"):"m").join("");
+  const r=Object.assign(m,{score:g.score,correct:g.correct,time:Math.round(g.timeSum||0),pk,done:true});
+  const rec=mine()[code]||(mine()[code]={side,at:Date.now()}); rec.done=true; rec.score=g.score; rec.correct=g.correct; rec.pk=pk;
   try{ FK.finishGame({mode:"duel",diff:0,correct:g.correct,total:g.qs.length,score:g.score,bestStreak:g.bestStreak,timeSum:g.timeSum,extra:{}}); }catch(e){}
   if(docs[code]) docs[code][side]=r; FK.save();
   const o={}; o[side]=r; set(code,o,"submit",ok=>{ if(!ok){ rec.unsent=r; FK.save(); FK.toast(t("du_err"),"info"); } else { delete rec.unsent; FK.save(); } FK.render&&FK.render(); });
   FK.go("duelres",{code},{root:true}); };
 
 /* ---------------- lobi ---------------- */
-FK.chainCard = () => { const c=(FK.state.ch||{}), en=FK.lang()==="en";
-  const pos=[["GS",8,6],["PSG",60,52],["RMA",8,98],["TOT",60,144]];
-  return '<button class="ch-card chB" data-chain><div class="rays2" style="opacity:.25"></div><div class="chB-l"><span class="chB-new">'+(en?"NEW MODE":"YENİ MOD")+'</span><div class="chB-t">'+t("m_chain").replace(" ","<br>")+'</div><div class="chB-s">'+(en?"Name a player, jump to another club he played for. Break the chain and you lose!":"Bir futbolcu söyle, oynadığı başka kulübe geç. Zinciri kıran kaybeder!")+'</div><div class="chB-r">🏆 '+(c.cup||0)+' '+(en?"cups":"kupa")+' · ⛓️ '+(en?"Best":"Rekor")+': '+(c.best||0)+' '+(en?"links":"halka")+'</div><span class="chB-play">⚡1 · '+(en?"PLAY":"OYNA")+' ›</span></div>'+
-   '<div class="chB-z"><svg viewBox="0 0 112 190"><path d="M30 28 L82 74 L30 120 L82 166" stroke="#FDE047" stroke-width="4" stroke-dasharray="8 6" fill="none"/></svg>'+pos.map((x,i)=>'<span class="chB-b" style="left:'+x[1]+'px;top:'+x[2]+'px;animation-delay:'+(i*.25)+'s">'+FK.clubBadge(x[0],44)+'</span>').join("")+'</div></button>'; };
+/* kodlu düello: soru başına sonuçtan penaltı skoru. 5 atış, eşitse seri (6-10). Eski sürümlerde pk yoksa null */
+FK.pkResult = (a,b) => { if(!a||!b) return null; let ga=0, gb=0, n=0;
+  for(let k=0;k<Math.max(a.length,b.length)&&k<10;k++){ n=k+1; if(a[k]==="g") ga++; if(b[k]==="g") gb++;
+    if(k<4){ const left=4-k; if(ga+left<gb||gb+left<ga) break; } else if(ga!==gb) break; }
+  return {a:ga,b:gb,n,r:ga>gb?"w":ga<gb?"l":"d"}; };
+FK.pkIcons = (pk,n) => String(pk||"").slice(0,n||5).split("").map(x=>x==="g"?"⚽":x==="s"?"🧤":"❌").join("");
 FK.screens.duel = el => {
   const u=FK.user(), list=Object.keys(mine()).map(c=>Object.assign({code:c},mine()[c])).sort((a,b)=>b.at-a.at).slice(0,8);
   el.innerHTML='<div class="topbar"><button class="icon-btn" data-back aria-label="'+t("back")+'">'+FK.ic("left",22,2.4)+'</button><div class="grow"><h1 class="h-display" style="font-size:26px;margin:0">'+t("du_title")+'</h1></div><span class="pill">'+FK.gemIc()+FK.fmtNum(FK.state.gems)+'</span></div>'+
   '<div class="scroll"><div class="stack" style="gap:14px">'+
    '<div class="du-hero"><div class="rays2" style="opacity:.3"></div><div class="du-vs">'+FK.kafa("kaptan",96,"bob")+'<span class="du-sw">'+FK.ic("swords",40,2)+'</span><div style="transform:scaleX(-1)">'+FK.kafa("atesli",96,"bob")+'</div></div><div class="small" style="position:relative;font-weight:700;line-height:1.4">'+t("du_sub")+'</div><div class="small" style="position:relative;opacity:.8;margin-top:6px">'+t("du_rules")+'</div></div>'+
    (!u ? '<div class="card center stack" style="gap:12px"><div class="small muted" style="line-height:1.5">'+t("du_login")+'</div><button class="btn btn-white" data-login style="color:#1E3A8A">'+t("acc_signin")+'</button></div>'
-       : '<button class="ol-card" data-quick><div class="rays2" style="opacity:.25"></div><div class="row" style="gap:12px;position:relative"><span style="font-size:42px">⚡</span><div class="grow" style="text-align:left"><div class="h-display" style="font-size:28px">'+t("ol_quick")+'</div><div class="small" style="opacity:.9">'+t("ol_quickS")+'</div></div><span class="ol-en">⚡1</span></div><div class="ol-cupb">🏆 '+t("ol_cup",{n:(FK.state.ol||{}).cup||0})+' · '+t("ol_lg"+FK.olLeague((FK.state.ol||{}).cup||0))+' · '+t("ol_stats",{w:(FK.state.ol||{}).w||0,l:(FK.state.ol||{}).l||0})+'</div></button>'+
+       : '<button class="ol-card" data-quick><div class="rays2" style="opacity:.25"></div><div class="row" style="gap:12px;position:relative"><span style="font-size:42px">⚽</span><div class="grow" style="text-align:left"><div class="h-display" style="font-size:28px">'+t("ol_quick")+'</div><div class="small" style="opacity:.9">'+t("ol_quickS")+'</div></div><span class="ol-en">⚡1</span></div><div class="ol-cupb">🏆 '+t("ol_cup",{n:(FK.state.ol||{}).cup||0})+' · '+t("ol_lg"+FK.olLeague((FK.state.ol||{}).cup||0))+' · '+t("ol_stats",{w:(FK.state.ol||{}).w||0,l:(FK.state.ol||{}).l||0})+'</div></button>'+
          '<button class="small" data-olr style="color:var(--muted);text-decoration:underline;background:none;border:0;margin-top:-6px">'+t("howTo")+'</button>'+
-         FK.chainCard()+
+         (FK.ortakCard?FK.ortakCard():'')+
          '<button class="fr-card" data-friends>'+FK.ic("user",22,2.2)+'<div class="grow" style="text-align:left"><b>'+t("fr_btn")+'</b><div class="small muted">'+((FK.state.friends||[]).length)+' · '+t("fr_invQ")+' / '+t("fr_invC")+'</div></div>'+FK.ic("right",18,2.4)+'</button>'+
          '<div class="sec-title" style="margin-top:4px">'+t("ol_friend")+'</div>'+
          '<button class="btn btn-purple" data-create style="height:60px">'+FK.ic("swords",22,2.2)+t("du_create")+'</button>'+
@@ -81,7 +84,7 @@ FK.screens.duel = el => {
   el.querySelector("[data-back]").onclick=FK.back;
   const lg=el.querySelector("[data-login]"); if(lg) lg.onclick=()=>FK.signIn(()=>FK.render());
   const frb=el.querySelector("[data-friends]"); if(frb) frb.onclick=()=>{ FK.sfx("tap"); FK.go("friends"); };
-  const chb=el.querySelector("[data-chain]"); if(chb) chb.onclick=()=>{ FK.sfx("tap"); FK.go("chain"); };
+  const chb=el.querySelector("[data-ortak]"); if(chb) chb.onclick=()=>{ FK.sfx("tap"); FK.go("ortak"); };
   const qb=el.querySelector("[data-quick]"); if(qb) qb.onclick=()=>{ FK.sfx("tap"); FK.quickMatch(); };
   const orl=el.querySelector("[data-olr]"); if(orl) orl.onclick=()=>FK.modal('<div class="stack" style="gap:12px"><div style="display:flex;justify-content:center">'+FK.kafa("bilge",80,"bob")+'</div><div class="h-display h2 center">'+t("howTo")+'</div><div style="line-height:1.55;font-size:15px">'+t("ol_rules")+'</div><button class="btn btn-primary" data-ok>'+t("close")+'</button></div>',w=>w.querySelector("[data-ok]").onclick=FK.closeModal);
   const cr=el.querySelector("[data-create]"); if(cr) cr.onclick=()=>{ FK.sfx("tap"); create(); };
@@ -95,13 +98,16 @@ FK.screens.duelres = (el,{code}) => {
   const rec=mine()[code]||{side:"a"}, side=rec.side, other=side==="a"?"b":"a";
   FK.backHandler=()=>{ FK.stack=[{name:"home",params:{}}]; FK.go("duel"); return true; };
   const reward=doc=>{ const A=doc[side], B=doc[other]; if(!A||!B||!A.done||!B.done||rec.result) return;
-    const w = A.score>B.score || (A.score===B.score && (A.time||0)<(B.time||0)), dr = A.score===B.score && (A.time||0)===(B.time||0);
+    const pr=FK.pkResult(A.pk,B.pk); let w,dr;
+    if(pr){ w=pr.r==="w"; dr=pr.r==="d"; } else { w = A.score>B.score || (A.score===B.score && (A.time||0)<(B.time||0)); dr = A.score===B.score && (A.time||0)===(B.time||0); }
     rec.result = dr?"d":w?"w":"l"; const g=dr?10:w?30:5; const s=FK.state; s.gems+=g; if(w) s.stats.duelWins=(s.stats.duelWins||0)+1; FK.save();
     FK.sfx(w?"win":"gem"); if(w) FK.confetti(el); setTimeout(()=>FK.toast(t("du_reward",{g}),"gem",3200),600); };
   const pl=(p,lbl,isMe,hide)=>'<div class="du-p'+(isMe?" me":"")+'">'+(p?FK.avatar(p.av||0,64,null,isMe?FK.frameOf():"none"):'<div class="av" style="width:64px;height:64px;background:var(--card2);color:var(--muted)">?</div>')+
     '<b>'+FK.esc(p?p.name:"—")+'</b><span class="small muted">'+lbl+'</span>'+
-    (p&&p.done&&hide?'<div class="du-score q">✓</div><span class="small muted">'+t("du_played")+'</span>':p&&p.done?'<div class="h-display du-score">'+FK.fmtNum(p.score)+'</div><span class="small muted">'+p.correct+'/10</span>':'<div class="du-score q">?</div><span class="small muted">'+t(p?"du_pending":"du_empty")+'</span>')+'</div>';
-  const draw=()=>{ const doc=docs[code]||{}, A=doc[side]||(rec.done?Object.assign(me(),{score:rec.score,correct:rec.correct,done:true}):me()), B=doc[other];
+    (p&&p.done&&hide?'<div class="du-score q">✓</div><span class="small muted">'+t("du_played")+'</span>':p&&p.done?'<div class="h-display du-score">'+(pkx&&pkx[isMe?"a":"b"]!=null?pkx[isMe?"a":"b"]:FK.fmtNum(p.score))+'</div><span class="small muted pk-dl">'+(p.pk?FK.pkIcons(p.pk,pkx&&pkx.n):p.correct+'/10')+'</span>':'<div class="du-score q">?</div><span class="small muted">'+t(p?"du_pending":"du_empty")+'</span>')+'</div>';
+  let pkx=null;
+  const draw=()=>{ const doc=docs[code]||{}, A=doc[side]||(rec.done?Object.assign(me(),{score:rec.score,correct:rec.correct,pk:rec.pk,done:true}):me()), B=doc[other];
+    pkx = A&&B&&A.done&&B.done ? FK.pkResult(A.pk,B.pk) : null;
     const both=A&&A.done&&B&&B.done; if(both) reward(doc);
     const res=rec.result;
     el.innerHTML='<div class="topbar"><button class="icon-btn" data-back aria-label="'+t("back")+'">'+FK.ic("left",22,2.4)+'</button><div class="grow"><h1 class="h-display" style="font-size:26px;margin:0">'+t("du_title")+'</h1></div><button class="pill" data-ref>'+FK.ic("replay",14,2.4)+t("du_refresh")+'</button></div>'+

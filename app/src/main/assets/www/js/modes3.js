@@ -152,10 +152,16 @@ function morePair(last){
 const moreName = (cat,it) => cat==="wc" ? FK.cName(it[1]) : it[0];
 const moreIcon = (cat,it) => cat==="uclC" && it[3] && FK_GCLUBS[it[3]] ? FK.clubBadge(it[3],46) : '<span class="mflag">'+FK.flag(it[1])+'</span>';
 let MODE_NOW="more";
-const midQuit=(el,mode,isOver,stop)=>{ FK.backHandler=()=>{ const go=()=>{ stop(); FK.modeHome(mode); }; if(isOver()) go(); else FK.confirm(t("quitMid"),t("exit"),go); return true; }; };
+/* çıkış onayı açıkken süre durur; vazgeçilince kaldığı yerden devam eder */
+const midQuit=(el,mode,isOver,stop,pause,resume)=>{ FK.backHandler=()=>{ let quitting=false; const go=()=>{ quitting=true; stop(); FK.modeHome(mode); };
+  if(isOver()){ go(); return true; }
+  if(document.querySelector(".modal-wrap")) return true;
+  if(pause) pause(); FK.confirm(t("quitMid"),t("exit"),go);
+  const iv=setInterval(()=>{ if(quitting||!el.isConnected){ clearInterval(iv); return; } if(!document.querySelector(".modal-wrap")){ clearInterval(iv); if(resume) resume(); } },150);
+  return true; }; };
 FK.screens.more = el => { MODE_NOW="more";
   const s=FK.state, QT=8000; let streak=0, q=null, locked=false, over=false, res=null, record=false, tmr=null, t0=0;
-  midQuit(el,"more",()=>over,()=>clearTimeout(tmr));
+  let pz=0; midQuit(el,"more",()=>over,()=>clearTimeout(tmr),()=>{ if(locked) return; clearTimeout(tmr); pz=Date.now(); },()=>{ if(!pz) return; t0+=Date.now()-pz; pz=0; tick(); });
   const last=(s.moreLast=s.moreLast||[]);
   const best=()=>((s.stats.byMode.more||{}).best||0);
   const next=()=>{ q=morePair(last); locked=false; draw(); t0=Date.now(); tick(); };
@@ -222,7 +228,7 @@ function tfMake(){
 }
 FK.screens.tf = el => { MODE_NOW="tf";
   const s=FK.state, DUR=60000; let st=null, cur=null, ok=0, bad=0, combo=0, score=0, over=false, res=null, record=false, tmr=null, seen=[], bestC=0;
-  midQuit(el,"tf",()=>over||!st,()=>clearTimeout(tmr));
+  let pz=0; midQuit(el,"tf",()=>over||!st,()=>clearTimeout(tmr),()=>{ clearTimeout(tmr); pz=Date.now(); },()=>{ if(!pz) return; st+=Date.now()-pz; pz=0; tick(); });
   const best=()=>((s.stats.byMode.tf||{}).best||0);
   const mult=()=>Math.min(4,1+Math.floor(combo/4));
   const mk=()=>{ const q=tfMake(); q.kind=tfKind; return q; };

@@ -5,11 +5,17 @@
 const FK=window.FK, t=FK.t;
 
 /* ---------- ortak: kulüp rozeti (logo değil: renk + kısaltma) ---------- */
+/* v1.5: kalkan rozet (gerçek logo değil: kulüp renkleri + kısaltma) */
+let _shN=0;
 FK.clubBadge = (code,size=40) => {
   const c=FK_GCLUBS[code]; if(!c) return '';
-  const light=["#FFFFFF","#FACC15","#7DD3FC","#F9A8D4","#38BDF8"].indexOf(c[3])>=0;
-  const fs=c[1].length>=4?Math.round(size*.26):Math.round(size*.32);
-  return '<span class="cbadge" style="width:'+size+'px;height:'+size+'px;background:linear-gradient(135deg,'+c[3]+' 0 58%,'+c[4]+' 58% 100%);color:'+(light?'#0B1426':'#fff')+';text-shadow:'+(light?'0 0 2px #fff,0 0 3px #fff':'0 0 2px rgba(0,0,0,.85),0 1px 3px rgba(0,0,0,.6)')+';font-size:'+fs+'px">'+FK.esc(c[1])+'</span>';
+  const c1=c[3], c2=c[4], tx=c[1], id="sg"+(++_shN);
+  const light=["#FFFFFF","#FACC15","#7DD3FC","#F9A8D4","#38BDF8","#FDE047"].indexOf(String(c1).toUpperCase())>=0;
+  return '<span class="cbadge sh" style="width:'+size+'px;height:'+size+'px"><svg viewBox="0 0 100 116" preserveAspectRatio="xMidYMid meet" aria-label="'+FK.esc(c[0])+'"><defs><linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+c1+'"/><stop offset=".56" stop-color="'+c1+'"/><stop offset=".56" stop-color="'+c2+'"/><stop offset="1" stop-color="'+c2+'"/></linearGradient></defs>'+
+   '<path d="M50 4 L92 16 V58 C92 84 72 102 50 112 C28 102 8 84 8 58 V16 Z" fill="#fff"/>'+
+   '<path d="M50 11 L85 21 V58 C85 80 68 95 50 104 C32 95 15 80 15 58 V21 Z" fill="url(#'+id+')"/>'+
+   '<path d="M50 11 L85 21 V40 C60 34 40 34 15 40 V21 Z" fill="rgba(255,255,255,.18)"/>'+
+   '<text x="50" y="66" text-anchor="middle" font-family="Barlow Condensed,Inter,sans-serif" font-style="italic" font-weight="900" font-size="'+(tx.length>3?24:30)+'" fill="'+(light?"#0A0B26":"#fff")+'" stroke="'+(light?"#fff":"rgba(0,0,0,.55)")+'" stroke-width="1.2" paint-order="stroke">'+FK.esc(tx)+'</text></svg></span>';
 };
 
 /* ======================= OYUNCUYU TAHMİN ET ======================= */
@@ -17,6 +23,8 @@ const ACT = () => new Set(window.FK_ACTIVE||[]);
 const FREE = () => window.FK_FREE||{};
 FK.guessPool = era => { const a=ACT(), f=FREE(); return P().filter(p=> era==="now"?a.has(p.name) : era==="old"?(!a.has(p.name)&&!f[p.name]) : true); };
 const P = () => { const a=ACT(), f=FREE(); return FK_GPLAYERS.map(r=>({name:r[0],by:r[1],nat:r[2],pos:r[3],no:r[4],wc:r[5],fame:r[6],clubs:r[7].split(","),free:!!f[r[0]],ret:!a.has(r[0])&&!f[r[0]]})); };
+Object.assign(FK_I18N.tr,{ex_noNum:"numara yok",ex_tNoNum:"gizli oyuncunun bilinen bir forma numarası yok",ex_noNumX:"bu oyuncunun forma numarası yok"});
+Object.assign(FK_I18N.en,{ex_noNum:"no number",ex_tNoNum:"the hidden player has no known shirt number",ex_noNumX:"this player has no shirt number"});
 const stTag = p => p.free?'<i class="retf free" title="'+t("ex_freeTag")+'">🆓</i>':p.ret?'<i class="retf" title="'+t("ex_retTag")+'">🏁</i>':'';
 const leaguesOf = p => [...new Set(p.clubs.map(c=>FK_GCLUBS[c]&&FK_GCLUBS[c][2]).filter(Boolean))];
 const COLS=["nat","pos","by","club","lg","no","wc"];
@@ -30,10 +38,10 @@ function compare(g,T){
   // Kulüp & lig: hücrede HER ZAMAN tahmin edilen oyuncunun şu anki kulübü/ligi görünür.
   // Yeşil = gizli oyuncu da şu an orada · Sarı = gizli oyuncu geçmişte orada oynadı, şu an değil · Kırmızı = hiç oynamadı
   const gC=g.clubs[g.clubs.length-1], tC=T.clubs[T.clubs.length-1];
-  out.club = gC===tC ? "ok" : T.clubs.indexOf(gC)>=0 ? "near" : "no"; out.clubShow=gC;
+  out.clubLast = gC===tC; out.club = gC===tC ? (T.free?"near":"ok") : T.clubs.indexOf(gC)>=0 ? "near" : "no"; out.clubShow=gC;
   const gL=FK_GCLUBS[gC][2], tL=FK_GCLUBS[tC][2];
   out.lg = gL===tL ? "ok" : leaguesOf(T).indexOf(gL)>=0 ? "near" : "no"; out.lgShow=gL;
-  out.no  = g.no===T.no?"ok":(Math.abs(g.no-T.no)<=2?"near":"no"); out.noDir=T.no>g.no?"up":"down";
+  out.no  = g.no===T.no?"ok":(!g.no||!T.no)?"no":(Math.abs(g.no-T.no)<=2?"near":"no"); out.noDir=!T.no||!g.no?null:T.no>g.no?"up":"down";
   out.wc  = g.wc===T.wc?"ok":"no";
   return out;
 }
@@ -48,7 +56,7 @@ function cellContent(col,p,cmp){
   if(col==="club") return FK.clubBadge(cmp?cmp.clubShow:p.clubs[p.clubs.length-1],38)+stTag(p);
   if(col==="lg"){ const code=cmp?cmp.lgShow:FK_GCLUBS[p.clubs[p.clubs.length-1]][2], L=FK_LEAGUES[code]||[null,code];
     return '<span class="lgc" lang="en">'+(L[0]?'<i>'+FK.flag(L[0])+'</i>':'')+'<b>'+L[1]+'</b></span>'; }
-  if(col==="no") return '<span class="shirt">'+FK.ic("shirt",30,1.6)+'<b>'+p.no+'</b></span>'+stTag(p);
+  if(col==="no") return '<span class="shirt">'+FK.ic("shirt",30,1.6)+'<b>'+(p.no?p.no:'–')+'</b></span>'+stTag(p);
   if(col==="wc") return trophy(p.wc);
 }
 
@@ -85,9 +93,9 @@ FK.screens.guess = (el,{diff,era,level,target,max}) => {
     if(col==="by") v=g.by+" — "+(c.by==="ok"?t("ex_ok"):t(c.byDir==="up"?"ex_younger":"ex_older"));
     const LN=x=>FK_LEAGUES[x]?(en?FK_LEAGUES[x][3]:FK_LEAGUES[x][2]):x;
     const R=T.free?"F":T.ret?"R":"", gt=g.free?" 🆓":g.ret?" 🏁":"";
-    if(col==="club") v=FK_GCLUBS[c.clubShow][0]+gt+" — "+t(c.club==="ok"?"ex_clubSame"+R:c.club==="near"?"ex_clubPast"+R:"ex_clubNo");
+    if(col==="club") v=FK_GCLUBS[c.clubShow][0]+gt+" — "+t(c.club==="ok"||c.clubLast?"ex_clubSame"+R:c.club==="near"?"ex_clubPast"+R:"ex_clubNo");
     if(col==="lg") v=LN(c.lgShow)+gt+" — "+t(c.lg==="ok"?"ex_lgSame"+R:c.lg==="near"?"ex_lgPast"+R:"ex_lgNo");
-    if(col==="no") v="#"+g.no+" — "+(c.no==="ok"?t("ex_ok"):t(c.noDir==="up"?"ex_higher":"ex_lower"));
+    if(col==="no") v=(g.no?"#"+g.no:t("ex_noNum"))+" — "+(c.no==="ok"?t("ex_ok"):!T.no?t("ex_tNoNum"):!g.no?t("ex_noNumX"):t(c.noDir==="up"?"ex_higher":"ex_lower"));
     if(col==="wc") v=(g.wc?t("ex_wcYes"):t("ex_wcNo"))+" — "+res(c.wc);
     FK.toast('<b>'+t("col_"+col)+':</b> '+v,"info",3800);
   };
