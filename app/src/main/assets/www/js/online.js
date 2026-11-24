@@ -12,7 +12,7 @@ Object.assign(FK_I18N.tr,{
   ol_bot:"Kafa Bot", ol_botS:"Şu an online rakip yok. Antrenman botuna karşı oynuyorsun.", ol_thinking:"Rakip düşünüyor…", ol_oppAns:"Rakip cevapladı",
   ol_left:"Rakip maçtan çıktı", ol_noConn:"Rakip bağlanamadı, rakip kaydına geçiliyor", ol_quit:"Maçtan çıkarsan yenik sayılırsın (−15 kupa). Çıkılsın mı?",
   ol_cup:"{n} kupa", ol_cups:"Kupa", ol_lg0:"Bronz", ol_lg1:"Gümüş", ol_lg2:"Altın", ol_lg3:"Elmas", ol_lg4:"Efsane",
-  ol_res:"+{g} 💎 · {c} kupa", ol_again:"Yeni maç", ol_rules:"Penaltı Düellosu: Her soru bir penaltı. İkiniz de aynı soruyu 10 saniyede cevaplarsınız. Doğru cevap = GOL ⚽. Doğru ama son 3 saniyede = kaleci Kafa kurtarır 🧤. Yanlış ya da süre biterse = AUT ❌. 5 penaltıdan sonra eşitlik varsa seri penaltılara geçilir (en fazla 10). Online rakibe karşı: galibiyet +25 kupa ve 30 💎, beraberlik 10 💎, mağlubiyet −15 kupa ve 5 💎. Maçtan çıkan −15 kupa alır, elmas kazanmaz; rakip çıkarsa sen kazanırsın. Rakip kaydına veya Kafa Bot'a karşı kupa yoktur: galibiyet 10 💎, beraberlik 5 💎. Maç 1 enerji harcar.", pk_goal:"GOL!", pk_save:"Kafa kurtardı!", pk_miss:"AUT", pk_you:"Sen", pk_sd:"Seri penaltılar", pk_n:"Penaltı {i}", pk_late:"Son 3 saniye: kaleci kurtarır!", pk_noCup:"Kupa yok (rakip kaydı / bot)",
+  ol_res:"+{g} 💎 · {c} kupa", ol_again:"Yeni maç", ol_rules:"Penaltı Düellosu: Her soru bir penaltı. İkiniz de aynı soruyu 10 saniyede cevaplarsınız. Doğru cevap = GOL ⚽. Doğru ama son 3 saniyede = kaleci Kafa kurtarır 🧤. Yanlış ya da süre biterse = AUT ❌. 5 penaltıdan sonra eşitlik varsa seri penaltılara geçilir (en fazla 10). Online rakibe karşı: galibiyet +25 kupa ve 15 💎, beraberlik 5 💎, mağlubiyet −15 kupa. Maçtan çıkan −15 kupa alır, elmas kazanmaz; rakip çıkarsa sen kazanırsın. Rakip kaydına veya Kafa Bot'a karşı kupa yoktur: galibiyet 3 💎, beraberlik 1 💎. Maç 1 enerji harcar.", pk_goal:"GOL!", pk_save:"Kafa kurtardı!", pk_miss:"AUT", pk_you:"Sen", pk_sd:"Seri penaltılar", pk_n:"Penaltı {i}", pk_late:"Son 3 saniye: kaleci kurtarır!", pk_noCup:"Kupa yok (rakip kaydı / bot)",
   ol_stats:"{w} galibiyet · {l} mağlubiyet", ol_vsReal:"Online rakip", ol_q:"Penaltı {i}", ol_get:"Hazır ol!", ol_login:"Online maç için Google ile giriş yapmalısın.", ol_err:"Bağlantı sorunu. Tekrar dene."
 });
 Object.assign(FK_I18N.en,{
@@ -21,7 +21,7 @@ Object.assign(FK_I18N.en,{
   ol_bot:"Kafa Bot", ol_botS:"No one is online right now. You're playing against the practice bot.", ol_thinking:"Opponent is thinking…", ol_oppAns:"Opponent answered",
   ol_left:"Your opponent left the match", ol_noConn:"Opponent couldn't connect, switching to a recorded match", ol_quit:"If you leave you lose the match (−15 cups). Leave?",
   ol_cup:"{n} cups", ol_cups:"Cups", ol_lg0:"Bronze", ol_lg1:"Silver", ol_lg2:"Gold", ol_lg3:"Diamond", ol_lg4:"Legend",
-  ol_res:"+{g} 💎 · {c} cups", ol_again:"New match", ol_rules:"Penalty Duel: every question is a penalty. You both answer the same question in 10 seconds. Correct = GOAL ⚽. Correct but in the last 3 seconds = keeper Kafa saves it 🧤. Wrong or time up = MISS ❌. If it's level after 5 penalties, it goes to sudden death (up to 10). Vs an online player: win +25 cups and 30 💎, draw 10 💎, loss −15 cups and 5 💎. Leaving costs 15 cups and no gems; if your opponent leaves, you win. No cups vs recorded matches or Kafa Bot: win 10 💎, draw 5 💎. A match costs 1 energy.", pk_goal:"GOAL!", pk_save:"Kafa saved it!", pk_miss:"MISS", pk_you:"You", pk_sd:"Sudden death", pk_n:"Penalty {i}", pk_late:"Last 3 seconds: the keeper saves!", pk_noCup:"No cups (recorded match / bot)",
+  ol_res:"+{g} 💎 · {c} cups", ol_again:"New match", ol_rules:"Penalty Duel: every question is a penalty. You both answer the same question in 10 seconds. Correct = GOAL ⚽. Correct but in the last 3 seconds = keeper Kafa saves it 🧤. Wrong or time up = MISS ❌. If it's level after 5 penalties, it goes to sudden death (up to 10). Vs an online player: win +25 cups and 15 💎, draw 5 💎, loss −15 cups. Leaving costs 15 cups and no gems; if your opponent leaves, you win. No cups vs recorded matches or Kafa Bot: win 3 💎, draw 1 💎. A match costs 1 energy.", pk_goal:"GOAL!", pk_save:"Kafa saved it!", pk_miss:"MISS", pk_you:"You", pk_sd:"Sudden death", pk_n:"Penalty {i}", pk_late:"Last 3 seconds: the keeper saves!", pk_noCup:"No cups (recorded match / bot)",
   ol_stats:"{w} wins · {l} losses", ol_vsReal:"Online opponent", ol_q:"Penalty {i}", ol_get:"Get ready!", ol_login:"Sign in with Google to play online.", ol_err:"Connection problem. Try again."
 });
 FK.MODES.live={ icon:"swords", g:["#EF4444","#7C3AED"], fg:"#fff", diff:false, total:10 };
@@ -189,9 +189,9 @@ FK.screens.ollive = (el,p) => { el.classList.add("mframe"); el.style.setProperty
 
   function finish(quit,oppLeft){ if(ended) return; cleanup(); FK.backHandler=null;
     const o=ol(); let res=quit?"l":oppLeft?"w":sMy>sOp?"w":sMy<sOp?"l":"d";
-    /* kupa sadece gerçek online rakipte; rakip kaydı / bot: G 10 💎, B 5 💎, M 0. Çıkan: −15 kupa, 0 💎 */
+    /* kupa sadece gerçek online rakipte; rakip kaydı / bot: G 3 💎, B 1 💎, M 0. Gerçek: G 15, B 5, M 0. Çıkan: −15 kupa, 0 💎 */
     const real=mode==="live";
-    const dc=quit?(real?-15:0):real?(res==="w"?25:res==="l"?-15:0):0, g=quit?0:real?(res==="w"?30:res==="d"?10:5):(res==="w"?10:res==="d"?5:0);
+    const dc=quit?(real?-15:0):real?(res==="w"?25:res==="l"?-15:0):0, g=quit?0:real?(res==="w"?15:res==="d"?5:0):(res==="w"?3:res==="d"?1:0);
     o.cup=Math.max(0,o.cup+dc); if(real||quit) o[res]=(o[res]||0)+1; const s=FK.state; s.gems+=g; if(res==="w") s.stats.duelWins=(s.stats.duelWins||0)+1;
     try{ FK.finishGame({mode:"duel",diff:0,correct:cMy,total:Math.max(5,i),score:sMy,bestStreak:0,timeSum:0,extra:{}}); }catch(e){}
     FK.save();

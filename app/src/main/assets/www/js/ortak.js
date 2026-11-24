@@ -10,7 +10,7 @@ Object.assign(FK_I18N.tr,{
   or_ask:"İki kulüpte de forma giymiş bir futbolcu yaz", or_cnt:"Bu iki kulübün en az {n} ortak oyuncusu var · hepsi doğru sayılır", or_cnt1:"Bu iki kulübün en az 1 ortak oyuncusu var", or_unsure:"{p} bu iki kulübün birinde kayıtlı değil. Emin değiliz, canın gitmedi.", or_rep:"Hata bildir", or_none:"{p} bu iki kulüpte de oynamadı",
   or_ph:"Futbolcu adı…", or_pass:"Pas", or_ok:"Doğru! {p}", or_wrong:"{p} bu iki kulübün ikisinde birden oynamadı", or_also:"Diğer doğru cevaplar: {l}", or_ans:"Cevaplar: {l}",
   or_time:"Süre doldu!", or_online:"Online maç", or_onlineS:"Önce doğru yazan turu alır · 7 tur", or_bot:"Kafa Bot'a karşı", or_botS:"Tek başına antrenman", or_levels:"Bölümler", or_levelsS:"Kolaydan zora 200 bölüm",
-  or_round:"Tur {i}/{n}", or_youGot:"Turu sen aldın!", or_oppGot:"Turu {n} aldı", or_noOne:"Kimse bilemedi", or_rules:"Ortak Futbolcu: Ekranda iki kulüp var. İkisinde de forma giymiş (kiralık dahil) bir futbolcu yaz. Birden fazla doğru cevap olabilir, hangisini yazarsan yaz doğru sayılır. Bölümlerde 3 canın var: yanlış cevap, pas ve süre bitimi 1 can götürür. Online maçta 7 tur oynanır; turu önce doğru yazan alır. Galibiyet +25 kupa ve 30 💎, mağlubiyet −15 kupa. Kafa Bot'a karşı kupa yoktur.",
+  or_round:"Tur {i}/{n}", or_youGot:"Turu sen aldın!", or_oppGot:"Turu {n} aldı", or_noOne:"Kimse bilemedi", or_rules:"Ortak Futbolcu: Ekranda iki kulüp var. İkisinde de forma giymiş (kiralık dahil) bir futbolcu yaz. Birden fazla doğru cevap olabilir, hangisini yazarsan yaz doğru sayılır. Bölümlerde 3 canın var: yanlış cevap, pas ve süre bitimi 1 can götürür. Online maçta 7 tur oynanır; turu önce doğru yazan alır. Galibiyet +25 kupa ve 15 💎, mağlubiyet −15 kupa. Kafa Bot'a karşı kupa yoktur.",
   or_lives:"Can", or_next:"Devam", or_cntS:"En az {n} ortak oyuncu", or_cnt1S:"En az 1 ortak oyuncu", or_noOpp:"Şu an online rakip yok, Kafa Bot'a karşı oynuyorsun."
 });
 Object.assign(FK_I18N.en,{
@@ -18,7 +18,7 @@ Object.assign(FK_I18N.en,{
   or_ask:"Name a player who played for both clubs", or_cnt:"These clubs share at least {n} players · any of them counts", or_cnt1:"These clubs share at least 1 player", or_unsure:"We have no record of {p} at one of these clubs. We're not sure, so you keep your life.", or_rep:"Report a mistake", or_none:"{p} played for neither club",
   or_ph:"Player name…", or_pass:"Pass", or_ok:"Correct! {p}", or_wrong:"{p} didn't play for both clubs", or_also:"Other correct answers: {l}", or_ans:"Answers: {l}",
   or_time:"Time's up!", or_online:"Online match", or_onlineS:"First correct answer takes the round · 7 rounds", or_bot:"Vs Kafa Bot", or_botS:"Solo practice", or_levels:"Levels", or_levelsS:"200 levels from easy to hard",
-  or_round:"Round {i}/{n}", or_youGot:"You took the round!", or_oppGot:"{n} took the round", or_noOne:"Nobody got it", or_rules:"Common Player: two clubs are on screen. Name a player who played for both (loans count). There can be several correct answers; any of them counts. In levels you have 3 lives: a wrong answer, a pass or running out of time costs 1 life. Online matches have 7 rounds; whoever answers correctly first takes the round. Win +25 cups and 30 💎, loss −15 cups. No cups against Kafa Bot.",
+  or_round:"Round {i}/{n}", or_youGot:"You took the round!", or_oppGot:"{n} took the round", or_noOne:"Nobody got it", or_rules:"Common Player: two clubs are on screen. Name a player who played for both (loans count). There can be several correct answers; any of them counts. In levels you have 3 lives: a wrong answer, a pass or running out of time costs 1 life. Online matches have 7 rounds; whoever answers correctly first takes the round. Win +25 cups and 15 💎, loss −15 cups. No cups against Kafa Bot.",
   or_lives:"Lives", or_next:"Next", or_cntS:"At least {n} common players", or_cnt1S:"At least 1 common player", or_noOpp:"No one is online right now, you're playing Kafa Bot."
 });
 FK.MODES.ortak={ icon:"user", g:["#0EA5E9","#1E3A8A"], fg:"#fff", diff:false, total:10 };
@@ -59,8 +59,7 @@ FK.orPairs = (x,count,seed) => { const D=FK.orDB(), r=FK.rng(seed), used={}, out
 
 const badge=(c,s)=>FK.clubBadge(c,s);
 const stage=(q,timerHtml)=>'<div class="stage stadium or-stage">'+(q.ans?'<div class="or-kbcnt">'+(q.ans.length>1?t("or_cntS",{n:q.ans.length}):t("or_cnt1S"))+'</div>':'')+'<div class="spot l"></div><div class="spot r"></div><div class="lamps"><i></i><i></i><i></i><i></i><i></i><i></i></div>'+
-  '<div class="or-venn"><div class="or-c a"></div><div class="or-c b"></div><span class="or-ba">'+badge(q.a,52)+'</span><span class="or-bb">'+badge(q.b,52)+'</span>'+
-  '<span class="or-na">'+FK.esc(cn(q.a))+'</span><span class="or-nb">'+FK.esc(cn(q.b))+'</span><div class="or-q">?</div></div>'+(timerHtml||'')+'</div>';
+  '<div class="or-v2"><div class="or-cl">'+badge(q.a,52)+'<span>'+FK.esc(cn(q.a))+'</span></div><img class="or-vi" src="img/o_venn.webp" alt=""><div class="or-cl">'+badge(q.b,52)+'<span>'+FK.esc(cn(q.b))+'</span></div></div>'+(timerHtml||'')+'</div>';
 const timerUI=s=>'<div class="timer or-timer" data-timer><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="rgba(5,20,15,.6)" stroke="rgba(255,255,255,.15)" stroke-width="5"/><circle data-ring cx="28" cy="28" r="24" fill="none" stroke="#FACC15" stroke-width="5" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="0"/></svg><b data-sec>'+s+'</b></div>';
 /* cevap kutusunun altındaki dolan çubuk + Devam */
 FK.orNext=(ms,noBtn)=>'<div class="or-next"><i style="animation-duration:'+ms+'ms"></i>'+(noBtn?'':'<button class="btn btn-sm or-nextb" data-next>'+t("or_next")+' ›</button>')+'</div>';
@@ -176,8 +175,8 @@ FK.screens.orvs = (el,p) => { el.classList.add("mframe"); el.style.setProperty("
     setTimeout(()=>{ if(ended) return; i++; ask(); },4000); }
   function finish(quit,oppLeft){ if(ended) return; cleanup(); FK.backHandler=null;
     const o=chs(); const res=quit?"l":oppLeft?"w":sMy>sOp?"w":sMy<sOp?"l":"d"; let dc=0,g=0;
-    if(mode==="live"){ dc=quit?-15:res==="w"?25:res==="l"?-15:0; g=quit?0:res==="w"?30:res==="d"?10:5; o.cup=Math.max(0,o.cup+dc); o[res]=(o[res]||0)+1; }
-    else g=res==="w"?10:res==="d"?5:0;
+    if(mode==="live"){ dc=quit?-15:res==="w"?25:res==="l"?-15:0; g=quit?0:res==="w"?15:res==="d"?5:0; o.cup=Math.max(0,o.cup+dc); o[res]=(o[res]||0)+1; }
+    else g=res==="w"?3:res==="d"?1:0;
     FK.state.gems+=g; if(res==="w"&&mode==="live") FK.state.stats.duelWins=(FK.state.stats.duelWins||0)+1; o.best=Math.max(o.best||0,sMy); FK.save();
     if(mode==="live"&&!quit) set({["f"+side]:1});
     if(quit){ FK.modeHome("ortak"); FK.toast(t("ol_res",{g,c:dc}),"gem",2600); return; }
@@ -212,6 +211,6 @@ FK.screens.orvs = (el,p) => { el.classList.add("mframe"); el.style.setProperty("
 (function(){ const FK=window.FK, t=FK.t;
 FK.ortakCard = () => { const c=(FK.state.ch||{}), en=FK.lang()==="en";
   return '<button class="ch-card chB orB" data-ortak><div class="rays2" style="opacity:.25"></div><div class="chB-l"><span class="chB-new">'+(en?"NEW MODE":"YENİ MOD")+'</span><div class="chB-t">'+t("m_ortak").replace(" ","<br>")+'</div><div class="chB-s">'+t("m_ortakS")+'</div><div class="chB-r">🏆 '+(c.cup||0)+' '+(en?"cups":"kupa")+' · '+t("ol_stats",{w:c.w||0,l:c.l||0})+'</div><span class="chB-play">⚡1 · '+(en?"PLAY":"OYNA")+' ›</span></div>'+
-   '<div class="chB-z orB-z"><i class="orB-c a"></i><i class="orB-c b"></i><span class="chB-b" style="left:4px;top:30px">'+FK.clubBadge("GS",46)+'</span><span class="chB-b" style="left:58px;top:104px;animation-delay:.3s">'+FK.clubBadge("RMA",46)+'</span><b class="orB-q">?</b></div></button>'; };
+   '<div class="chB-z orB-z"><img class="orB-vi" src="img/o_venn.webp" alt=""></div></button>'; };
 FK.screens.chain = (el,p) => FK.screens.ortak(el,p);
 })();

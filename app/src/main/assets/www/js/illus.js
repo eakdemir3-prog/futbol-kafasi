@@ -41,6 +41,6 @@ window.FK.IL={
 /* v1.6: ChatGPT ile üretilen özgün çizimler (img/*.webp) — SVG yedeklerin yerine */
 (function(){ const IL=window.FK.IL, im=(n,c)=>'<img class="il ilimg'+(c?' '+c:'')+'" src="img/'+n+'.webp" alt="" draggable="false">';
   Object.assign(IL,{ ball:()=>im("ball"), pitchBall:()=>im("pitchball"), flags:()=>im("flags"), silhouette:()=>im("mystery"), shirtArrow:()=>im("transfer"),
-    shields:()=>im("shields"), stopwatch:()=>im("stopwatch"), ballQ:()=>im("ballq"), trophy:()=>im("trophy"), goal:()=>im("goal"), calendar:()=>im("calendar"),
+    shields:()=>im("o_venn"), stopwatch:()=>im("stopwatch"), ballQ:()=>im("ballq"), trophy:()=>im("trophy"), goal:()=>im("goal"), calendar:()=>im("calendar"),
     shieldQ:()=>im("shield_q"), player10:()=>im("player10"), whistle:()=>im("whistle"), flagBlank:()=>im("flag"), logo:c=>im("logo",c) });
 })();

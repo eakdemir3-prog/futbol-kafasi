@@ -79,7 +79,7 @@ S.home = el => {
   el.classList.add("has-nav");
   el.innerHTML='<div class="scroll"><div class="stack">'+
    '<div class="hm-top"><div class="hm-pills">'+FK.energyPill()+'<button class="pill" data-go="shop">'+FK.gemIc()+FK.fmtNum(s.gems)+'</button></div><div class="ck-logo">'+FK.IL.logo("hm-logo")+'</div><button class="hm-gear" data-go="profile" aria-label="'+t("settings")+'">'+FK.IL.gear()+'</button></div>'+
-   '<button class="hm-ban lime" data-go="games"><b>'+t("hm_play")+'</b>'+FK.IL.pitchBall()+'</button>'+
+   '<button class="hm-ban lime" data-quickplay><b>'+t("hm_play")+'</b>'+FK.IL.pitchBall()+'</button>'+
    '<button class="hm-ban purple" data-duel><b>'+t("hm_duel")+'</b>'+FK.IL.flags()+'</button>'+
    '<div class="hm-sec"><b>'+t("hm_modes")+'</b><button data-go="games">'+t("hm_all")+' ›</button></div>'+
    '<div class="hscroll hm-modes">'+FK.homeModes()+'</div>'+
@@ -92,7 +92,7 @@ S.home = el => {
     '<div style="margin-top:6px;font-size:13px;color:#ECFDF5">'+(d10?t("daily10Done",{s:'<b>'+FK.fmtNum(s.daily10.score)+'</b>'}):t("daily10s"))+'</div>'+
     '<div class="row" style="margin-top:14px;justify-content:space-between"><button class="btn btn-sm" data-mode="daily" style="background:#fff;color:#065F46;padding:0 22px">'+(d10?FK.ic("check",18,2.6)+t("completed"):t("start"))+'</button><span class="row small" style="font-weight:600;color:#ECFDF5;gap:6px">'+FK.ic("clock",14)+'<span data-cd>'+t("newSet",{t:FK.fmtHMS(FK.msToMidnight())})+'</span></span></div></div>'+
    (FK.isPro()?'':'<button class="pro-card" data-pro><span class="pro-crown-s">👑</span><div class="grow" style="text-align:left"><div class="h-display" style="font-size:22px">'+t("proT")+'</div><div class="small" style="font-weight:600;color:#422006">'+t("proCard")+'</div></div>'+FK.ic("right",20,2.6)+'</button>')+FK.shopCard()+'<div class="card stack" style="gap:12px"><div class="row" style="justify-content:space-between"><span class="sec-title">'+t("dailyMissions")+'</span><button class="small muted" data-go="missions" style="font-weight:600">'+t("nDone",{a:doneN,b:ms.length})+' ›</button></div>'+ms.map(missionRow).join("")+'</div>'+
-   (recent.length?'<div class="card"><div class="row" style="justify-content:space-between;margin-bottom:10px"><span class="sec-title">'+t("recentAch")+'</span><button class="small muted" data-go="profile" style="font-weight:600">'+t("seeAll")+' ›</button></div><div class="grid3">'+recent.map(achTile).join("")+'</div></div>':'')+
+   (recent.length?'<div class="card"><div class="row" style="justify-content:space-between;margin-bottom:10px"><span class="sec-title">'+t("recentAch")+'</span><button class="small muted" data-go="achs" style="font-weight:600">'+t("seeAll")+' ›</button></div><div class="grid3" data-go="achs">'+recent.map(achTile).join("")+'</div></div>':'')+
    '<div class="row card tight" style="gap:12px">'+'<span style="color:#F87171">'+FK.ic("flag",26)+'</span><div class="grow"><div style="font-weight:700;font-size:14px">'+t("fanWar")+(s.profile.club?' · '+FK.esc(s.profile.club):'')+'</div><div class="small muted">'+t("fanWarS")+'</div></div><span class="chip chip-soon">'+t("soon")+'</span></div>'+
   '</div></div>'+FK.nav("home");
   FK.bindNav(el); bindCommon(el);
@@ -117,6 +117,14 @@ function bindMissions(el,after){
     if(m && FK.claimMission(m)){ FK.sfx("win"); FK.vib(40); FK.toast('+'+m.gem+' '+t("gems")+' · +'+m.xp+' XP',"gem"); after(); const lv=FK.levelInfo().level; if(lv>before) FK.levelUpModal(lv); }
   });
 }
+S.achs = el => { const s=FK.state, n=Object.keys(s.ach).length, N=FK.ACH.length;
+  el.innerHTML='<div class="topbar"><button class="icon-btn" data-back aria-label="'+t("back")+'">'+FK.ic("left",22,2.4)+'</button><div class="grow"></div><span class="pill">'+FK.gemIc()+FK.fmtNum(s.gems)+'</span></div>'+
+   '<div class="scroll"><div class="stack" style="gap:14px">'+FK.v6rib(t("achievements").toLocaleUpperCase("tr"),"#C6FF3D",34)+
+   '<div class="ach-prog"><b>'+n+' / '+N+'</b><span>'+t("achOpened")+'</span><i><u style="width:'+Math.round(n/N*100)+'%"></u></i></div>'+
+   '<div class="grid3 ach-all">'+FK.ACH.map(a=>'<button class="ach-b" data-a="'+a.id+'">'+achTile(a)+'</button>').join("")+'</div></div></div>';
+  el.querySelector("[data-back]").onclick=()=>FK.back();
+  el.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{ const a=FK.ACH.find(x=>x.id===b.dataset.a), on=!!s.ach[a.id]; FK.sfx("tap");
+    FK.modal('<div class="center stack" style="gap:10px">'+achTile(a)+'<div class="chip chip-gem" style="align-self:center">'+FK.gemIc(14)+'+'+a.gem+'</div><div class="small" style="font-weight:700">'+(on?t("achDone"):t("achTodo"))+'</div><button class="btn btn-primary" data-ok>'+t("done")+'</button></div>',w=>w.querySelector("[data-ok]").onclick=FK.closeModal); }); };
 const ACHIMG={first:1,c100:2,c500:7,streak10:8,perfect:4,legend:5,flag:3,career:2,days7:6,lv10:8,wordle:4,allModes:9};
 function achTile(a){ const on=!!FK.state.ach[a.id]; return '<div class="ach'+(on?"":" off")+'"><div class="badge bimg"><img src="img/ach_'+(ACHIMG[a.id]||9)+'.webp" alt="">'+(on?'<i class="ach-ok">✓</i>':'<i class="ach-lk">'+FK.ic("lock",14,2.6)+'</i>')+'</div><b>'+t("ach_"+a.id)+'</b><span>'+t("ach_"+a.id+"D")+'</span></div>'; }
 function bindCommon(el){
@@ -186,7 +194,7 @@ S.missions = el => {
     el.innerHTML='<div class="scroll"><div class="stack"><div class="row" style="justify-content:space-between;align-items:flex-end"><h1 class="h-display h1">'+t("missions")+'</h1><span class="pill">'+FK.gemIc()+FK.fmtNum(s.gems)+'</span></div>'+
      '<div class="card stack" style="gap:14px"><div class="row" style="justify-content:space-between"><span class="sec-title">'+t("dailyMissions")+'</span><span class="small muted row" style="gap:4px">'+FK.ic("clock",14)+'<span data-cd>'+t("resetIn",{t:FK.fmtHMS(FK.msToMidnight())})+'</span></span></div>'+s.daily.missions.map(missionRow).join("")+'</div>'+
      '<div class="card stack" style="gap:14px;border-color:rgba(139,92,246,.4);background:linear-gradient(180deg,rgba(139,92,246,.10),var(--card) 60%)"><div class="row" style="justify-content:space-between"><span class="sec-title" style="color:#C4B5FD">'+t("weeklyMissions")+'</span><span class="small muted">'+t("weekEnds",{d:FK.daysLeftInWeek()})+'</span></div>'+s.weekly.missions.map(missionRow).join("")+'</div>'+
-     '<div class="card"><div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="sec-title">'+t("achievements")+'</span><span class="small muted">'+Object.keys(s.ach).length+'/'+FK.ACH.length+'</span></div><div class="grid3">'+FK.ACH.map(achTile).join("")+'</div></div>'+
+     '<button class="fr-card" data-go="achs"><img src="img/ach_9.webp" alt="" style="width:34px;height:34px"><div class="grow" style="text-align:left"><b>'+t("achievements")+'</b><div class="small muted">'+Object.keys(s.ach).length+' / '+FK.ACH.length+'</div></div>'+FK.ic("right",18,2.4)+'</button>'+
     '</div></div>'+FK.nav("missions");
     FK.bindNav(el); bindMissions(el,draw);
     const cd=el.querySelector("[data-cd]"); const iv=setInterval(()=>{ if(!document.body.contains(cd)){ clearInterval(iv); return; } cd.textContent=t("resetIn",{t:FK.fmtHMS(FK.msToMidnight())}); },1000);
@@ -208,7 +216,7 @@ S.profile = el => {
     '<div style="width:100%;max-width:300px"><div class="row small muted" style="justify-content:space-between"><span>XP</span><span>'+FK.fmtNum(li.cur)+' / '+FK.fmtNum(li.need)+'</span></div><div class="bar lg" style="margin-top:6px"><i style="width:'+li.pct+'%"></i></div></div></div>'+
    '<button class="fr-card" data-go="friends">'+FK.ic("user",22,2.2)+'<div class="grow" style="text-align:left"><b>'+t("fr_btn")+'</b><div class="small muted">'+(s.friends||[]).length+'</div></div>'+FK.ic("right",18,2.4)+'</button>'+
    '<div class="grid3">'+[[s.stats.games,"totalGames","#4ADE80"],[s.stats.correct,"totalCorrect","#7DD3FC"],[FK.lang()==="tr"?"%"+acc:acc+"%","accuracy","#FDE047"],[s.stats.bestStreak,"bestStreak","#FDBA74"],[s.stats.duelWins||0,"duelsWon","#C4B5FD"],[s.gems,"gems","#38BDF8"]].map(x=>'<div class="stat"><b style="color:'+x[2]+'">'+(typeof x[0]==="number"?FK.fmtNum(x[0]):x[0])+'</b><span>'+t(x[1])+'</span></div>').join("")+'</div>'+
-   '<div class="card"><div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="sec-title">'+t("achievements")+'</span><span class="small muted">'+Object.keys(s.ach).length+'/'+FK.ACH.length+'</span></div><div class="grid3">'+FK.ACH.map(achTile).join("")+'</div></div>'+
+   '<button class="fr-card" data-go="achs"><img src="img/ach_9.webp" alt="" style="width:34px;height:34px"><div class="grow" style="text-align:left"><b>'+t("achievements")+'</b><div class="small muted">'+Object.keys(s.ach).length+' / '+FK.ACH.length+'</div></div>'+FK.ic("right",18,2.4)+'</button>'+
    '<div><div class="sec-title" style="margin:6px 0 10px">'+t("settings")+'</div><div class="card" style="padding:0 4px">'+
     '<div class="setting">'+FK.ic("globe",20)+'<span class="grow">'+t("language")+'</span><div class="seg" style="grid-template-columns:1fr 1fr;width:110px;padding:3px"><button data-l="tr" class="'+(P.lang==="tr"?"on":"")+'" style="height:30px">TR</button><button data-l="en" class="'+(P.lang==="en"?"on":"")+'" style="height:30px">EN</button></div></div>'+
     '<div class="setting">'+FK.ic("bulb",20)+'<span class="grow">'+t("theme")+'</span><div class="seg" style="grid-template-columns:1fr 1fr 1fr;width:180px;padding:3px">'+["dark","light","system"].map(m=>'<button data-th="'+m+'" class="'+(((s.settings.theme||"dark")===m)?"on":"")+'" style="height:30px;font-size:12px">'+t(m==="dark"?"thDark":m==="light"?"thLight":"thSys")+'</button>').join("")+'</div></div>'+

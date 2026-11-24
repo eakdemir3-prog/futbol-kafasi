@@ -72,7 +72,7 @@ FK.bust = (o={}) => {
 };
 
 /* ---------------- 2) GÜNLÜK SERİ ---------------- */
-const FREEZE_COST=40, MILES=[[3,10],[7,30],[30,100],[100,300]];
+const FREEZE_COST=40, MILES=[[3,5],[7,15],[30,50],[100,150]];
 const dk=FK.dayKey, addD=(k,n)=>{ const d=new Date(k+"T12:00:00"); d.setDate(d.getDate()+n); return dk(d); };
 const diffD=(a,b)=>Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/864e5);
 const P=()=>{ const s=FK.state; if(!s.play) s.play={last:"",streak:0,best:0,freezes:1,days:{},miles:{}}; return s.play; };
@@ -131,7 +131,7 @@ function endCard(el,{title,big,sub,res,record,mode,again}){
     (record?'<span class="chip" style="align-self:center;background:#FACC15;color:#422006">'+FK.ic("star",12,2.6)+' '+t("newRecord")+'</span>':'')+
     (FK.kafa?'<div style="display:flex;justify-content:center">'+FK.kafa(record?"sampiyon":(res&&res.xp>=30)?"taraftar":"uzgun",110,"bob")+'</div>':'')+'<div class="h-display h2">'+title+'</div><div class="h-display" style="font-size:56px;line-height:1;color:var(--green-l)">'+big+'</div><div class="small muted">'+sub+'</div>'+
     (res?'<div class="row" style="justify-content:center;gap:8px"><span class="chip chip-xp">+'+res.xp+' XP</span><span class="chip chip-gem">'+FK.gemIc(12)+'+'+res.gems+'</span></div>'+FK.doubleBtn(res):'')+
-    '<button class="btn btn-primary" data-again>'+FK.ic("replay",22,2.4)+t("again")+' <span class="en-cost">⚡1</span></button><span data-exit hidden></span>'+FK.endRow(MODE_NOW,"data-esh")+'</div>';
+    '<button class="btn btn-primary" data-again>'+FK.ic("replay",22,2.4)+t("again")+' <span class="en-cost">⚡1</span></button>'+FK.rvBtn(MODE_NOW)+'<span data-exit hidden></span>'+FK.endRow(MODE_NOW,"data-esh")+'</div>';
 }
 function afterRes(res){ let d=500; res.ach.forEach(a=>{ setTimeout(()=>FK.toast(t("achUnlocked")+" <b>"+t("ach_"+a.id)+"</b>","trophy",3000),d); d+=1200; });
   res.missions.forEach(m=>FK.toast(t("missionDone",{m:FK.missionText(m)}),"check")); if(res.levelUp) setTimeout(()=>FK.levelUpModal(res.levelUp),d+300); }
@@ -159,7 +159,7 @@ const midQuit=(el,mode,isOver,stop,pause,resume)=>{ FK.backHandler=()=>{ let qui
   if(pause) pause(); FK.confirm(t("quitMid"),t("exit"),go);
   const iv=setInterval(()=>{ if(quitting||!el.isConnected){ clearInterval(iv); return; } if(!document.querySelector(".modal-wrap")){ clearInterval(iv); if(resume) resume(); } },150);
   return true; }; };
-FK.screens.more = el => { MODE_NOW="more"; el.classList.add("mframe"); el.style.setProperty("--mc","#5FE3CF");
+FK.screens.more = el => { MODE_NOW="more"; FK.rvReset("more"); el.classList.add("mframe"); el.style.setProperty("--mc","#5FE3CF");
   const s=FK.state, QT=8000; let streak=0, q=null, locked=false, over=false, res=null, record=false, tmr=null, t0=0;
   let pz=0; midQuit(el,"more",()=>over,()=>clearTimeout(tmr),()=>{ if(locked) return; clearTimeout(tmr); pz=Date.now(); },()=>{ if(!pz) return; t0+=Date.now()-pz; pz=0; tick(); });
   const last=(s.moreLast=s.moreLast||[]);
@@ -171,6 +171,7 @@ FK.screens.more = el => { MODE_NOW="more"; el.classList.add("mframe"); el.style.
   const pick=side=>{
     if(locked||over) return; locked=true; clearTimeout(tmr);
     const win = q.a[2]>q.b[2] ? 0 : 1, ok = side===win;
+    FK.rvPush("more",{q:FK.esc(q.a[0])+' – '+FK.esc(q.b[0]),mine:(side?q.b:q.a)[0]+' ('+(side?q.b:q.a)[2]+')',right:(win?q.b:q.a)[0]+' ('+(win?q.b:q.a)[2]+')',ok,raw:1});
     el.querySelectorAll("[data-side]").forEach(b=>{ const i=+b.dataset.side; const it=i?q.b:q.a; b.classList.add(i===win?"win":"lose"); if(i===side) b.classList.add("picked");
       const v=b.querySelector("[data-val]"); let c=0; const target=it[2]; const st=Date.now(); const an=()=>{ const p=Math.min(1,(Date.now()-st)/450); c=Math.round(target*p); v.textContent=c; if(p<1) requestAnimationFrame(an); }; v.classList.add("show"); an(); });
     if(ok){ streak++; FK.sfx("ok"); FK.vib(25); setTimeout(next,1100); }
@@ -226,7 +227,7 @@ function tfMake(){
   const p=rnd(all); let y=p[1]; if(!truth) y=p[1]+rnd([-3,-2,-1,1,2,3]);
   return {txt:t("tf_born",{p:p[0],y}),ans:y===p[1]};
 }
-FK.screens.tf = el => { MODE_NOW="tf"; el.classList.add("mframe"); el.style.setProperty("--mc","#5CD0F5");
+FK.screens.tf = el => { MODE_NOW="tf"; FK.rvReset("tf"); el.classList.add("mframe"); el.style.setProperty("--mc","#5CD0F5");
   const s=FK.state, DUR=60000; let st=null, cur=null, ok=0, bad=0, combo=0, score=0, over=false, res=null, record=false, tmr=null, seen=[], bestC=0;
   let pz=0; midQuit(el,"tf",()=>over||!st,()=>clearTimeout(tmr),()=>{ clearTimeout(tmr); pz=Date.now(); },()=>{ if(!pz) return; st+=Date.now()-pz; pz=0; tick(); });
   const best=()=>((s.stats.byMode.tf||{}).best||0);
@@ -235,6 +236,7 @@ FK.screens.tf = el => { MODE_NOW="tf"; el.classList.add("mframe"); el.style.setP
   const nextQ=()=>{ for(let k=0;k<20;k++){ const q=mk(); if(seen.indexOf(q.txt)<0){ seen.push(q.txt); if(seen.length>60) seen.shift(); return q; } } return mk(); };
   const answer=v=>{
     if(over||!cur) return; const right = v===cur.ans; const cardEl=el.querySelector("[data-card]");
+    FK.rvPush("tf",{q:cur.txt,mine:v?t("tfTrue"):t("tfFalse"),right:cur.ans?t("tfTrue"):t("tfFalse"),ok:right});
     if(right){ ok++; combo++; bestC=Math.max(bestC,combo); score+=100*mult(); FK.sfx("ok"); FK.vib(20); }
     else { bad++; combo=0; FK.sfx("no"); FK.vib([50,30,50]); st-=FK.PEN*1000; FK.penFx(el); tick(); }
     if(cardEl){ cardEl.style.transform=""; cardEl.classList.add(right?"good":"bad", v?"fly-r":"fly-l"); const st=cardEl.querySelector(v?"[data-sy]":"[data-sn]"); if(st) st.style.opacity=1; }

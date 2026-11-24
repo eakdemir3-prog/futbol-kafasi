@@ -209,7 +209,7 @@ FK.screens.play = (el,{g}) => {
     const jb=el.querySelector("[data-j]"); if(jb) jb.onclick=()=>{ if(g.jokers<=0) return; g.jokers--; FK.sfx("tap");
       const wrong=q.opts.map((o,k)=>k).filter(k=>q.opts[k]!==q.answer && !q.gone[k]); FK.shuffle(wrong).slice(0,2-Object.keys(q.gone).length).forEach(k=>q.gone[k]=1); drawClues(); };
     el.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{
-      const k=+b.dataset.o; const ok=q.opts[k]===q.answer;
+      const k=+b.dataset.o; q._pick=q.opts[k]; const ok=q.opts[k]===q.answer;
       el.querySelectorAll("[data-o]").forEach(x=>x.disabled=true);
       if(ok){ b.classList.add("ok"); finishQ(true,pts,used()); return; }
       b.classList.add("no"); q.tries--;
@@ -238,7 +238,7 @@ FK.screens.play = (el,{g}) => {
     if(canBoost()) FK.bindBoosts(el,{ fifty:()=>{ g.extra.boost=1; const w=q.opts.map((o,k)=>k).filter(k=>q.opts[k]!==q.answer&&!q.gone[k]); FK.shuffle(w).slice(0,isKadro?1:2).forEach(k=>q.gone[k]=1); drawQuick(); },
       time:()=>{ g.extra.boost=1; q.t0+=10000; drawQuick(); }, pass:()=>skipQ() });
     el.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{
-      const u=used(); const ok=q.opts[+b.dataset.o]===q.answer;
+      const u=used(); q._pick=q.opts[+b.dataset.o]; const ok=q.opts[+b.dataset.o]===q.answer;
       el.querySelectorAll("[data-o]").forEach(x=>{ x.disabled=true; if(!ok && q.opts[+x.dataset.o]===q.answer) x.classList.add("ok"); });
       b.classList.add(ok?"ok":"no");
       if(!ok) fb(false,t("wrong"));
@@ -309,7 +309,7 @@ FK.screens.result = (el,{g,res}) => {
   '<div style="padding:12px 16px calc(18px + var(--safe-b));display:flex;flex-direction:column;gap:10px">'+
    (res.lvl&&res.lvl.next?'<button class="btn btn-primary" data-nextlv>'+t("lvNext")+' · '+res.lvl.nextN+' <span class="en-cost">⚡1</span></button><button class="btn btn-ghost" data-again>'+FK.ic("replay",20,2.4)+t("lvRetry")+'</button>'
      :'<button class="btn btn-primary" data-again>'+FK.ic("replay",22,2.4)+(res.lvl?t("lvRetry"):t("playAgain"))+'</button>')+
-   FK.endRow(g.mode,"data-share")+'</div>';
+   FK.rvFromGame(g)+FK.endRow(g.mode,"data-share")+'</div>';
   setTimeout(()=>{ const b=el.querySelector("[data-xpbar]"); if(b) b.style.width=li.pct+"%"; },200);
   if(pct>=.6){ FK.sfx("win"); FK.confetti(el); }
   el.querySelector("[data-again]").onclick=()=>{ if(res.lvl){ FK.playLevel(g.mode,g.level); return; } FK.go("intro",{mode:g.mode},{replace:true}); };

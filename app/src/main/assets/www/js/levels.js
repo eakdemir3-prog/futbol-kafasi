@@ -200,7 +200,7 @@ FK.finishGame = g => {
   let chest=null;
   if(first && n%10===0){
     const leagueEnd = n%M.per===0, s=FK.state;
-    const gems = leagueEnd?100:25, boosts=[]; for(let i=0;i<(leagueEnd?3:1);i++){ const b=FK.BOOSTS[Math.floor(Math.random()*FK.BOOSTS.length)]; FK.addBoost(b.id,1); boosts.push(b.e); }
+    const gems = leagueEnd?50:10, boosts=[]; for(let i=0;i<(leagueEnd?3:1);i++){ const b=FK.BOOSTS[Math.floor(Math.random()*FK.BOOSTS.length)]; FK.addBoost(b.id,1); boosts.push(b.e); }
     s.gems+=gems; chest={gems,boosts,leagueEnd,league:FK.lvLeague(g.mode,n)};
   }
   FK.save();
@@ -219,6 +219,7 @@ FK.starsHtml = (n,size=26) => '<span class="lv-stars">'+[1,2,3].map(i=>'<i class
 
 /* ---------- bölüm haritası (başlangıç ekranının yerine) ---------- */
 /* v1.6: seviye haritası — sahada aşağıdan yukarı kıvrılan yol, en üstte kupa */
+FK.lvLockToast = msg => { FK.sfx&&FK.sfx("wrong"); document.querySelectorAll(".toast.low").forEach(x=>x.remove()); FK.toast(msg,"lock",2000); const a=document.querySelectorAll(".toast"); const d=a[a.length-1]; if(d) d.classList.add("low"); };
 FK.lvPathMap = (from,cur,st,W,H) => {
   const n=10, top=Math.round(Math.min(W*561/720*0.5,H*0.27)), gap=(H-top-56)/(n-1), tight=false, xs=gap<44?[0.18,0.5,0.82,0.5]:[0.25,0.5,0.75,0.5], sz=Math.round(Math.max(44,Math.min(64,gap*1.35)));
   const pts=Array.from({length:n},(_,k)=>[W*xs[k%xs.length],H-44-k*gap]);
@@ -246,9 +247,9 @@ FK.lvMap = (el,mode) => {
     el.querySelectorAll("[data-lg]").forEach(b=>b.onclick=()=>{ const i=+b.dataset.lg; if(i*LVm.per+1>S.cur){ FK.toast(t("lvLeagueLocked",{l:t("lg_"+i),n:i*LVm.per+1}),"lock"); return; } lg=i; pg=pgOf(); s.lvTab=s.lvTab||{}; s.lvTab[mode]=i; FK.save(); FK.sfx("tap"); draw(); });
     const sc=el.querySelector(".lv-fit"), host=el.querySelector(".lvp-host");
     const lay=()=>{ const W=host.clientWidth, H=sc.clientHeight-14; if(W<50||H<200) return; host.innerHTML=FK.lvPathMap(from+pg*10,cur,S.st,W,H);
-      host.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{ const n=+b.dataset.n; if(n>S.cur){ FK.toast(t("lvLocked"),"lock"); return; } FK.sfx("tap"); FK.playLevel(mode,n); }); };
+      host.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{ const n=+b.dataset.n; if(n>S.cur){ FK.lvLockToast(t("lvLockedN",{n:S.cur})); b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake"); const c=host.querySelector(".lvp-n.cur"); if(c){ c.classList.remove("glow"); void c.offsetWidth; c.classList.add("glow"); } return; } FK.sfx("tap"); FK.playLevel(mode,n); }); };
     lay(); requestAnimationFrame(lay); if(window.ResizeObserver){ let lw=0,lh=0; new ResizeObserver(()=>{ if(sc.clientWidth!==lw||sc.clientHeight!==lh){ lw=sc.clientWidth; lh=sc.clientHeight; lay(); } }).observe(sc); }
-    const goPg=i=>{ if(i<0||i>3||i===pg) return; if(from+i*10>S.cur){ FK.toast(t("lvLocked"),"lock"); return; } pg=i; FK.sfx("tap"); draw(); };
+    const goPg=i=>{ if(i<0||i>3||i===pg) return; if(from+i*10>S.cur){ FK.lvLockToast(t("lvLockedP",{a:(from+i*10)+"–"+(from+i*10+9),n:from+i*10-1})); return; } pg=i; FK.sfx("tap"); draw(); };
     el.querySelectorAll("[data-pg]").forEach(b=>b.onclick=()=>goPg(+b.dataset.pg));
     let sx=null; sc.addEventListener("touchstart",e=>{ sx=e.touches[0].clientX; },{passive:true}); sc.addEventListener("touchend",e=>{ if(sx==null) return; const dx=e.changedTouches[0].clientX-sx; sx=null; if(Math.abs(dx)>60) goPg(pg+(dx<0?1:-1)); },{passive:true});
     el.querySelector("[data-go-cur]").onclick=()=>{ FK.sfx("tap"); FK.playLevel(mode,S.cur); };

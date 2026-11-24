@@ -124,10 +124,10 @@ FK.AVATARS = [
 
 /* ---------- görevler ---------- */
 const DAILY_POOL=[
-  {id:"games",n:3,gem:10,xp:30},{id:"correct",n:20,gem:15,xp:40},{id:"daily",n:1,gem:15,xp:40},{id:"streak",n:5,gem:10,xp:30},
-  {id:"flag8",n:1,gem:15,xp:40},{id:"career",n:2,gem:15,xp:40},{id:"player",n:5,gem:10,xp:30},{id:"modes",n:3,gem:15,xp:40},{id:"wordle",n:1,gem:10,xp:30}
+  {id:"games",n:3,gem:5,xp:30},{id:"correct",n:20,gem:10,xp:40},{id:"daily",n:1,gem:10,xp:40},{id:"streak",n:5,gem:5,xp:30},
+  {id:"flag8",n:1,gem:10,xp:40},{id:"career",n:2,gem:10,xp:40},{id:"player",n:5,gem:5,xp:30},{id:"modes",n:3,gem:10,xp:40},{id:"wordle",n:1,gem:5,xp:30}
 ];
-const WEEKLY_POOL=[{id:"wGames",n:20,gem:60,xp:200},{id:"wCorrect",n:150,gem:80,xp:250},{id:"wDaily",n:5,gem:100,xp:300}];
+const WEEKLY_POOL=[{id:"wGames",n:20,gem:30,xp:200},{id:"wCorrect",n:150,gem:40,xp:250},{id:"wDaily",n:5,gem:50,xp:300}];
 FK.missionText = m => { const map={games:"mi_games",correct:"mi_correct",daily:"mi_daily",streak:"mi_streak",flag8:"mi_flag8",career:"mi_career",player:"mi_player",modes:"mi_modes",wordle:"mi_wordle",wGames:"mi_wGames",wCorrect:"mi_wCorrect",wDaily:"mi_wDaily"}; return FK.t(map[m.id],{n:m.n}); };
 
 FK.rollover = () => {
@@ -193,8 +193,9 @@ FK.finishGame = g => {
   let xp=Math.round((10 + g.correct*8 + g.score/25) * diffMult * mult);
   if(g.mode==="daily" && !g.practice) xp*=2;
   if(g.practice) xp=Math.round(xp*0.5);
-  let gems = 1 + (g.total && g.correct/g.total>=0.7 ? 2:0) + (g.total>=5 && g.correct===g.total ? 3:0);
+  let gems = (g.total && g.correct/g.total>=0.7 ? 1:0) + (g.total>=5 && g.correct===g.total ? 2:0);
   if(g.practice) gems=0;
+  { const dk=FK.dayKey(); if(!s.gGem||s.gGem.d!==dk) s.gGem={d:dk,n:0}; gems=Math.max(0,Math.min(gems,30-s.gGem.n)); s.gGem.n+=gems; }
   s.xp+=xp; s.gems+=gems; s.weekly.xp+=xp;
   if(s.daily.modes.indexOf(g.mode)<0) s.daily.modes.push(g.mode);
 

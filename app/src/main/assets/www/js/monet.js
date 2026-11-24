@@ -12,7 +12,7 @@ Object.assign(FK_I18N.tr,{
   proCard:"Reklamları kaldır · Ödülleri 2 kat al", proUnavailable:"Satın alma şu an kullanılamıyor. İnternet bağlantını ve Google Play'i kontrol et.",
   dbl:"Reklam izle · Ödülü 2 kat al", dblPro:"PRO: Ödülü 2 kat al", dblDone:"2 kat ödül alındı ✓", adNotReady:"Reklam hazır değil, biraz sonra tekrar dene",
   adTest:"TEST REKLAMI", adTestS:"Gerçek reklamlar yayında gösterilecek",
-  freeGem:"Reklam izle · +15 elmas", freeGemLeft:"Bugün {n} hak kaldı", freeGemNone:"Bugünlük hakkın bitti",
+  freeGem:"Reklam izle · +10 elmas", freeGemLeft:"Bugün {n} hak kaldı", freeGemNone:"Bugünlük hakkın bitti",
   freezeAd:"Reklam izle · +1 dondurma", secondChance:"Reklam izle · Devam et", proDaily:"PRO günlük ödülü: +50 elmas 👑",
   theme:"Tema", thDark:"Koyu", thLight:"Açık", thSys:"Sistem", privacyOpt:"Reklam gizlilik seçenekleri"
 });
@@ -23,7 +23,7 @@ Object.assign(FK_I18N.en,{
   proCard:"Remove ads · Double your rewards", proUnavailable:"Purchases are unavailable right now. Check your connection and Google Play.",
   dbl:"Watch an ad · Double reward", dblPro:"PRO: Double reward", dblDone:"Double reward claimed ✓", adNotReady:"Ad not ready yet, try again shortly",
   adTest:"TEST AD", adTestS:"Real ads will be shown in the live app",
-  freeGem:"Watch an ad · +15 gems", freeGemLeft:"{n} left today", freeGemNone:"No more today",
+  freeGem:"Watch an ad · +10 gems", freeGemLeft:"{n} left today", freeGemNone:"No more today",
   freezeAd:"Watch an ad · +1 freeze", secondChance:"Watch an ad · Continue", proDaily:"PRO daily reward: +50 gems 👑",
   theme:"Theme", thDark:"Dark", thLight:"Light", thSys:"System", privacyOpt:"Ad privacy options"
 });
@@ -54,12 +54,12 @@ FK.rewarded = (tag,cb) => {
 /* ---------------- 2 kat ödül butonu ---------------- */
 let lastRes=null;
 FK.doubleBtn = res => { if(!res || (!res.xp && !res.gems)) return ''; lastRes=res; res._dbl=false;
-  return '<button class="btn btn-reward" data-double>'+(FK.isPro()?'👑 '+t("dblPro"):'🎬 '+t("dbl"))+' <span class="small" style="opacity:.85">(+'+res.xp+' XP · +'+res.gems+'💎)</span></button>'; };
+  return '<button class="btn btn-reward" data-double>'+(FK.isPro()?'👑 '+t("dblPro"):'🎬 '+t("dbl"))+' <span class="small" style="opacity:.85">(+'+res.xp+' XP)</span></button>'; };
 document.addEventListener("click",e=>{
   const b=e.target.closest&&e.target.closest("[data-double]"); if(!b || !lastRes || lastRes._dbl) return;
   const res=lastRes;
-  FK.rewarded("double",ok=>{ if(!ok) return; res._dbl=true; const s=FK.state; s.xp+=res.xp; s.gems+=res.gems; s.weekly.xp+=res.xp; FK.save(); FK.sfx("win");
-    FK.toast('+'+res.xp+' XP · +'+res.gems+' '+t("gems"),"gem"); b.outerHTML='<div class="chip chip-xp" style="align-self:center">'+t("dblDone")+'</div>'; });
+  FK.rewarded("double",ok=>{ if(!ok) return; res._dbl=true; const s=FK.state; s.xp+=res.xp; s.weekly.xp+=res.xp; FK.save(); FK.sfx("win");
+    FK.toast('+'+res.xp+' XP',"gem"); b.outerHTML='<div class="chip chip-xp" style="align-self:center">'+t("dblDone")+'</div>'; });
 });
 
 /* ---------------- geçiş reklamı: 2 oyunda bir, yeni oyuna başlarken ---------------- */
@@ -75,9 +75,9 @@ const _go=FK.go; FK.go=(name,params,opts)=>{
 };
 
 /* ---------------- ücretsiz elmas (günde 5) ---------------- */
-FK.freeGemsLeft = () => { const s=FK.state, d=FK.dayKey(); if(s.fgDay!==d){ s.fgDay=d; s.fgN=0; } return 5-(s.fgN||0); };
+FK.freeGemsLeft = () => { const s=FK.state, d=FK.dayKey(); if(s.fgDay!==d){ s.fgDay=d; s.fgN=0; } return 3-(s.fgN||0); };
 FK.freeGems = after => { if(FK.freeGemsLeft()<=0){ FK.toast(t("freeGemNone"),"info"); return; }
-  FK.rewarded("gems",ok=>{ if(!ok) return; const s=FK.state; s.fgN=(s.fgN||0)+1; s.gems+=15; FK.save(); FK.sfx("gem"); FK.toast("+15 "+t("gems"),"gem"); after&&after(); }); };
+  FK.rewarded("gems",ok=>{ if(!ok) return; const s=FK.state; s.fgN=(s.fgN||0)+1; s.gems+=10; FK.save(); FK.sfx("gem"); FK.toast("+10 "+t("gems"),"gem"); after&&after(); }); };
 
 /* ---------------- PRO ekranı ---------------- */
 FK.proPrice = () => { try{ const p=N()&&N().proPrice&&N().proPrice(); if(p) return p; }catch(e){} return ""; };
