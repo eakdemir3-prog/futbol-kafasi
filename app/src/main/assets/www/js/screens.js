@@ -117,7 +117,8 @@ function bindMissions(el,after){
     if(m && FK.claimMission(m)){ FK.sfx("win"); FK.vib(40); FK.toast('+'+m.gem+' '+t("gems")+' · +'+m.xp+' XP',"gem"); after(); const lv=FK.levelInfo().level; if(lv>before) FK.levelUpModal(lv); }
   });
 }
-function achTile(a){ const on=!!FK.state.ach[a.id]; return '<div class="ach'+(on?"":" off")+'"><div class="badge" style="background:linear-gradient(145deg,'+a.c+','+a.c+'88);color:#fff">'+FK.ic(a.ic,28,2.2)+'</div><b>'+t("ach_"+a.id)+'</b><span>'+t("ach_"+a.id+"D")+'</span></div>'; }
+const ACHIMG={first:1,c100:2,c500:7,streak10:8,perfect:4,legend:5,flag:3,career:2,days7:6,lv10:8,wordle:4,allModes:9};
+function achTile(a){ const on=!!FK.state.ach[a.id]; return '<div class="ach'+(on?"":" off")+'"><div class="badge bimg"><img src="img/ach_'+(ACHIMG[a.id]||9)+'.webp" alt="">'+(on?'<i class="ach-ok">✓</i>':'<i class="ach-lk">'+FK.ic("lock",14,2.6)+'</i>')+'</div><b>'+t("ach_"+a.id)+'</b><span>'+t("ach_"+a.id+"D")+'</span></div>'; }
 function bindCommon(el){
   el.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{ FK.sfx("tap"); FK.go(b.dataset.go,{},{root:["games","rank","missions","profile","home"].indexOf(b.dataset.go)>=0}); });
   FK.energyTick&&FK.energyTick(el);

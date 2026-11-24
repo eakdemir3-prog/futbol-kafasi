@@ -220,13 +220,13 @@ FK.starsHtml = (n,size=26) => '<span class="lv-stars">'+[1,2,3].map(i=>'<i class
 /* ---------- bölüm haritası (başlangıç ekranının yerine) ---------- */
 /* v1.6: seviye haritası — sahada aşağıdan yukarı kıvrılan yol, en üstte kupa */
 FK.lvPathMap = (per,from,cur,st,lg) => {
-  const GAP=92, TOP=230, H=TOP+per*GAP+60, X=k=>50+30*Math.sin(k*0.95), Y=k=>TOP+(per-1-k)*GAP+46;
+  const GAP=92, TOP=250, H=TOP+per*GAP+150, X=k=>50+30*Math.sin(k*0.95), Y=k=>TOP+(per-1-k)*GAP+46;
   let d=""; for(let k=0;k<per;k++){ const x=X(k), y=Y(k); if(!k) d="M"+x+" "+y; else { const px=X(k-1), py=Y(k-1); d+=" C"+px+" "+(py-GAP*.5)+" "+x+" "+(y+GAP*.5)+" "+x+" "+y; } }
   const done=Math.max(0,Math.min(per,cur-from));
   let d2=""; for(let k=0;k<=Math.min(done,per-1);k++){ const x=X(k), y=Y(k); if(!k) d2="M"+x+" "+y; else { const px=X(k-1), py=Y(k-1); d2+=" C"+px+" "+(py-GAP*.5)+" "+x+" "+(y+GAP*.5)+" "+x+" "+y; } }
   const nodes=Array.from({length:per},(_,k)=>{ const n=from+k, stars=st[n]||0, lock=n>cur, isCur=n===cur, chest=n%10===0;
     return '<button class="lvp-n'+(lock?" lock":"")+(isCur?" cur":"")+(stars?" done":"")+'" data-n="'+n+'" style="left:'+X(k)+'%;top:'+Y(k)+'px">'+(chest?'<span class="lvp-ch">'+(stars?"✅":"🎁")+'</span>':'')+'<b>'+(lock?FK.ic("lock",20,2.6):n)+'</b>'+(lock?'':'<span class="lvp-s">'+[1,2,3].map(i=>'<i class="'+(i<=stars?"on":"")+'">★</i>').join("")+'</span>')+'</button>'; }).join("");
-  return '<div class="lvp" style="height:'+H+'px">'+
+  return '<div class="lvp v6" style="height:'+H+'px">'+
     '<div class="lvp-pitch"></div>'+
     '<div class="lvp-top">'+(FK.waveFlag?'<span class="lvp-fl l">'+FK.waveFlag("tr",70)+'</span>':'')+(FK.IL?FK.IL.trophy():'🏆')+(FK.waveFlag?'<span class="lvp-fl r">'+FK.waveFlag("tr",70)+'</span>':'')+'<div class="lvp-goal"></div></div>'+
     '<svg class="lvp-path" viewBox="0 0 100 '+H+'" preserveAspectRatio="none"><path d="'+d+'" fill="none" stroke="#130A2E" stroke-width="30" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="'+d+'" fill="none" stroke="#8B5CF6" stroke-width="22" stroke-linecap="round" vector-effect="non-scaling-stroke"/>'+(d2?'<path d="'+d2+'" fill="none" stroke="#C6FF3D" stroke-width="8" stroke-linecap="round" stroke-dasharray="2 14" vector-effect="non-scaling-stroke"/>':'')+'</svg>'+
