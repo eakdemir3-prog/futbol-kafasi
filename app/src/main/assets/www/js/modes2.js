@@ -28,6 +28,9 @@ Object.assign(FK_I18N.en,{ex_noNum:"no number",ex_tNoNum:"the hidden player has 
 const stTag = p => p.free?'<i class="retf free" title="'+t("ex_freeTag")+'">🆓</i>':p.ret?'<i class="retf" title="'+t("ex_retTag")+'">🏁</i>':'';
 const leaguesOf = p => [...new Set(p.clubs.map(c=>FK_GCLUBS[c]&&FK_GCLUBS[c][2]).filter(Boolean))];
 const COLS=["nat","pos","by","club","lg","no","wc"];
+const GXI={nat:"g_flag",pos:"g_pitch",by:"g_cake",club:"g_shield",lg:"g_medal",no:"g_shirt",wc:"g_cup"};
+Object.assign(FK_I18N.tr,{gx_cnt:"Tahmin {a}/{b}",gx_go:"TAHMİN ET",gx_how:"Nasıl oynanır?",gx_nat:"Ülke",gx_pos:"Mevki",gx_by:"Doğum Yılı",gx_club:"Kulüp",gx_lg:"Lig",gx_no:"Forma No",gx_wc:"Dünya Kupası"});
+Object.assign(FK_I18N.en,{gx_cnt:"Guess {a}/{b}",gx_go:"GUESS",gx_how:"How to play?",gx_nat:"Nation",gx_pos:"Pos",gx_by:"Born",gx_club:"Club",gx_lg:"League",gx_no:"Shirt No",gx_wc:"World Cup"});
 
 function compare(g,T){
   const out={};
@@ -61,7 +64,7 @@ function cellContent(col,p,cmp){
 }
 
 FK.screens.guess = (el,{diff,era,level,target,max}) => {
-  el.classList.add("mframe"); el.style.setProperty("--mc","#5CD0F5");
+  el.classList.add("mframe","gx"); el.style.setProperty("--mc","#5CD0F5");
   era=era||"now";
   const s=FK.state, all=FK.guessPool("mix");
   const MAX = max || (diff===4?6:8);
@@ -102,23 +105,32 @@ FK.screens.guess = (el,{diff,era,level,target,max}) => {
   };
   const bindExplain=()=>el.querySelectorAll("[data-ex]").forEach(b=>b.onclick=()=>{ const [n,col]=b.dataset.ex.split("|"); const g=all.find(x=>x.name===n); if(g){ document.querySelectorAll(".toast").forEach(x=>x.remove()); explain(g,col);} });
   const draw=(newIdx)=>{
-    el.innerHTML='<div class="game-head"><button class="icon-btn" data-quit aria-label="'+t("exit")+'">'+FK.ic("x",20,2.4)+'</button><div class="grow"><div class="h-display" style="font-size:22px">'+t("m_guess")+'</div><div class="small muted" style="margin-top:3px">'+t("era_"+era)+' · '+t("d"+diff)+' · '+t("guessCount",{a:guesses.length,b:MAX})+'</div></div><span class="pill">'+FK.gemIc()+FK.fmtNum(s.gems)+'</span></div>'+
-    '<div class="scroll" style="padding-top:8px" data-sc><div class="stack" style="gap:12px">'+
-     '<div class="stage gstage'+(era==="old"?" gold":"")+'"><div class="rays2"></div>'+
-      (done&&win?'<div class="gwin-name" lang="en">'+FK.esc(T.name)+'</div>':'')+
-      ''+FK.bust({w:160,show:done,rim:era==="old"?"#FEF3C7":"#4ADE80"})+''+
-      revealBar()+'</div>'+
+    const k=known(), hb=FK.BOOSTS.find(x=>x.id==="hint"), hn=FK.inv("hint");
+    const revCell=col=>{ if(done||k[col]){ const cmp = col==="club"?{clubShow:T.clubs[T.clubs.length-1]} : col==="lg"?{lgShow:FK_GCLUBS[T.clubs[T.clubs.length-1]][2]} : null; return '<span class="gx-c on">'+cellContent(col,T,cmp)+'</span>'; }
+      if(col==="nat"&&k.cont){ const ct=CONT[FK_CONTINENT[T.nat]]; return '<span class="gx-c on cont">'+(ct?(FK.lang()==="en"?ct[1]:ct[0]):"?")+'</span>'; }
+      return '<span class="gx-c lk"><img src="img/'+GXI[col]+'.webp" alt=""><img class="gx-l" src="img/g_lock.webp" alt=""></span>'; };
+    const row=(g,isNew)=>{ const c=compare(g,T), w=g.name===T.name;
+      return '<div class="gx-r'+(w?" win":"")+(isNew?" new":"")+'"><b class="gx-n" lang="en">'+FK.esc(g.name)+'</b>'+COLS.map((col,j)=>{ const st=c[col], dir= col==="by"&&st!=="ok"?c.byDir : col==="no"&&st!=="ok"?c.noDir : null;
+        return '<span class="gx-c '+st+'" data-ex="'+FK.esc(g.name)+'|'+col+'" style="animation-delay:'+(isNew?j*80:0)+'ms">'+cellContent(col,g,c)+(dir?'<i class="gx-a">'+FK.ic(dir,11,3.4)+'</i>':col==="nat"&&st==="near"?'<i class="gx-a">'+FK.ic("globe",11,2.8)+'</i>':'')+'</span>'; }).join("")+'</div>'; };
+    el.innerHTML='<div class="game-head"><button class="icon-btn" data-quit aria-label="'+t("exit")+'">'+FK.ic("x",20,2.4)+'</button><div class="grow"><div class="h-display" style="font-size:22px">'+t("m_guess")+'</div></div><span class="pill">'+FK.gemIc()+FK.fmtNum(s.gems)+'</span></div>'+
+    '<div class="scroll" data-sc><div class="stack" style="gap:10px">'+
+     '<div class="gx-cnt"><span>'+t("gx_cnt",{a:guesses.length,b:MAX})+'</span></div>'+
+     '<div class="gx-card'+(guesses.length&&!done?" sm":"")+(era==="old"?" old":"")+'"><img src="img/card_player.webp" alt="">'+(done?'<div class="gx-name'+(win?"":" lose")+'" lang="en">'+FK.esc(T.name)+'</div>':'')+'</div>'+
+     '<div class="gx-tbl"><div class="gx-r gx-h"><b class="gx-n"></b>'+COLS.map(c=>'<span>'+t("gx_"+c)+'</span>').join("")+'</div>'+
+      '<div class="gx-r gx-rev"><b class="gx-n">'+(done?FK.ic("check",16,3):'?')+'</b>'+COLS.map(revCell).join("")+'</div>'+
+      guesses.slice().reverse().map((g,i)=>row(g, newIdx!=null && i===0)).join("")+'</div>'+
      (done
-       ? '<div class="card center stack" style="gap:10px"><div class="h-display h2" style="color:'+(win?'var(--green-l)':'#FCA5A5')+'">'+(win?t("guessWin",{n:guesses.length}):t("guessLose",{a:'<span lang="en">'+FK.esc(T.name)+'</span>'}))+'</div>'+
+       ? '<div class="card center stack" style="gap:10px"><div class="h-display h2" style="color:'+(win?'#15803D':'#B91C1C')+'">'+(win?t("guessWin",{n:guesses.length}):t("guessLose",{a:'<span lang="en">'+FK.esc(T.name)+'</span>'}))+'</div>'+
          (res&&res.lvl?'<div>'+FK.starsHtml(res.lvl.stars,34)+'</div>':'')+
          (res?'<div class="row" style="justify-content:center;gap:8px"><span class="chip chip-xp">+'+res.xp+' XP</span><span class="chip chip-gem">'+FK.gemIc(12)+'+'+res.gems+'</span></div>'+FK.doubleBtn(res):'')+
          (res&&res.lvl&&res.lvl.next?'<button class="btn btn-primary" data-nextlv>'+t("lvNext")+' · '+res.lvl.nextN+' <span class="en-cost">⚡1</span></button><button class="btn btn-ghost" data-new>'+FK.ic("replay",20,2.4)+t("lvRetry")+'</button>'
            :'<button class="btn btn-primary" data-new>'+FK.ic("replay",22,2.4)+(level?t("lvRetry"):t("newPlayer"))+'</button>')+
          FK.endRow("guess","data-share")+'</div>'
-       : FK.boostBar(["hint"])+'<div class="ac"><div class="row"><input class="input" data-in placeholder="'+t("guessPh")+'" autocomplete="off" autocapitalize="words" spellcheck="false" value="'+FK.esc(query)+'"></div><div class="ac-list down hide" data-ac></div></div>')+
-     (guesses.length?'<div class="ghead">'+COLS.map(c=>'<span>'+t("col_"+c)+'</span>').join("")+'</div>':'<div class="small muted center" style="line-height:1.5">'+t("rules_guess")+'</div>')+
-     guesses.slice().reverse().map((g,i)=>guessCard(g, newIdx!=null && i===0)).join("")+
+       : '<button class="gx-hint" data-boost="hint"><img src="img/g_mag.webp" alt=""><b>'+t("b_hint")+'</b><i></i><span>'+(hn?'×'+hn:FK.gemIc(18)+(hb?hb.p:""))+'</span></button>'+
+         '<div class="ac gx-in"><div class="gx-inr"><input class="input" data-in placeholder="'+t("guessPh")+'" autocomplete="off" autocapitalize="words" spellcheck="false" value="'+FK.esc(query)+'"><button class="gx-go" data-go>'+t("gx_go")+'</button></div><div class="ac-list down hide" data-ac></div></div>')+
+     '<button class="gx-how" data-how>'+FK.ic("info",18,2.4)+'<u>'+t("gx_how")+'</u></button>'+
     '</div></div>';
+    el.querySelector("[data-how]").onclick=()=>FK.modal('<div class="stack" style="gap:12px"><div class="h-display h2 center">'+t("howTo")+'</div><div style="font-size:14px;line-height:1.55">'+t("rules_guess")+'</div><button class="btn btn-primary" data-ok>'+t("done")+'</button></div>',w=>w.querySelector("[data-ok]").onclick=FK.closeModal);
     el.querySelector("[data-quit]").onclick=()=>FK.backHandler();
     if(done){
       bindExplain(); FK.bindEndRow(el,"guess");
@@ -155,8 +167,13 @@ FK.screens.guess = (el,{diff,era,level,target,max}) => {
     inp.oninput=()=>{ query=inp.value; const q=FK.norm(query); if(q.length<2){ ac.classList.add("hide"); return; }
       const m=names.filter(n=>FK.norm(n).indexOf(q)>=0 && !guesses.some(g=>g.name===n)).slice(0,6);
       ac.innerHTML=m.map(n=>'<button data-n="'+FK.esc(n)+'">'+FK.esc(n)+'</button>').join(""); ac.classList.toggle("hide",!m.length);
-      ac.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>submit(b.dataset.n)); };
+      ac.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>submit(b.dataset.n)); if(el.classList.contains("kb")) scb(); };
     inp.onkeydown=e=>{ if(e.key==="Enter"){ const f=ac.querySelector("[data-n]"); submit(f?f.dataset.n:inp.value); } };
+    el.querySelector("[data-go]").onclick=()=>{ const f=ac.querySelector("[data-n]"); submit(f?f.dataset.n:inp.value); };
+    const scb=()=>{ const sc=el.querySelector("[data-sc]"); if(sc) sc.scrollTop=sc.scrollHeight; };
+    inp.addEventListener("focus",()=>{ el.classList.add("kb"); scb(); setTimeout(scb,350); setTimeout(scb,800); });
+    inp.addEventListener("blur",()=>setTimeout(()=>{ const a=document.activeElement; if(!a||!a.matches||!a.matches("[data-in]")) el.classList.remove("kb"); },200));
+    if(!el._gxR){ el._gxR=1; window.addEventListener("resize",()=>{ if(el.classList.contains("kb")){ const sc=el.querySelector("[data-sc]"); if(sc) sc.scrollTop=sc.scrollHeight; } }); }
   };
   draw();
 };
