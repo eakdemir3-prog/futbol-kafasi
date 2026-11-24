@@ -34,15 +34,7 @@ FK.avatar=(idx,size=44,ring=null,frame)=>{ const a=FK.AVATARS[idx];
   const fr=frame!==undefined?frame:(ring!==null&&FK.frameOf?FK.frameOf():"none"); if(fr&&fr!=="none") h='<div class="fr fr-'+fr+'" style="--fs:'+size+'px">'+h+'</div>';
   return h; };
 
-/* ---------- alt menü: 4 sekme ---------- */
 const SW='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l9 9M20 4l-9 9M7 13l-3 3 4 4 3-3M17 13l3 3-4 4-3-3"/></svg>';
-FK.nav=active=>{ const dot=FK.unclaimedCount&&FK.unclaimedCount()>0, map={rank:"missions",games:"home",profile:"home",shop:"home"}; const a=map[active]||active;
-  return '<nav class="nav nav4">'+[["home",FK.ic("home",26,2.2),t("nv_home")],["duel",SW,t("nv_duel")],["friends",FK.ic("user",26,2.2),t("nv_friends")],["missions",FK.ic("trophy",26,2.2),t("nv_ch")]].map(([k,ic,l])=>'<button class="nav-item'+(a===k?" active":"")+'" data-nav="'+k+'">'+ic+'<span>'+l+'</span>'+(k==="missions"&&dot?'<i class="dot"></i>':'')+'</button>').join("")+'</nav>'; };
-const withNav=(name,key)=>{ const o=S[name]; if(!o) return; S[name]=(el,p)=>{ o(el,p); addNav(el,key); };
-  new MutationObserver(()=>{}); };
-function addNav(el,key){ if(el.querySelector(":scope>nav.nav")) return; el.classList.add("has-nav"); el.insertAdjacentHTML("beforeend",FK.nav(key)); FK.bindNav(el); }
-withNav("duel","duel"); withNav("friends","friends");
-
 /* ---------- hoş geldin ---------- */
 S.welcome=el=>{ el.classList.add("welcome","v6w");
   el.innerHTML='<div class="topbar" style="justify-content:flex-end"><div class="seg" style="grid-template-columns:1fr 1fr;width:110px"><button data-l="tr" class="'+(FK.lang()==="tr"?"on":"")+'">TR</button><button data-l="en" class="'+(FK.lang()==="en"?"on":"")+'">EN</button></div></div>'+
@@ -122,7 +114,7 @@ const _ow=S.olwait; S.olwait=(el,p)=>{ _ow(el,p); el.classList.add("v6-ow");
 
 /* ---------- arkadaşlar ---------- */
 const _fr=S.friends; S.friends=(el,p)=>{ _fr(el,p); const sc=el.querySelector(".scroll .stack"); if(!sc) return;
-  sc.insertAdjacentHTML("afterbegin",'<div class="v6-frh">'+IMG("handshake")+'</div>'); addNav(el,"friends"); };
+  sc.insertAdjacentHTML("afterbegin",'<div class="v6-frh">'+IMG("handshake")+'</div>'); };
 
 /* ---------- mücadele: sıralama kısayolu ---------- */
 const _mi=S.missions; S.missions=(el,p)=>{ _mi(el,p); const deco=()=>{ const h=el.querySelector(".scroll .stack > .row"); if(h&&!h.querySelector("[data-rank]")){ h.insertAdjacentHTML("beforeend",'<button class="pill" data-rank style="margin-left:6px">🏆 '+t("v6_rank")+'</button>'); h.querySelector("[data-rank]").onclick=()=>{ FK.sfx("tap"); FK.go("rank"); }; } }; deco();
