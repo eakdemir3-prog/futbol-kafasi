@@ -11,11 +11,12 @@ FK.clubBadge = (code,size=40) => {
   const c=FK_GCLUBS[code]; if(!c) return '';
   const c1=c[3], c2=c[4], tx=c[1], id="sg"+(++_shN);
   const light=["#FFFFFF","#FACC15","#7DD3FC","#F9A8D4","#38BDF8","#FDE047"].indexOf(String(c1).toUpperCase())>=0;
-  return '<span class="cbadge sh" style="width:'+size+'px;height:'+size+'px"><svg viewBox="0 0 100 116" preserveAspectRatio="xMidYMid meet" aria-label="'+FK.esc(c[0])+'"><defs><linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+c1+'"/><stop offset=".56" stop-color="'+c1+'"/><stop offset=".56" stop-color="'+c2+'"/><stop offset="1" stop-color="'+c2+'"/></linearGradient></defs>'+
-   '<path d="M50 4 L92 16 V58 C92 84 72 102 50 112 C28 102 8 84 8 58 V16 Z" fill="#fff"/>'+
-   '<path d="M50 11 L85 21 V58 C85 80 68 95 50 104 C32 95 15 80 15 58 V21 Z" fill="url(#'+id+')"/>'+
-   '<path d="M50 11 L85 21 V40 C60 34 40 34 15 40 V21 Z" fill="rgba(255,255,255,.18)"/>'+
-   '<text x="50" y="66" text-anchor="middle" font-family="Barlow Condensed,Inter,sans-serif" font-style="italic" font-weight="900" font-size="'+(tx.length>3?24:30)+'" fill="'+(light?"#0A0B26":"#fff")+'" stroke="'+(light?"#fff":"rgba(0,0,0,.55)")+'" stroke-width="1.2" paint-order="stroke">'+FK.esc(tx)+'</text></svg></span>';
+  return '<span class="cbadge sh" style="width:'+size+'px;height:'+size+'px"><svg viewBox="0 0 100 116" preserveAspectRatio="xMidYMid meet" aria-label="'+FK.esc(c[0])+'"><defs><linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="'+c1+'"/><stop offset=".5" stop-color="'+c1+'"/><stop offset=".5" stop-color="'+c2+'"/><stop offset="1" stop-color="'+c2+'"/></linearGradient></defs>'+
+   '<path d="M50 5 L92 17 V58 C92 84 72 102 50 111 C28 102 8 84 8 58 V17 Z" fill="#FDF1D6" stroke="#130A2E" stroke-width="6" stroke-linejoin="round"/>'+
+   '<path d="M50 14 L83 23 V58 C83 79 67 94 50 102 C33 94 17 79 17 58 V23 Z" fill="url(#'+id+')" stroke="#130A2E" stroke-width="3" stroke-linejoin="round"/>'+
+   '<path d="M50 14 L83 23 V38 C62 33 38 33 17 38 V23 Z" fill="rgba(255,255,255,.22)"/>'+
+   '<rect x="4" y="42" width="92" height="36" rx="7" fill="#FDF1D6" stroke="#130A2E" stroke-width="3.5"/>'+
+   '<text x="50" y="'+(tx.length>3?69:71)+'" text-anchor="middle" font-family="Barlow Condensed,Inter,sans-serif" font-style="italic" font-weight="900" font-size="'+(tx.length>3?27:34)+'" fill="#130A2E">'+FK.esc(tx)+'</text></svg></span>';
 };
 
 /* ======================= OYUNCUYU TAHMİN ET ======================= */
@@ -162,7 +163,7 @@ FK.screens.guess = (el,{diff,era,level,target,max}) => {
         if(res.levelUp) setTimeout(()=>FK.levelUpModal(res.levelUp),d+300);
         return;
       }
-      draw(0); setTimeout(()=>{ const i=el.querySelector("[data-in]"); if(i) i.focus(); },50);
+      const wk=el.classList.contains("kb") && document.activeElement===inp; draw(0); if(wk) setTimeout(()=>{ const i=el.querySelector("[data-in]"); if(i) i.focus(); },50); else el.classList.remove("kb");
     };
     inp.oninput=()=>{ query=inp.value; const q=FK.norm(query); if(q.length<2){ ac.classList.add("hide"); return; }
       const m=names.filter(n=>FK.norm(n).indexOf(q)>=0 && !guesses.some(g=>g.name===n)).slice(0,6);
@@ -171,9 +172,13 @@ FK.screens.guess = (el,{diff,era,level,target,max}) => {
     inp.onkeydown=e=>{ if(e.key==="Enter"){ const f=ac.querySelector("[data-n]"); submit(f?f.dataset.n:inp.value); } };
     el.querySelector("[data-go]").onclick=()=>{ const f=ac.querySelector("[data-n]"); submit(f?f.dataset.n:inp.value); };
     const scb=()=>{ const sc=el.querySelector("[data-sc]"); if(sc) sc.scrollTop=sc.scrollHeight; };
-    inp.addEventListener("focus",()=>{ el.classList.add("kb"); scb(); setTimeout(scb,350); setTimeout(scb,800); });
+    const h0=window.innerHeight; inp.addEventListener("focus",()=>{ el.classList.add("kb"); scb(); setTimeout(scb,350); setTimeout(()=>{ scb(); if(window.innerHeight>=h0*0.9 && window.innerHeight>=600) el.classList.remove("kb"); },1000); });
     inp.addEventListener("blur",()=>setTimeout(()=>{ const a=document.activeElement; if(!a||!a.matches||!a.matches("[data-in]")) el.classList.remove("kb"); },200));
-    if(!el._gxR){ el._gxR=1; window.addEventListener("resize",()=>{ if(el.classList.contains("kb")){ const sc=el.querySelector("[data-sc]"); if(sc) sc.scrollTop=sc.scrollHeight; } }); }
+    if(!el._gxR){ el._gxR=1; let mx=window.innerHeight;
+      window.addEventListener("resize",()=>{ const h=window.innerHeight; if(h>mx) mx=h;
+        if(!el.classList.contains("kb")) return;
+        if(h>=mx*0.9){ el.classList.remove("kb"); const a=document.activeElement; if(a&&a.matches&&a.matches("[data-in]")) a.blur(); return; }
+        const sc=el.querySelector("[data-sc]"); if(sc) sc.scrollTop=sc.scrollHeight; }); }
   };
   draw();
 };

@@ -220,7 +220,7 @@ FK.starsHtml = (n,size=26) => '<span class="lv-stars">'+[1,2,3].map(i=>'<i class
 /* ---------- bölüm haritası (başlangıç ekranının yerine) ---------- */
 /* v1.6: seviye haritası — sahada aşağıdan yukarı kıvrılan yol, en üstte kupa */
 FK.lvPathMap = (from,cur,st,W,H) => {
-  const n=10, top=Math.round(Math.min(W*561/720*0.5,H*0.3)), gap=(H-top-56)/(n-1), tight=gap<36, xs=tight?[0.22,0.78]:[0.25,0.5,0.75,0.5], sz=Math.round(Math.max(36,Math.min(64,tight?gap*1.9:gap*1.15)));
+  const n=10, top=Math.round(Math.min(W*561/720*0.5,H*0.27)), gap=(H-top-56)/(n-1), tight=false, xs=gap<44?[0.18,0.5,0.82,0.5]:[0.25,0.5,0.75,0.5], sz=Math.round(Math.max(44,Math.min(64,gap*1.35)));
   const pts=Array.from({length:n},(_,k)=>[W*xs[k%xs.length],H-44-k*gap]);
   const seg=i=>{ const [px,py]=pts[i-1],[x,y]=pts[i]; return tight?' L'+x+' '+y:' C'+px+' '+(py-(py-y)*.6)+' '+x+' '+(y+(py-y)*.6)+' '+x+' '+y; }, sw=tight?8:Math.round(Math.min(24,sz*.4));
   let d='M'+pts[0][0]+' '+pts[0][1]; for(let i=1;i<n;i++) d+=seg(i);

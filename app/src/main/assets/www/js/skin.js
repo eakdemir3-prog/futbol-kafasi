@@ -18,10 +18,7 @@ FK.modeColor=m=>(MC[m]||["#B79DFF"])[0];
 FK.homeModes=()=>Object.keys(MC).filter(m=>m==="guess"||FK.MODES[m]).map(m=>'<button class="hm-mode" data-mode="'+m+'" style="background:'+MC[m][0]+'"><b>'+FK.esc(FK.modeName(m))+'</b>'+MC[m][1]()+'</button>').join("");
 FK.modeArt=m=>MC[m]?MC[m][1]():"";
 
-/* kulüp etiketi: arma yerine sade isim plakası (kulüp kısaltması). Gerçek armayı taklit etmez */
-FK.clubBadge=(code,size=40)=>{ const c=FK_GCLUBS[code]; if(!c) return '';
-  const fs=Math.max(9,Math.round(size*(c[1].length>3?.28:.34)));
-  return '<span class="cbadge ctag" title="'+FK.esc(c[0])+'" style="width:'+size+'px;height:'+size+'px;font-size:'+fs+'px">'+FK.esc(c[1])+'</span>'; };
+
 
 /* Transfer Rotası: kulüp adları düz metin, sıra oklarla; üstte logosuz sade forma */
 FK.routeStage=(q,timer)=>'<div class="stage rt2">'+timer+'<div class="rt2-ill">'+IL.shirtArrow()+'</div><div class="rt2-list">'+q.clubs.map((c,i)=>{ const C=FK_GCLUBS[c]||[c];

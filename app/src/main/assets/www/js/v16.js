@@ -96,11 +96,11 @@ const _res=S.result; S.result=(el,p)=>{ _res(el,p); const {g,res}=p; if(!res.lvl
 
 /* ---------- düello ana ekranı ---------- */
 const _du=S.duel; S.duel=(el,p)=>{ _du(el,p); const sc=el.querySelector(".scroll .stack"); if(!sc) return;
-  const hero=sc.querySelector(".du-hero"); if(hero) hero.outerHTML='<div class="v6-dh">'+IMG("hero_duel")+'<div class="v6-dht">'+rib(t("v6_duel").replace(" ","<br>"),"#C6FF3D",40)+'<p>'+t("v6_duelS")+'</p></div></div>';
+  const hero=sc.querySelector(".du-hero"); if(!hero && !sc.querySelector(".v6-pk")) sc.insertAdjacentHTML("afterbegin",'<div class="v6-pk"><img src="img/o_pen.webp" alt=""></div>'); if(hero) hero.outerHTML='<div class="v6-dh">'+IMG("hero_duel")+'<div class="v6-dht">'+rib(t("v6_duel").replace(" ","<br>"),"#C6FF3D",40)+'<p>'+t("v6_duelS")+'</p></div></div>';
   const q=sc.querySelector("[data-quick]"); if(q){ q.className="v6-bb lime"; q.innerHTML=SW+'<b>'+t("v6_find")+'</b><span>›</span>'; }
   const cr=sc.querySelector("[data-create]"); const jn=sc.querySelector(".du-join");
-  if(cr&&q){ cr.className="v6-bb cyan"; cr.removeAttribute("style"); cr.innerHTML='<i class="v6-plus">+</i><b>'+t("v6_room")+'</b><span>›</span>'; q.after(cr);
-    const jb=document.createElement("button"); jb.className="v6-bb lav"; jb.innerHTML=FK.ic("user",26,2.4)+'<b>'+t("v6_joinR")+'</b><span>›</span>'; cr.after(jb);
+  if(cr&&q){ cr.className="v6-bb cyan"; cr.removeAttribute("style"); cr.innerHTML='<img class="v6-bi" src="img/o_room.webp" alt=""><b>'+t("v6_room")+'</b><span>›</span>'; q.after(cr);
+    const jb=document.createElement("button"); jb.className="v6-bb lav"; jb.innerHTML='<img class="v6-bi" src="img/o_join.webp" alt=""><b>'+t("v6_joinR")+'</b><span>›</span>'; cr.after(jb);
     if(jn){ jn.style.display="none"; jb.after(jn); jb.onclick=()=>{ FK.sfx("tap"); jn.style.display=jn.style.display==="none"?"":"none"; const i=jn.querySelector("input"); i&&i.focus(); }; } }
   sc.querySelectorAll(".sec-title").forEach(x=>{ if(x.textContent===t("ol_friend")) x.remove(); });
   const fr=sc.querySelector("[data-friends]"); fr&&fr.remove(); };
