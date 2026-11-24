@@ -311,3 +311,9 @@ html[data-theme=dark] #stad>*{display:none}
 @keyframes lvpPulse{50%{transform:translate(-50%,-50%) scale(1.06)}}
 .lvp-fans{position:absolute;left:0;right:0;bottom:0;height:70px;background:radial-gradient(ellipse 14px 20px at 50% 100%,#140B33 96%,transparent) 0 100%/30px 46px repeat-x,radial-gradient(ellipse 12px 16px at 50% 100%,#1B1045 96%,transparent) 15px 100%/30px 62px repeat-x;opacity:.95}
 .lv-scroll .lv-head{margin-bottom:8px}
+/* seviye haritası: üretilmiş gece sahası */
+.lvp{background:url(../img/lv_pitch.webp) center top/100% auto no-repeat,url(../img/lv_grass.webp) center top/100% auto repeat-y #4E1C86!important}
+.lvp-pitch,.lvp-goal{display:none}
+.lvp-top{background:none!important;padding-top:6px}
+.lvp-top>img.il{height:92px}
+.lvp-fl{top:118px}
