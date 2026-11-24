@@ -430,3 +430,18 @@ html[data-theme=light] .v6-enbuy{color:var(--ink)}
 .v6-enw .modal{max-height:92vh;overflow:auto}
 .v6-lv .kafa-say{display:none!important}
 .v6-frh{justify-content:center!important;margin:-6px 0 -8px}
+/* seviye haritası: sayfalı, tek ekran */
+.lv-fit{flex:1;min-height:0;overflow:hidden;padding:4px 14px 0}
+.lvp-host{position:relative}
+.lvp.v6.fit{margin:0;background-size:100% auto,0 0,100% auto!important}
+.lvp-n.pn{width:var(--z);height:var(--z);border-width:3px;box-shadow:0 4px 0 var(--ink)}
+.lvp-n.pn b{font-size:calc(var(--z)*.42)}
+.lvp-n.pn.cur{width:calc(var(--z)*1.15);height:calc(var(--z)*1.15)}
+.lvp-n.pn .lvp-s{bottom:calc(var(--z)*-.2)}
+.lvp-n.pn .lvp-s i{font-size:calc(var(--z)*.27)}
+.lvp-n.pn .lvp-ch{font-size:calc(var(--z)*.32);right:-8px;top:-8px}
+.lv-pgr{display:flex;gap:6px;align-items:center;justify-content:center;padding:8px 14px 0}
+.lv-pgr button{border:3px solid var(--ink);border-radius:14px;box-shadow:0 3px 0 var(--ink);font-family:var(--display);font-style:italic;font-weight:900;font-size:15px;padding:7px 9px;background:#2A1A63;color:#fff;flex:1;min-width:0}
+.lv-pgr .lv-pp.on{background:var(--lime);color:var(--ink)}
+.lv-pgr .lv-pp.lk{opacity:.5}
+.lv-pgr .lv-pi{flex:none;background:var(--lav);color:var(--ink);padding:6px 9px;display:flex}

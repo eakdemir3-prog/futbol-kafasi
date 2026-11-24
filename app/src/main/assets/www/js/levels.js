@@ -219,38 +219,40 @@ FK.starsHtml = (n,size=26) => '<span class="lv-stars">'+[1,2,3].map(i=>'<i class
 
 /* ---------- bölüm haritası (başlangıç ekranının yerine) ---------- */
 /* v1.6: seviye haritası — sahada aşağıdan yukarı kıvrılan yol, en üstte kupa */
-FK.lvPathMap = (per,from,cur,st,lg) => {
-  const GAP=92, TOP=250, H=TOP+per*GAP+150, X=k=>50+30*Math.sin(k*0.95), Y=k=>TOP+(per-1-k)*GAP+46;
-  let d=""; for(let k=0;k<per;k++){ const x=X(k), y=Y(k); if(!k) d="M"+x+" "+y; else { const px=X(k-1), py=Y(k-1); d+=" C"+px+" "+(py-GAP*.5)+" "+x+" "+(y+GAP*.5)+" "+x+" "+y; } }
-  const done=Math.max(0,Math.min(per,cur-from));
-  let d2=""; for(let k=0;k<=Math.min(done,per-1);k++){ const x=X(k), y=Y(k); if(!k) d2="M"+x+" "+y; else { const px=X(k-1), py=Y(k-1); d2+=" C"+px+" "+(py-GAP*.5)+" "+x+" "+(y+GAP*.5)+" "+x+" "+y; } }
-  const nodes=Array.from({length:per},(_,k)=>{ const n=from+k, stars=st[n]||0, lock=n>cur, isCur=n===cur, chest=n%10===0;
-    return '<button class="lvp-n'+(lock?" lock":"")+(isCur?" cur":"")+(stars?" done":"")+'" data-n="'+n+'" style="left:'+X(k)+'%;top:'+Y(k)+'px">'+(chest?'<span class="lvp-ch">'+(stars?"✅":"🎁")+'</span>':'')+'<b>'+(lock?FK.ic("lock",20,2.6):n)+'</b>'+(lock?'':'<span class="lvp-s">'+[1,2,3].map(i=>'<i class="'+(i<=stars?"on":"")+'">★</i>').join("")+'</span>')+'</button>'; }).join("");
-  return '<div class="lvp v6" style="height:'+H+'px">'+
-    '<div class="lvp-pitch"></div>'+
-    '<div class="lvp-top">'+(FK.waveFlag?'<span class="lvp-fl l">'+FK.waveFlag("tr",70)+'</span>':'')+(FK.IL?FK.IL.trophy():'🏆')+(FK.waveFlag?'<span class="lvp-fl r">'+FK.waveFlag("tr",70)+'</span>':'')+'<div class="lvp-goal"></div></div>'+
-    '<svg class="lvp-path" viewBox="0 0 100 '+H+'" preserveAspectRatio="none"><path d="'+d+'" fill="none" stroke="#130A2E" stroke-width="30" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="'+d+'" fill="none" stroke="#8B5CF6" stroke-width="22" stroke-linecap="round" vector-effect="non-scaling-stroke"/>'+(d2?'<path d="'+d2+'" fill="none" stroke="#C6FF3D" stroke-width="8" stroke-linecap="round" stroke-dasharray="2 14" vector-effect="non-scaling-stroke"/>':'')+'</svg>'+
-    nodes+'<div class="lvp-fans"></div></div>';
+FK.lvPathMap = (from,cur,st,W,H) => {
+  const n=10, top=Math.round(Math.min(W*561/720*0.5,H*0.3)), gap=(H-top-56)/(n-1), tight=gap<36, xs=tight?[0.22,0.78]:[0.25,0.5,0.75,0.5], sz=Math.round(Math.max(36,Math.min(64,tight?gap*1.9:gap*1.15)));
+  const pts=Array.from({length:n},(_,k)=>[W*xs[k%xs.length],H-44-k*gap]);
+  const seg=i=>{ const [px,py]=pts[i-1],[x,y]=pts[i]; return tight?' L'+x+' '+y:' C'+px+' '+(py-(py-y)*.6)+' '+x+' '+(y+(py-y)*.6)+' '+x+' '+y; }, sw=tight?8:Math.round(Math.min(24,sz*.4));
+  let d='M'+pts[0][0]+' '+pts[0][1]; for(let i=1;i<n;i++) d+=seg(i);
+  const done=Math.min(n-1,cur-from); let d2=''; if(done>0){ d2='M'+pts[0][0]+' '+pts[0][1]; for(let i=1;i<=done;i++) d2+=seg(i); }
+  const nodes=pts.map(([x,y],k)=>{ const m=from+k, stars=st[m]||0, lock=m>cur, isCur=m===cur, chest=m%10===0;
+    return '<button class="lvp-n pn'+(lock?" lock":"")+(isCur?" cur":"")+(stars?" done":"")+'" data-n="'+m+'" style="left:'+x+'px;top:'+y+'px;--z:'+sz+'px">'+(chest?'<span class="lvp-ch">'+(stars?"✅":"🎁")+'</span>':'')+'<b>'+(lock?FK.ic("lock",Math.round(sz*.36),2.6):m)+'</b>'+(lock?'':'<span class="lvp-s">'+[1,2,3].map(i=>'<i class="'+(i<=stars?"on":"")+'">★</i>').join("")+'</span>')+'</button>'; }).join("");
+  return '<div class="lvp v6 fit" style="height:'+H+'px"><svg class="lvp-path" viewBox="0 0 '+W+' '+H+'"><path d="'+d+'" fill="none" stroke="#130A2E" stroke-width="'+(sw+8)+'" stroke-linecap="round" stroke-linejoin="round"/><path d="'+d+'" fill="none" stroke="#8B5CF6" stroke-width="'+sw+'" stroke-linecap="round" stroke-linejoin="round"/>'+(d2?'<path d="'+d2+'" fill="none" stroke="#C6FF3D" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 12"/>':'')+'</svg>'+nodes+'</div>';
 };
 FK.lvMap = (el,mode) => {
   const M=FK.MODES[mode], LVm=FK.LV[mode], S=FK.lvState(mode), s=FK.state;
   let lg=s.lvTab&&s.lvTab[mode]!=null ? s.lvTab[mode] : FK.lvLeague(mode,S.cur);
+  const pgOf=()=>{ const f=lg*LVm.per+1; return S.cur<f?0:Math.min(3,Math.floor((S.cur-f)/10)); }; let pg=pgOf();
   const draw=()=>{
     const from=lg*LVm.per+1, to=from+LVm.per-1, cur=S.cur;
     const totalSt=Object.values(S.st).reduce((a,b)=>a+b,0);
     el.innerHTML='<div class="topbar"><button class="icon-btn" data-back aria-label="'+t("back")+'">'+FK.ic("left",22,2.4)+'</button><div class="grow"><h1 class="h-display" style="font-size:24px;margin:0">'+FK.modeName(mode)+'</h1><div class="small muted">★ '+totalSt+' / '+(LVm.N*3)+'</div></div>'+FK.energyPill()+'</div>'+
     '<div class="lv-tabs">'+[0,1,2,3,4].map(i=>{ const st=i*LVm.per+1, lock=st>cur;
       return '<button class="lv-tab'+(i===lg?" on":"")+(lock?" lock":"")+'" data-lg="'+i+'" style="--c1:'+LGC[i][0]+';--c2:'+LGC[i][1]+'"><span>'+(lock?"🔒":LGE[i])+'</span><b>'+t("lg_"+i)+'</b></button>'; }).join("")+'</div>'+
-    '<div class="scroll lv-scroll"><div class="lv-head" style="background:linear-gradient(135deg,'+LGC[lg][0]+','+LGC[lg][1]+')"><span class="lv-hic">'+LGE[lg]+'</span><div class="grow"><div class="h-display" style="font-size:24px">'+t("lg_"+lg)+'</div><div class="small" style="opacity:.9">'+t("lvN",{n:from+"–"+to})+'</div></div><button class="pill" data-rules style="background:rgba(0,0,0,.25);color:#fff">'+FK.ic("info",14,2.4)+t("lvRules")+'</button></div>'+
-    FK.lvPathMap(LVm.per,from,cur,S.st,lg)+
-    '</div>'+
+    '<div class="lv-scroll lv-fit"><div class="lvp-host"></div></div>'+
+    '<div class="lv-pgr"><button class="lv-pi" data-rules aria-label="'+t("lvRules")+'">'+FK.ic("info",18,2.6)+'</button>'+[0,1,2,3].map(i=>{ const a=from+i*10; return '<button class="lv-pp'+(i===pg?" on":"")+(a>cur?" lk":"")+'" data-pg="'+i+'">'+a+'–'+(a+9)+'</button>'; }).join("")+'</div>'+
     '<div style="padding:10px 16px calc(16px + var(--safe-b))"><button class="btn btn-primary" data-go-cur>'+FK.ic("ball",22,2.4)+t("lvPlay",{n:cur})+' <span class="en-cost">⚡1</span></button></div>';
     el.querySelector("[data-back]").onclick=FK.back;
-    el.querySelectorAll("[data-lg]").forEach(b=>b.onclick=()=>{ const i=+b.dataset.lg; if(i*LVm.per+1>S.cur){ FK.toast(t("lvLeagueLocked",{l:t("lg_"+i),n:i*LVm.per+1}),"lock"); return; } lg=i; s.lvTab=s.lvTab||{}; s.lvTab[mode]=i; FK.save(); FK.sfx("tap"); draw(); });
-    el.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{ const n=+b.dataset.n; if(n>S.cur){ FK.toast(t("lvLocked"),"lock"); return; } FK.sfx("tap"); FK.playLevel(mode,n); });
+    el.querySelectorAll("[data-lg]").forEach(b=>b.onclick=()=>{ const i=+b.dataset.lg; if(i*LVm.per+1>S.cur){ FK.toast(t("lvLeagueLocked",{l:t("lg_"+i),n:i*LVm.per+1}),"lock"); return; } lg=i; pg=pgOf(); s.lvTab=s.lvTab||{}; s.lvTab[mode]=i; FK.save(); FK.sfx("tap"); draw(); });
+    const sc=el.querySelector(".lv-fit"), host=el.querySelector(".lvp-host");
+    const lay=()=>{ const W=host.clientWidth, H=sc.clientHeight-14; if(W<50||H<200) return; host.innerHTML=FK.lvPathMap(from+pg*10,cur,S.st,W,H);
+      host.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{ const n=+b.dataset.n; if(n>S.cur){ FK.toast(t("lvLocked"),"lock"); return; } FK.sfx("tap"); FK.playLevel(mode,n); }); };
+    lay(); requestAnimationFrame(lay); if(window.ResizeObserver){ let lw=0,lh=0; new ResizeObserver(()=>{ if(sc.clientWidth!==lw||sc.clientHeight!==lh){ lw=sc.clientWidth; lh=sc.clientHeight; lay(); } }).observe(sc); }
+    const goPg=i=>{ if(i<0||i>3||i===pg) return; if(from+i*10>S.cur){ FK.toast(t("lvLocked"),"lock"); return; } pg=i; FK.sfx("tap"); draw(); };
+    el.querySelectorAll("[data-pg]").forEach(b=>b.onclick=()=>goPg(+b.dataset.pg));
+    let sx=null; sc.addEventListener("touchstart",e=>{ sx=e.touches[0].clientX; },{passive:true}); sc.addEventListener("touchend",e=>{ if(sx==null) return; const dx=e.changedTouches[0].clientX-sx; sx=null; if(Math.abs(dx)>60) goPg(pg+(dx<0?1:-1)); },{passive:true});
     el.querySelector("[data-go-cur]").onclick=()=>{ FK.sfx("tap"); FK.playLevel(mode,S.cur); };
     el.querySelector("[data-rules]").onclick=()=>FK.modal('<div class="stack" style="gap:12px"><div style="display:flex;justify-content:center">'+FK.kafa("bilge",80,"bob")+'</div><div class="h-display h2 center">'+t("howTo")+'</div><div style="font-size:14px;line-height:1.55">'+t("rules_"+mode)+'</div><button class="btn btn-primary" data-ok>'+t("done")+'</button></div>',w=>w.querySelector("[data-ok]").onclick=FK.closeModal);
-    const c=el.querySelector(".lvp-n.cur")||el.querySelector(".lvp-n:last-of-type"); if(c) setTimeout(()=>c.scrollIntoView({block:"center"}),30);
     FK.energyTick&&FK.energyTick(el);
   };
   draw();
