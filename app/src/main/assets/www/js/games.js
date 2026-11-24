@@ -124,6 +124,7 @@ FK.startGame = (mode,diff,practice) => {
 
 /* ---------- oyun ekranı ---------- */
 FK.screens.play = (el,{g}) => {
+  el.classList.add("mframe"); el.style.setProperty("--mc",FK.modeColor?FK.modeColor(g.mode):"#B79DFF");
   let timer=null, ended=false;
   const stopTimer=()=>{ if(timer){ cancelAnimationFrame(timer); timer=null; } };
   FK.onLeave=stopTimer;
@@ -181,7 +182,7 @@ FK.screens.play = (el,{g}) => {
     return '<div class="stage stadium"><div class="spot l"></div><div class="spot r"></div><div class="lamps"><i></i><i></i><i></i><i></i><i></i><i></i></div>'+
       '<svg aria-hidden="true" width="100%" height="90" viewBox="0 0 390 90" preserveAspectRatio="none" style="position:absolute;left:0;bottom:0"><g fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="2"><path d="M40 90 L120 20 L270 20 L350 90"/><path d="M0 60 H390"/><ellipse cx="195" cy="60" rx="70" ry="16"/></g></svg>'+
       '<div class="side-pts"><b>'+pts+'</b><span>'+t("points")+'</span><div class="steps">'+[1,2,3,4].map(i=>'<i class="'+(i>=q.rev?"on":"")+'"></i>').join("")+'</div></div>'+
-      '<div class="myst tier-'+tier+(fresh?' pop':'')+'"><div class="myst-in"><div class="myst-top"><div class="myst-rt">?</div>'+posSlot+flagSlot+'</div>'+bust+'<div class="myst-name">? ? ?</div></div></div>'+
+      (FK.IL?'<div class="myst2'+(fresh?' pop':'')+'"><img src="img/'+(isP?'card_player':'card_club')+'.webp" alt="" draggable="false"><div class="myst2-chips">'+posSlot+flagSlot+'</div></div>':'<div class="myst tier-'+tier+(fresh?' pop':'')+'"><div class="myst-in"><div class="myst-top"><div class="myst-rt">?</div>'+posSlot+flagSlot+'</div>'+bust+'<div class="myst-name">? ? ?</div></div></div>')+
       timerUI(Math.ceil(remain))+'</div>';
   }
   function drawClues(){
@@ -226,8 +227,8 @@ FK.screens.play = (el,{g}) => {
     const cFlag=o=>{ if(!window.FK_COUNTRIES) return ''; const c=FK_COUNTRIES.find(x=>FK.cName(x[0])===o); return c?'<span class="oflag">'+FK.flag(c[0])+'</span>':''; };
     el.innerHTML=head()+'<div class="scroll qx" style="padding-top:12px">'+
      (isRoute ? FK.routeStage(q,timerUI(SEC)) : isKadro ? FK.kadroStage(q,timerUI(SEC)) : isFlag
-      ? '<div class="stage qstage flagst"><div class="rays2" style="opacity:.25"></div><span class="qcat">🚩 '+t("qc_flag")+'</span><div class="flag-big">'+FK.flag(q.code)+'</div>'+timerUI(SEC)+'<div class="qask">'+t("whichCountry")+'</div></div>'
-      : '<div class="stage qstage"><div class="qpitch"></div><span class="qcat">'+(QI[q.k]||"⚽")+' '+t("qc_"+(q.k||"wc"))+'</span><div class="qtext">'+FK.esc(q.text)+'</div>'+timerUI(SEC)+'<div class="pts-badge">+100 · '+FK.ic("bolt",12,2.4,'style="display:inline;vertical-align:-1px"')+' +50</div><div class="qkafa">'+(FK.kafa?FK.kafa("bilge",62):'')+'</div></div>')+
+      ? '<div class="stage qstage flagst"><div class="rays2" style="opacity:.25"></div><span class="qcat">🚩 '+t("qc_flag")+'</span><div class="flag-wrap2">'+(FK.waveFlag?FK.waveFlag(q.code):'<div class="flag-big">'+FK.flag(q.code)+'</div>')+'</div>'+timerUI(SEC)+'<div class="qask">'+t("whichCountry")+'</div></div>'
+      : '<div class="stage qstage"><div class="qpitch"></div><span class="qcat">'+(QI[q.k]||"⚽")+' '+t("qc_"+(q.k||"wc"))+'</span><div class="qtext">'+FK.esc(q.text)+'</div>'+timerUI(SEC)+'<div class="pts-badge">+100 · '+FK.ic("bolt",12,2.4,'style="display:inline;vertical-align:-1px"')+' +50</div><div class="qart">'+(FK.IL?(g.mode==="club"?FK.IL.shieldQ():/^(player|daily|duel)$/.test(g.mode)?FK.IL.player10():FK.IL.ballQ()):'')+'</div></div>')+
      (isKadro?'<div class="card kd-ask">'+FK.clubBadge(q.club,38)+'<div class="grow"><b>'+t("kd_ask",{c:FK.esc(q.clubName),p:t("kdp_"+q.pos)})+'</b><div class="small muted">'+t("kd_sub")+'</div></div></div>':'')+
      '<div class="opts qopts '+(isFlag?'two':isKadro?'three':'one')+'">'+q.opts.map((o,k)=>'<button class="opt qopt'+(q.gone[k]?" gone":"")+'" data-o="'+k+'">'+(isKadro?'':'<i class="ol l'+k+'">'+"ABCD"[k]+'</i>')+'<span class="grow">'+FK.esc(o)+'</span>'+(isFlag||isRoute||isKadro?'':cFlag(o))+'</button>').join("")+'</div>'+
      (canBoost()?FK.boostBar(["fifty","time","pass"]):'')+
@@ -288,15 +289,16 @@ FK.screens.play = (el,{g}) => {
 
 /* ---------- sonuç ekranı ---------- */
 FK.screens.result = (el,{g,res}) => {
+  el.classList.add("rframe");
   const total=g.qs.length, pct=total?g.correct/total:0;
   const title= pct>=.8?t("great"):pct>=.6?t("good"):pct>=.4?t("ok"):t("tryAgain");
   const li=FK.levelInfo();
   el.classList.add("result-bg");
   el.innerHTML='<div class="scroll" style="padding-top:28px"><div class="stack" style="gap:16px;align-items:stretch">'+
    '<div class="center label res-mode">'+FK.modeName(g.mode)+(g.level?' · '+t("lvN",{n:g.level}):g.diff?' · '+t("d"+g.diff):'')+'</div>'+
-   '<h1 class="h-display center" style="font-size:46px">'+title+'</h1>'+(res.lvl?'<div class="center">'+FK.starsHtml(res.lvl.stars,40)+(res.lvl.stars?'':'<div class="small" style="color:#FCA5A5;margin-top:6px">'+t("lvFail",{n:res.lvl.need})+'</div>')+'</div>':'')+FK.kafaResult(pct)+
+   '<div class="rs-rib"><span>'+title+'</span></div>'+(res.lvl?'<div class="center">'+FK.starsHtml(res.lvl.stars,40)+(res.lvl.stars?'':'<div class="small" style="color:#FCA5A5;margin-top:6px">'+t("lvFail",{n:res.lvl.need})+'</div>')+'</div>':'')+FK.kafaResult(pct)+
    (res.record?'<div class="center"><span class="chip" style="background:#FACC15;color:#422006">'+FK.ic("trophy",14,2.4)+t("newRecord")+'</span></div>':'')+
-   '<div class="score-ring" style="background:conic-gradient(var(--green) 0 '+Math.round(pct*100)+'%, var(--card2) '+Math.round(pct*100)+'% 100%)"><div><span class="big-num">'+FK.fmtNum(g.score)+'</span><span class="small muted" style="font-weight:600">'+t("points")+' · '+t("nCorrect",{a:g.correct,b:total})+'</span></div></div>'+
+   '<div class="rs-card"><div class="rs-l">'+t("rs_score")+'</div><b>'+g.correct+'/'+total+'</b><div class="rs-sub">'+FK.fmtNum(g.score)+' '+t("rs_pts")+'</div><span class="rs-xp">+'+res.xp+' XP</span></div>'+(FK.IL?'<div class="rs-art">'+FK.IL.ball()+FK.IL.goal()+'</div>':'')+
    '<div class="stat3"><div class="stat"><b style="color:var(--green-l)">'+g.correct+'</b><span>'+t("statCorrect")+'</span></div><div class="stat"><b style="color:#FDBA74">'+g.bestStreak+'</b><span>'+t("statStreak")+'</span></div><div class="stat"><b style="color:#7DD3FC">'+(g.timeSum&&g.correct?(g.timeSum/total).toFixed(1).replace(".",FK.lang()==="tr"?",":"."):"–")+'</b><span>'+t("statAvg")+'</span></div></div>'+
    '<div class="card stack" style="gap:12px">'+
     '<div class="row"><span class="chip chip-xp" style="font-size:14px">+'+res.xp+' XP</span><div class="grow"><div class="row small muted" style="justify-content:space-between"><span>'+t("level")+' '+li.level+'</span><span>'+FK.fmtNum(li.cur)+' / '+FK.fmtNum(li.need)+'</span></div><div class="bar lg" style="margin-top:6px"><i style="width:0" data-xpbar></i></div></div></div>'+

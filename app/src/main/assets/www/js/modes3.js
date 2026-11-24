@@ -159,7 +159,7 @@ const midQuit=(el,mode,isOver,stop,pause,resume)=>{ FK.backHandler=()=>{ let qui
   if(pause) pause(); FK.confirm(t("quitMid"),t("exit"),go);
   const iv=setInterval(()=>{ if(quitting||!el.isConnected){ clearInterval(iv); return; } if(!document.querySelector(".modal-wrap")){ clearInterval(iv); if(resume) resume(); } },150);
   return true; }; };
-FK.screens.more = el => { MODE_NOW="more";
+FK.screens.more = el => { MODE_NOW="more"; el.classList.add("mframe"); el.style.setProperty("--mc","#5FE3CF");
   const s=FK.state, QT=8000; let streak=0, q=null, locked=false, over=false, res=null, record=false, tmr=null, t0=0;
   let pz=0; midQuit(el,"more",()=>over,()=>clearTimeout(tmr),()=>{ if(locked) return; clearTimeout(tmr); pz=Date.now(); },()=>{ if(!pz) return; t0+=Date.now()-pz; pz=0; tick(); });
   const last=(s.moreLast=s.moreLast||[]);
@@ -226,7 +226,7 @@ function tfMake(){
   const p=rnd(all); let y=p[1]; if(!truth) y=p[1]+rnd([-3,-2,-1,1,2,3]);
   return {txt:t("tf_born",{p:p[0],y}),ans:y===p[1]};
 }
-FK.screens.tf = el => { MODE_NOW="tf";
+FK.screens.tf = el => { MODE_NOW="tf"; el.classList.add("mframe"); el.style.setProperty("--mc","#5CD0F5");
   const s=FK.state, DUR=60000; let st=null, cur=null, ok=0, bad=0, combo=0, score=0, over=false, res=null, record=false, tmr=null, seen=[], bestC=0;
   let pz=0; midQuit(el,"tf",()=>over||!st,()=>clearTimeout(tmr),()=>{ clearTimeout(tmr); pz=Date.now(); },()=>{ if(!pz) return; st+=Date.now()-pz; pz=0; tick(); });
   const best=()=>((s.stats.byMode.tf||{}).best||0);

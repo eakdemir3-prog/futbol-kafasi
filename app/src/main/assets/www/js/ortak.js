@@ -96,7 +96,7 @@ FK.screens.ortak = el => { const o=chs();
 };
 
 /* ---------- bölümlü oyun ---------- */
-FK.screens.orplay = (el,p) => {
+FK.screens.orplay = (el,p) => { el.classList.add("mframe"); el.style.setProperty("--mc","#FF8F3F");
   const n=p.level, x=p.x, SEC=p.sec||20, pairs=p.pairs; let i=0, lives=3, correct=0, score=0, streak=0, best=0, tsum=0, raf=null, t0=0, ended=false, locked=false; const res=[];
   const g={mode:"ortak",level:n,diff:p.diff||1,qs:pairs,res,correct:0,score:0,bestStreak:0,timeSum:0,i:0,streak:0,extra:{}};
   FK.backHandler=()=>{ const go=()=>{ ended=true; cancelAnimationFrame(raf); FK.modeHome("ortak"); }; if(ended) go(); else FK.confirm(t("quitMid"),t("exit"),go); return true; };
@@ -136,7 +136,7 @@ FK.screens.orplay = (el,p) => {
 
 /* ---------- online / bot: 7 tur, turu önce doğru yazan alır ---------- */
 const RN=7, RSEC=20;
-FK.screens.orvs = (el,p) => {
+FK.screens.orvs = (el,p) => { el.classList.add("mframe"); el.style.setProperty("--mc","#FF8F3F");
   const mode=p.mode, side=p.side||"a", os=side==="a"?"b":"a", room=p.room;
   const u=FK.user()||{}, P0=FK.state.profile, m={uid:u.uid||"",name:(P0.name||"?").slice(0,18),av:P0.avatar||0,cup:chs().cup};
   const call=(fn,...a)=>{ try{ const n=N(); if(n&&n[fn]){ n[fn](...a); return true; } }catch(e){} return false; };

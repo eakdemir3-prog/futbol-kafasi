@@ -91,7 +91,7 @@ FK.screens.olwait = (el,pp) => {
 };
 
 /* ---- canlı maç ---- */
-FK.screens.ollive = (el,p) => {
+FK.screens.ollive = (el,p) => { el.classList.add("mframe"); el.style.setProperty("--mc","#B79DFF");
   const m=me(); let side=p.side||"a", os=side==="a"?"b":"a", room=p.room, mode=p.ghost?"ghost":"live";
   let gMy=[], gOp=[], doc=null, opp=null, qs=null, i=0, qStart=0, my={}, op={}, sMy=0, sOp=0, cMy=0, cOp=0, phase="wait", ended=false, tick=null, ghostRec=null, emoN=0, lastEmo=0, lastSeen=Date.now(), readyT=null;
   const set=o=>{ if(mode==="live") call("livePut",room,JSON.stringify(o)); };
@@ -182,7 +182,7 @@ FK.screens.ollive = (el,p) => {
   /* 5 penaltı; eşitse seri penaltı (en fazla 10). Matematiksel olarak biten maç erken biter */
   function over(){ const n=i, a=gMy.filter(x=>x==="g").length, b=gOp.filter(x=>x==="g").length;
     if(n<5) return a+(5-n)<b||b+(5-n)<a; return n>=10||a!==b; }
-  function pkScene(){ return '<div class="pk-scene" data-pk><div class="pk-goal"><i class="pk-net"></i></div><div class="pk-keeper">'+(FK.kafa?FK.kafa("kaleci",58):'')+'</div><div class="pk-ball">⚽</div></div>'; }
+  function pkScene(){ return '<div class="pk-scene" data-pk><div class="pk-goal img">'+(FK.IL?FK.IL.goal():'<i class="pk-net"></i>')+'</div><div class="pk-keeper">'+(FK.kafa?FK.kafa("kaleci",58):'')+'</div><div class="pk-ball">⚽</div></div>'; }
   function dotsUI(){ const n=Math.max(5,i+1), row=arr=>[...Array(n)].map((_,k)=>'<i class="pk-d '+(arr[k]||"")+(k>=5?" sd":"")+'"></i>').join("");
     return '<div class="pk-dots" data-dots><div>'+row(gMy)+'</div><div>'+row(gOp)+'</div></div>'; }
   function bubble(e,mine){ const b=el.querySelector('[data-b="'+(mine?"m":"o")+'"]'); if(!b) return; b.textContent=e; b.classList.remove("on"); void b.offsetWidth; b.classList.add("on"); }

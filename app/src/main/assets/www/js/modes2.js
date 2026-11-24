@@ -61,6 +61,7 @@ function cellContent(col,p,cmp){
 }
 
 FK.screens.guess = (el,{diff,era,level,target,max}) => {
+  el.classList.add("mframe"); el.style.setProperty("--mc","#5CD0F5");
   era=era||"now";
   const s=FK.state, all=FK.guessPool("mix");
   const MAX = max || (diff===4?6:8);
@@ -169,7 +170,7 @@ function scoreWord(g,a){ const res=Array(5).fill("no"), left={};
 FK.dailyWord = () => { const L=FK_WORDS; const start=new Date(2026,10,1); const d=Math.floor((new Date(FK.dayKey()+"T12:00:00")-start)/864e5);
   const r=FK.rng("wordorder"); const order=FK.shuffle(L.map((x,i)=>i),r); return L[order[((d%L.length)+L.length)%L.length]]; };
 
-FK.screens.word = el => {
+FK.screens.word = el => { el.classList.add("mframe"); el.style.setProperty("--mc","#B79DFF");
   const s=FK.state, today=FK.dayKey(), W=FK.dailyWord(), A=W[0];
   if(!s.word||s.word.date!==today) s.word={date:today,guesses:[],done:false,win:false};
   const st=s.word; let cur=""; let res=null;

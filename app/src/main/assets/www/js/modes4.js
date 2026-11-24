@@ -88,7 +88,7 @@ FK.buildKadro = (x,count,seed) => { const P=FK.kadroPool(), r=FK.rng(seed);
 const shirt=(c1,c2,no)=>'<svg width="34" height="34" viewBox="0 0 40 40"><path d="M12 4 L6 7 L2 15 L8 18 L10 16 V36 H30 V16 L32 18 L38 15 L34 7 L28 4 C26 8 14 8 12 4Z" fill="'+c1+'" stroke="#0A0B26" stroke-width="1.6"/><path d="M20 7 V36" stroke="'+c2+'" stroke-width="6"/></svg>';
 FK.kadroStage = (q,timer) => { const C=FK_GCLUBS[q.club]||["","","","#DC2626","#FACC15"];
   return '<div class="stage kd-pitch"><span class="kd-433">4-3-3</span><div class="kd-l mid"></div><div class="kd-l circ"></div><div class="kd-l box b"></div><div class="kd-l box t"></div>'+
-    q.slots.map((s,i)=>'<div class="kd-p'+(i===q.miss?' miss':'')+'" data-slot="'+i+'" style="left:'+s.x+'%;top:'+s.y+'%">'+(i===q.miss?'<div class="kd-q">?</div>':shirt(C[3],C[4]))+'<span class="kd-pos">'+t("kdl_"+s.k)+'</span><span class="kd-nm">'+(i===q.miss?'?':FK.esc(shortNm(s.n)))+'</span></div>').join("")+timer+'</div>'; };
+    q.slots.map((s,i)=>'<div class="kd-p'+(i===q.miss?' miss':'')+'" data-slot="'+i+'" style="left:'+s.x+'%;top:'+s.y+'%">'+(i===q.miss?'<div class="kd-q">?</div>':shirt("#FFF1D6","#B79DFF"))+'<span class="kd-pos">'+t("kdl_"+s.k)+'</span><span class="kd-nm">'+(i===q.miss?'?':FK.esc(shortNm(s.n)))+'</span></div>').join("")+timer+'</div>'; };
 FK.kadroReveal = (el,q) => { const d=el.querySelector('[data-slot="'+q.miss+'"]'); if(!d) return; const C=FK_GCLUBS[q.club]||["","","","#DC2626","#FACC15"];
-  d.classList.remove("miss"); d.classList.add("got"); d.innerHTML=shirt(C[3],C[4])+'<span class="kd-pos">'+t("kdl_"+q.pos)+'</span><span class="kd-nm">'+FK.esc(shortNm(q.answer))+'</span>'; };
+  d.classList.remove("miss"); d.classList.add("got"); d.innerHTML=shirt("#FFF1D6","#B79DFF")+'<span class="kd-pos">'+t("kdl_"+q.pos)+'</span><span class="kd-nm">'+FK.esc(shortNm(q.answer))+'</span>'; };
 })();

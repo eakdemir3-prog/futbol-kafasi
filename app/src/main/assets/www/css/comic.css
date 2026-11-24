@@ -1,0 +1,288 @@
+/* ==========================================================
+   v1.6 — GECE STADYUMU (çizgi roman) görsel sistemi
+   Koyu lacivert zemin + mor stadyum ışıkları, kalın italik başlıklar,
+   fosforlu yeşil ana butonlar, kalın koyu çerçeveli renkli kartlar, krem şıklar.
+   Yazı tipi aynı (Barlow Condensed + Inter). Oyun kuralları değişmez.
+   ========================================================== */
+:root{ --ink:#130A2E; --cream:#FFF1D6; --lime:#C6FF3D; --cyan:#5CD0F5; --lav:#B79DFF; --orange:#FF8F3F; --coral:#FF7D72; --teal:#5FE3CF; --yel:#FFD23F }
+
+/* ---------- zemin (koyu tema) ---------- */
+html[data-theme=dark]{ --bg:#0B0C2E; --card:#1C1650; --card2:#251C63; --line:#33287A; --muted:#D2CCFF; --dim:#A49DE0 }
+html[data-theme=dark] #stad{background:linear-gradient(180deg,#0A0B2C 0%,#16124A 34%,#120F3E 62%,#0A0A28 100%)}
+html[data-theme=dark] #stad .sky{background:radial-gradient(ellipse 75% 40% at 50% 0%,rgba(147,92,255,.45),transparent 70%)}
+html[data-theme=dark] #stad .crowd{top:20%;height:34%;opacity:1;background:
+  radial-gradient(ellipse 6px 8px at 50% 100%,#2A1F6E 97%,transparent) 0 0/12px 14px,
+  radial-gradient(ellipse 6px 8px at 50% 100%,#231A60 97%,transparent) 6px 7px/12px 14px,
+  linear-gradient(180deg,rgba(35,26,96,0),#1F185A 50%,#16124A)}
+html[data-theme=dark] #stad .lt{background:radial-gradient(circle,#fff 0 3px,transparent 3.5px) 0 0/9px 9px,#D9CCFF;border:3px solid var(--ink);box-shadow:0 0 18px 7px rgba(196,170,255,.75),0 0 70px 30px rgba(139,92,246,.45)}
+html[data-theme=dark] #stad .beam{background:linear-gradient(180deg,rgba(196,170,255,.28),transparent 70%)}
+html[data-theme=dark] #stad .grass{height:26%;background:repeating-linear-gradient(90deg,#1A1550 0 40px,#161245 40px 80px);box-shadow:inset 0 40px 60px rgba(10,10,40,.85)}
+html[data-theme=dark] #stad .fog{background:linear-gradient(180deg,transparent,transparent 50%,rgba(10,10,40,.45) 80%,rgba(10,10,40,.7))}
+
+/* ---------- başlıklar ---------- */
+html[data-theme=dark] .h-display{color:#fff;-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:0 3px 0 var(--ink)}
+.topbar h1.h-display,.game-head .h-display{display:inline-block;background:var(--lime);color:var(--ink)!important;-webkit-text-stroke:0!important;text-shadow:none!important;padding:4px 14px 2px;transform:rotate(-2deg);clip-path:polygon(3% 0,100% 0,97% 100%,0 100%);border-radius:3px;box-shadow:none;font-size:26px}
+.topbar h1 .g2,.game-head .h-display .g2{color:var(--ink)!important}
+.game-head .h-display{font-size:20px!important;padding:3px 14px 1px}
+.game-head .small{margin-top:6px!important}
+
+/* ---------- ikon butonu, pill ---------- */
+.icon-btn{background:var(--lav)!important;color:var(--ink)!important;border:3px solid var(--ink)!important;box-shadow:0 3px 0 var(--ink)!important;border-radius:12px!important}
+html[data-theme=dark] .pill{background:#120E3A;border:2.5px solid var(--lime);color:#fff;box-shadow:0 3px 0 var(--ink)}
+
+/* ---------- kartlar ---------- */
+html[data-theme=dark] .card{background:var(--card);border:3px solid var(--ink);box-shadow:0 5px 0 var(--ink);border-radius:18px}
+.card-hero{border:3px solid var(--ink)!important;box-shadow:0 6px 0 var(--ink)!important;border-radius:20px!important}
+.lrow{background:var(--cream)!important;color:var(--ink)!important;border:2.5px solid var(--ink)!important;box-shadow:0 3px 0 var(--ink)!important}
+.lrow *{color:var(--ink)!important}
+.lrow.me{background:var(--lime)!important}
+.modal{border:3px solid var(--ink)!important;box-shadow:0 6px 0 var(--ink)!important}
+html[data-theme=dark] .modal{background:#1C1650!important}
+
+/* ---------- butonlar ---------- */
+.btn-primary,.btn-green{background:var(--lime)!important;color:var(--ink)!important;border:3px solid var(--ink)!important;box-shadow:0 5px 0 var(--ink)!important;font-family:var(--display);font-style:italic;font-weight:900;font-size:21px;text-transform:uppercase}
+.btn-ghost{background:var(--cream)!important;color:var(--ink)!important;border:3px solid var(--ink)!important;box-shadow:0 5px 0 var(--ink)!important}
+.btn-purple{background:var(--lav)!important;color:var(--ink)!important;border:3px solid var(--ink)!important;box-shadow:0 5px 0 var(--ink)!important}
+.btn-orange{background:var(--orange)!important;color:var(--ink)!important;border:3px solid var(--ink)!important;box-shadow:0 5px 0 var(--ink)!important}
+.btn:active{transform:translateY(3px)}
+
+/* ---------- şıklar: krem, kalın çerçeve ---------- */
+.opt{background:var(--cream)!important;color:var(--ink)!important;border:3px solid var(--ink)!important;box-shadow:0 4px 0 var(--ink)!important;border-radius:14px!important;font-family:var(--display);font-style:italic;font-weight:900!important;font-size:19px!important}
+.opt.ok{background:var(--lime)!important}.opt.no{background:var(--coral)!important}
+.opt .k{background:var(--ink)!important;color:#fff!important}
+
+/* ---------- oyun ekranı: mod renginde büyük kart ---------- */
+.mframe>.scroll{margin:6px 12px 12px;flex:0 1 auto;padding:16px 12px 14px!important;background:var(--mc);border:4px solid var(--ink);border-radius:24px;box-shadow:0 7px 0 var(--ink)}
+.mframe>.scroll .muted,.mframe>.scroll .small{color:#24185C}
+.mframe>.scroll .card{background:var(--cream);color:var(--ink);border-color:var(--ink)}
+.mframe>.scroll .card *{color:inherit}
+.mframe .stage{border:3px solid var(--ink)!important;box-shadow:0 4px 0 var(--ink)!important;border-radius:18px!important}
+.mframe .qstage{background:var(--cream)!important}
+.mframe .qstage .qtext{color:var(--ink)!important;text-shadow:none!important}
+.mframe .qstage .qpitch{opacity:.08}
+.mframe .qstage .qcat{background:var(--ink)!important;color:#fff!important;border:0}
+.mframe .qstage .timer b{color:var(--ink)!important}
+.qbar span{background:#2B2270!important;border:1.5px solid var(--ink)}
+.qbar span.ok{background:var(--lime)!important}.qbar span.no{background:var(--coral)!important}.qbar span.cur{background:#fff!important}
+.clue,.hint{background:var(--cream)!important;color:var(--ink)!important;border:2.5px solid var(--ink)!important;box-shadow:0 3px 0 var(--ink)!important}
+.clue *{color:var(--ink)!important}
+.clue.locked{background:#E7DDFF!important}
+.boost{background:var(--cream)!important;color:var(--ink)!important;border:3px solid var(--ink)!important;box-shadow:0 4px 0 var(--ink)!important}
+.boost *{color:var(--ink)!important}
+.input{background:var(--cream)!important;color:var(--ink)!important;border:3px solid var(--ink)!important;box-shadow:0 4px 0 var(--ink)!important}
+.input::placeholder{color:#7A6A9E}
+.qask,.rt-ask{background:var(--cream)!important;color:var(--ink)!important;border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink)!important;transform:rotate(-1.5deg)!important;border-radius:14px;text-transform:none!important;font-style:normal!important;font-family:var(--font)!important;font-weight:800!important;font-size:17px!important;padding:10px 16px!important}
+.mframe .stadium{background:radial-gradient(ellipse at 50% 120%,#3B2A8F 0%,#231A60 45%,#16124A 80%)!important}
+
+/* ---------- Transfer Rotası: metin + oklar ---------- */
+.rt2{position:relative;background:var(--cream)!important;padding:12px 10px 14px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.rt2 .timer{position:absolute;right:8px;top:8px;width:46px;height:46px}
+.rt2 .timer svg{width:46px;height:46px}.rt2 .timer b{color:var(--ink)!important;font-size:18px}
+.rt2-ill{margin-bottom:-4px}
+.rt2-list{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 4px}
+.rt2-c{display:inline-flex;flex-direction:column;align-items:center;background:#fff;border:2.5px solid var(--ink);border-radius:10px;padding:5px 9px;box-shadow:0 3px 0 var(--ink);font-weight:800;font-size:13.5px;color:var(--ink);line-height:1.15;text-align:center;max-width:130px}
+.rt2-c i{font-style:normal;font-size:11px;font-weight:700;color:#5B4C99}
+.rt2-c.q{background:var(--lime);font-family:var(--display);font-size:20px;min-width:40px}
+.rt2-ar{font-weight:900;color:var(--ink);font-size:15px}
+
+/* ---------- kulüp etiketi (arma yerine) ---------- */
+.cbadge.ctag{display:inline-flex!important;align-items:center;justify-content:center;border-radius:10px!important;background:var(--cream)!important;color:var(--ink)!important;border:2.5px solid var(--ink)!important;box-shadow:0 2px 0 var(--ink)!important;font-family:var(--display);font-style:italic;font-weight:900;letter-spacing:.2px;text-shadow:none!important;line-height:1;overflow:hidden}
+.rcell .cbadge.ctag{width:86%!important;height:62%!important;font-size:14px!important}
+
+/* ---------- kadro sahası ---------- */
+.kd-pitch{border:3px solid var(--ink)!important;box-shadow:0 4px 0 var(--ink)!important}
+.kd-ask{background:var(--cream)!important;color:var(--ink)!important;border:3px solid var(--ink)!important;box-shadow:0 4px 0 var(--ink)!important}
+.kd-ask b{color:var(--ink)!important}
+
+/* ---------- bölüm haritası ---------- */
+html[data-theme=dark] .lv-b{background:#211A5C;border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink);color:#fff}
+.lv-b.done{background:var(--lime)!important;color:var(--ink)!important}
+.lv-b.done *{color:var(--ink)!important}
+.lv-b.cur{background:var(--cream)!important;color:var(--ink)!important;box-shadow:0 0 0 3px var(--lime),0 4px 0 var(--ink)!important}
+.lv-tab{border:2.5px solid var(--ink)!important;box-shadow:0 3px 0 var(--ink)!important}
+.lv-head{border:3px solid var(--ink)!important;box-shadow:0 5px 0 var(--ink)!important}
+
+/* ---------- segment, alt menü ---------- */
+.seg{background:var(--cream)!important;border:3px solid var(--ink)!important;box-shadow:0 3px 0 var(--ink)!important}
+.seg button{color:var(--ink)!important}
+.seg button.on{background:var(--lime)!important;color:var(--ink)!important;border:2px solid var(--ink)}
+html[data-theme=dark] .nav{background:#0E0B33;border-top:3px solid var(--ink);box-shadow:0 -3px 0 #231C66}
+.nav-play{background:var(--lime)!important;color:var(--ink)!important;border:3.5px solid var(--ink)!important;box-shadow:0 4px 0 var(--ink)!important}
+
+/* ---------- mod listesi (Tüm Modlar) ---------- */
+.mode{border:3px solid var(--ink)!important;box-shadow:0 5px 0 var(--ink)!important;border-radius:18px!important;overflow:hidden}
+html[data-theme=dark] .mode{background:var(--lav)}
+.mode .mode-top{background:transparent!important;color:var(--ink)!important}
+.mode .mode-name{color:var(--ink)!important;font-family:var(--display);font-style:italic;font-weight:900;font-size:20px;text-transform:uppercase;line-height:1}
+.mode .mode-desc{color:#24185C!important;font-weight:700}
+.mode .mode-best{color:var(--ink)!important}
+.mode[data-mode=guess],.mode[data-mode=player],.mode[data-mode=tf]{background:var(--cyan)!important}
+.mode[data-mode=career],.mode[data-mode=club],.mode[data-mode=word]{background:var(--lav)!important}
+.mode[data-mode=ortak],.mode[data-mode=flag],.mode[data-mode=daily]{background:var(--orange)!important}
+.mode[data-mode=kadro],.mode[data-mode=more]{background:var(--teal)!important}
+
+/* ---------- ana sayfa ---------- */
+.hm-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:-2px}
+.ck-logo{display:flex;justify-content:center;pointer-events:none}
+.ck-logo b{font-family:var(--display);font-style:italic;font-weight:900;font-size:27px;line-height:.84;text-align:center;transform:rotate(-4deg);-webkit-text-stroke:2.5px var(--ink);paint-order:stroke fill;text-shadow:0 4px 0 var(--ink)}
+.ck-logo b span{display:block;color:#fff}.ck-logo b span+span{color:var(--lime);font-size:31px}
+.hm-me{padding:10px 12px!important}
+.hm-ban{position:relative;display:flex;align-items:center;width:100%;height:100px;border-radius:20px;border:3.5px solid var(--ink);box-shadow:0 6px 0 var(--ink);overflow:hidden;padding-left:18px;text-align:left}
+.hm-ban b{position:relative;z-index:1;font-family:var(--display);font-style:italic;font-weight:900;font-size:38px;line-height:.88;color:var(--ink);white-space:pre-line;text-transform:uppercase}
+.hm-ban.lime{background:var(--lime)}
+.hm-ban.purple{background:#5B2DBB}.hm-ban.purple b{color:#fff;-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:0 3px 0 var(--ink)}
+.hm-ban svg.il{position:absolute;right:4px;top:50%;transform:translateY(-50%);height:96px;width:auto}
+.hm-sec{display:flex;align-items:baseline;justify-content:space-between;margin:2px 0 -4px}
+.hm-sec b{font-weight:800;font-size:20px}.hm-sec button{color:var(--lime);font-weight:800;font-size:14px}
+.hm-modes{display:flex;gap:10px;overflow-x:auto;margin:0 -16px;padding:4px 16px 10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.hm-modes::-webkit-scrollbar{display:none}
+.hm-mode{position:relative;flex:0 0 128px;height:160px;border-radius:18px;border:3.5px solid var(--ink);box-shadow:0 5px 0 var(--ink);overflow:hidden;padding:10px;text-align:left;scroll-snap-align:start}
+.hm-mode b{position:relative;z-index:1;display:block;font-family:var(--display);font-style:italic;font-weight:900;font-size:21px;line-height:.92;color:var(--ink);text-transform:uppercase;overflow-wrap:anywhere}
+.hm-mode svg.il{position:absolute;right:-4px;bottom:-4px;width:72%;height:auto}
+
+/* ---------- sonuç ---------- */
+.rframe .score-ring{border:4px solid var(--ink);box-shadow:0 6px 0 var(--ink)}
+.rframe .stat{background:var(--cream);color:var(--ink);border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink);border-radius:16px}
+.rframe .stat span{color:#3B2F7A!important}
+.rframe .res-mode{display:inline-block;align-self:center;background:var(--cyan);color:var(--ink)!important;border:3px solid var(--ink);padding:4px 14px;transform:rotate(-2deg);font-family:var(--display);font-style:italic;font-weight:900;font-size:18px;letter-spacing:.3px}
+
+/* ---------- açık tema: aynı kart sistemi ---------- */
+html[data-theme=light] .ck-logo b{-webkit-text-stroke:2px #fff;text-shadow:0 3px 0 rgba(19,10,46,.25)}
+html[data-theme=light] .ck-logo b span{color:var(--ink)}html[data-theme=light] .ck-logo b span+span{color:#4D7C0F}
+html[data-theme=light] .hm-sec button{color:#4D7C0F}
+.hm-mode svg.il{width:64%!important}
+.mframe .ol-st,.mframe .or-fb{color:var(--ink)}
+.mframe>.scroll .h-display{color:var(--ink);-webkit-text-stroke:0;text-shadow:none}
+
+/* ===== v1.6 — taslağa birebir yakınlaştırma ===== */
+/* ana sayfa üst */
+.hm-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;margin:-2px 0 2px}
+.hm-pills{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.hm-pills .pill{font-size:14px;padding:5px 10px}
+.hm-gear{justify-self:end;filter:drop-shadow(0 2px 0 var(--ink))}
+.ck-logo b{font-size:40px!important}.ck-logo b span+span{font-size:44px!important}
+.ck-logo b i{display:block;height:6px;width:70%;margin:4px auto 0;background:var(--lime);border:2px solid var(--ink);border-radius:3px;transform:skewX(-25deg)}
+.hm-me{display:none}
+.hm-ban{height:112px!important;border-radius:22px!important}
+.hm-ban b{font-size:44px!important;text-transform:none!important;line-height:.9!important;letter-spacing:-.3px}
+.hm-ban.purple{background:#4A2A9E!important}
+.hm-ban.purple b{-webkit-text-stroke:0!important;text-shadow:none!important;color:#FFF7E6!important}
+.hm-sec b{font-size:24px!important;font-weight:900!important;letter-spacing:-.3px}
+.hm-sec button{font-size:16px!important}
+.hm-mode{flex:0 0 150px!important;height:178px!important;border-radius:20px!important;padding:12px!important}
+.hm-mode b{font-size:30px!important;text-transform:none!important;line-height:.88!important;letter-spacing:-.3px}
+.hm-mode svg.il{width:80%!important}
+.hm-quick{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hm-quick .hm-mode{height:132px!important;flex:none!important}
+.hm-quick .hm-mode b{font-size:30px!important}
+.hm-quick .hm-mode svg.il{width:70%!important}
+
+/* alt menü (3 sekme) */
+.nav.nav3{justify-content:space-around;background:#0D0A2C!important;border-top:2px solid #2A2270!important;box-shadow:none!important}
+.nav3 .nav-item{width:96px;color:#fff;font-size:14px;font-weight:800;gap:4px}
+.nav3 .nav-item svg{width:30px;height:30px}
+.nav3 .nav-item.active{color:var(--lime)}
+.nav3 .nav-item.active svg{fill:var(--lime);stroke:var(--ink)}
+.nav3 .nav-item.active::after{display:none}
+html[data-theme=light] .nav.nav3{background:#fff!important;border-top:2px solid #E5E7EB!important}
+html[data-theme=light] .nav3 .nav-item{color:var(--ink)}
+html[data-theme=light] .nav3 .nav-item.active{color:#4D7C0F}
+
+/* tüm modlar: büyük çizimli kutular */
+.mode{position:relative;min-height:150px}
+.mode .mode-top{display:none!important}
+.mode .mode-body{position:relative;z-index:1;padding:12px 12px 0!important}
+.mode .mode-name{font-size:24px!important;text-transform:none!important;line-height:.9!important;max-width:75%}
+.mode .mode-desc{display:none}
+.mode .mode-art{position:absolute;right:-4px;bottom:-4px;width:62%;pointer-events:none}
+.mode .mode-art svg{width:100%;height:auto;position:static!important}
+.mode .chip,.mode .mode-best{position:absolute;right:8px;top:8px;z-index:2}
+
+/* oyun ekranı başlığı */
+.mframe .game-head{display:grid!important;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;padding-top:10px}
+.mframe .game-head .grow{display:flex;justify-content:center}
+.mf-logo{font-family:var(--display);font-style:italic;font-weight:900;line-height:.82;text-align:center;transform:rotate(-4deg);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:0 3px 0 var(--ink)}
+.mf-logo span{display:block;color:#fff;font-size:22px}.mf-logo span+span{color:var(--lime);font-size:25px}
+html[data-theme=light] .mf-logo span{color:var(--ink);-webkit-text-stroke:0;text-shadow:none}html[data-theme=light] .mf-logo span+span{color:#4D7C0F}
+.mf-cnt{border:2.5px solid var(--lav);background:#140F3C;border-radius:12px;padding:3px 10px 4px;text-align:center;color:#fff;min-width:84px}
+.mf-cnt b{font-family:var(--display);font-weight:900;font-size:19px;line-height:1}
+.mf-cnt i{display:flex;gap:3px;justify-content:center;margin-top:2px}
+.mf-cnt u{width:6px;height:6px;border-radius:50%;background:#3E3291;text-decoration:none}
+.mf-cnt u.ok,.mf-cnt u.cur{background:var(--lime)}.mf-cnt u.no{background:var(--coral)}
+.mf-rib{position:relative;z-index:5;display:flex;justify-content:center;margin:6px 0 -22px}
+.mf-rib span{background:var(--lime);color:var(--ink);border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink);padding:4px 18px 2px;transform:rotate(-3deg);font-family:var(--display);font-style:italic;font-weight:900;font-size:28px;line-height:1;white-space:nowrap;clip-path:polygon(2% 0,100% 0,98% 100%,0 100%)}
+.mframe>.scroll{padding-top:34px!important;border-radius:26px!important}
+.mframe .game-head .icon-btn{width:44px;height:44px}
+/* ana sayfa kartları: yazı üstte, çizim sağ altta */
+.hm-mode b{font-size:26px!important;max-width:100%}
+.hm-mode svg.il{width:62%!important;right:-2px!important;bottom:-2px!important}
+.hm-quick .hm-mode svg.il{width:46%!important}
+.hm-quick .hm-mode b{font-size:26px!important;max-width:60%}
+/* sonuç */
+.rs-rib{display:flex;justify-content:center}
+.rs-rib span{background:var(--cyan);color:var(--ink);border:3.5px solid var(--ink);box-shadow:0 5px 0 var(--ink);padding:6px 20px 3px;transform:rotate(-3deg);font-family:var(--display);font-style:italic;font-weight:900;font-size:38px;line-height:1;text-transform:uppercase;clip-path:polygon(2% 0,100% 0,98% 100%,0 100%)}
+.rframe .stars svg,.rframe .lv-stars svg{width:62px!important;height:62px!important}
+.rs-card{position:relative;align-self:center;width:78%;background:var(--lav);border:4px solid var(--ink);box-shadow:0 7px 0 var(--ink);border-radius:24px;text-align:center;padding:14px 10px 26px;color:var(--ink)}
+.rs-l{font-family:var(--display);font-weight:900;font-size:26px}
+.rs-card b{display:block;font-family:var(--display);font-style:italic;font-weight:900;font-size:76px;line-height:.95}
+.rs-sub{font-weight:800;font-size:13px;color:#2B1F66}
+.rs-xp{position:absolute;left:50%;bottom:-20px;transform:translateX(-50%) rotate(-4deg);background:var(--lime);border:3px solid var(--ink);box-shadow:0 3px 0 var(--ink);padding:3px 16px;font-family:var(--display);font-style:italic;font-weight:900;font-size:28px;white-space:nowrap}
+.rframe .stat3{margin-top:14px}
+.rframe .res-mode{display:none!important}
+
+/* ===== v1.6 — üretilmiş çizimler ===== */
+img.ilimg{display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;filter:drop-shadow(0 3px 0 rgba(19,10,46,.35))}
+.hm-ban img.il{position:absolute;right:6px;top:50%;transform:translateY(-50%);height:104px;width:auto;max-width:48%}
+.hm-mode img.il{position:absolute;right:-2px;bottom:-2px;width:72%;height:auto;max-height:62%}
+.hm-quick .hm-mode img.il{width:54%;max-height:78%}
+.mode .mode-art img.il{width:100%;height:auto;max-height:110px;object-fit:contain;object-position:right bottom}
+.hm-logo{height:86px;width:auto;margin:-6px 0 -4px}
+.ck-logo b{display:none}
+.mf-logo2{height:52px;width:auto;margin:-4px auto}
+/* soru kartı çizimi */
+.qstage .qkafa{display:none}
+.qart{display:flex;justify-content:center;margin:-2px 0 6px;order:-1}
+.qart img.il{height:150px;width:auto}
+.mframe .qstage{display:flex;flex-direction:column;align-items:center;gap:6px}
+/* bayrak: dalgalanan bayrak üstünde ülke bayrağı */
+.flag-wrap{position:relative;width:250px;margin:4px auto}
+.flag-wrap img.il{width:100%;height:auto}
+.flag-wrap .flag-big{position:absolute;left:24%;right:4%;top:12%;bottom:22%;display:flex;align-items:center;justify-content:center;font-size:96px;line-height:1;transform:rotate(-2deg)}
+.mframe .flagst{background:var(--cream)!important}
+/* stadyum arka planı (koyu tema) */
+html[data-theme=dark] #stad{background:#12062F url(../img/stadium.webp) center top/cover no-repeat!important}
+html[data-theme=dark] #stad>*{display:none}
+/* sonuç: kupa */
+.rs-trophy{display:flex;justify-content:center;margin:2px 0 -6px}.rs-trophy img{height:120px;width:auto}
+.rs-art{display:flex;justify-content:space-between;align-items:flex-end;padding:0 18px;margin-top:6px}
+.rs-art img.il:first-child{height:74px;width:auto}.rs-art img.il:last-child{height:70px;width:auto}
+.hm-ban b{max-width:58%}
+.hm-ban img.il{max-width:40%!important;height:96px!important}
+.rt2-ill img.il{height:110px;width:auto}
+.hm-mode{display:flex!important;flex-direction:column;justify-content:flex-start!important;align-items:flex-start!important}
+.hm-mode img.il{max-height:58%!important}
+.hm-quick .hm-mode b{max-width:62%}
+.hm-quick .hm-mode img.il{max-height:70%!important;width:48%!important}
+/* penaltı: çizilmiş kale — sahne, top, şut animasyonu ve gol alanı eski koordinatlarında (220x96, kale alanı left/right 10px, top 4px, 70px). PNG bu alana oranı korunarak hizalanır */
+.pk-goal.img{border:0!important;box-shadow:none!important;border-radius:0!important;display:flex;align-items:flex-end;justify-content:center;overflow:visible}
+.pk-goal.img img.il{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:none}
+.pk-scene.go.g .pk-goal.img{animation:none}.pk-scene.go.g .pk-goal.img img{animation:pkNet2 .5s .35s}
+.pk-keeper{z-index:2}.pk-ball{z-index:3}
+.pk-scene{max-width:100%}
+@keyframes pkNet2{50%{filter:drop-shadow(0 0 14px #C6FF3D)}}
+/* bayrak: ülke bayrağı dalgalanan bayrağın kumaşına basılır */
+.flag-wrap{position:relative;width:260px;aspect-ratio:480/345;margin:2px auto}
+.flag-wrap img{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.fw-cloth{position:absolute;inset:0;clip-path:polygon(29.0% 23.8%,32.9% 20.6%,37.1% 18.8%,41.0% 18.0%,45.2% 17.7%,49.2% 18.3%,53.3% 20.0%,57.5% 21.7%,61.5% 23.8%,65.6% 25.2%,69.6% 26.1%,73.8% 25.8%,77.7% 24.3%,81.9% 22.3%,86.0% 20.9%,86.0% 33.0%,81.9% 72.5%,77.7% 75.1%,73.8% 76.5%,69.6% 77.4%,65.6% 77.4%,61.5% 76.2%,57.5% 73.9%,53.3% 71.0%,49.2% 68.4%,45.2% 66.7%,41.0% 65.5%,37.1% 66.1%,32.9% 67.5%,29.0% 27.2%)}
+.fw-cloth span{position:absolute;left:26%;top:12%;width:64%;height:72%;display:flex;align-items:center;justify-content:center;font-size:150px;line-height:1;transform:scale(1.55,1.45) skewY(-3deg)}
+.fw-top{mix-blend-mode:multiply}
+.flag-wrap .flag-big{display:none}
+
+.myst2{position:relative;z-index:2;width:128px;height:176px;animation:mystFloat 3s ease-in-out infinite;filter:drop-shadow(0 10px 16px rgba(0,0,0,.45))}
+.myst2>img{width:100%;height:100%;object-fit:contain}
+.myst2-chips{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:4px;align-items:center}
+.myst2-chips .myst-pos,.myst2-chips .myst-flag{position:static!important;background:#130A2E;color:#fff;border-radius:7px;padding:1px 6px;font-size:11px;font-weight:900;line-height:1.3;width:auto;height:auto}
+.myst2-chips .myst-flag{font-size:14px;padding:0 4px}
+.myst2{width:146px;height:200px}
+.flag-wrap2{width:260px;margin:4px auto 0}.flag-wrap2 svg.wflag{width:100%;height:auto;display:block;overflow:visible;filter:drop-shadow(0 4px 0 rgba(19,10,46,.25))}
+.pk-scene{flex-shrink:0!important;min-height:96px}

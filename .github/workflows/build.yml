@@ -15,7 +15,7 @@ jobs:
       - name: Paket kontrolü (www içinde test görseli kalmasın)
         run: |
           W=app/src/main/assets/www
-          BAD=$(find $W -type f ! -path "*/fonts/*" ! -name "*.js" ! -name "*.css" ! -name "*.html" ! -name "*.json" ! -name "*.svg" ! -name "*.txt" | head -20)
+          BAD=$(find $W -type f ! -path "*/fonts/*" ! -name "*.js" ! -name "*.css" ! -name "*.html" ! -name "*.json" ! -name "*.svg" ! -name "*.webp" ! -name "*.txt" | head -20)
           if [ -n "$BAD" ]; then echo "Paketlenmemesi gereken dosyalar:"; echo "$BAD"; exit 1; fi
           for f in $(grep -o 'src="js/[^"]*"' $W/index.html | cut -d'"' -f2); do test -f "$W/$f" || (echo "Eksik: $f" && exit 1); done
       - name: Şifre kontrol

@@ -78,19 +78,19 @@ S.home = el => {
   const recent=FK.ACH.filter(a=>s.ach[a.id]).sort((a,b)=>s.ach[b.id]-s.ach[a.id]).slice(0,3);
   el.classList.add("has-nav");
   el.innerHTML='<div class="scroll"><div class="stack">'+
-   '<div class="row" style="gap:12px">'+
-    '<button data-go="profile" aria-label="'+t("navProfile")+'">'+FK.avatar(s.profile.avatar,46,li.pct)+'</button>'+
-    '<div class="grow" style="min-width:0"><b style="display:block;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+FK.esc(s.profile.name)+'</b><span class="small muted" style="white-space:nowrap">'+t("level")+' '+li.level+'</span><div class="bar" style="margin-top:6px"><i style="width:'+li.pct+'%"></i></div></div>'+
-    '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><div style="display:flex;gap:6px">'+FK.energyPill()+'<button class="pill" data-go="shop">'+FK.gemIc()+FK.fmtNum(s.gems)+'<b style="color:var(--green-l);margin-left:2px">+</b></button></div>'+FK.streakPill()+'</div>'+
-   '</div>'+
-   FK.kafaHome()+
+   '<div class="hm-top"><div class="hm-pills">'+FK.energyPill()+'<button class="pill" data-go="shop">'+FK.gemIc()+FK.fmtNum(s.gems)+'</button></div><div class="ck-logo">'+FK.IL.logo("hm-logo")+'</div><button class="hm-gear" data-go="profile" aria-label="'+t("settings")+'">'+FK.IL.gear()+'</button></div>'+
+   '<button class="hm-ban lime" data-go="games"><b>'+t("hm_play")+'</b>'+FK.IL.pitchBall()+'</button>'+
+   '<button class="hm-ban purple" data-duel><b>'+t("hm_duel")+'</b>'+FK.IL.flags()+'</button>'+
+   '<div class="hm-sec"><b>'+t("hm_modes")+'</b><button data-go="games">'+t("hm_all")+' ›</button></div>'+
+   '<div class="hscroll hm-modes">'+FK.homeModes()+'</div>'+
+   '<div class="hm-sec"><b>'+t("hm_quick")+'</b></div>'+
+   '<div class="hm-quick">'+FK.quickModes()+'</div>'+
+
    '<button class="row card tight" data-go="rank" style="width:100%;text-align:left;gap:12px;background:linear-gradient(90deg,'+L.c1+'29,'+L.c1+'08);border-color:'+L.c1+'59">'+FK.leagueBadge(s.league,32)+'<div class="grow"><div style="font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:.5px;color:'+L.txt+'">'+t("leagueLbl",{l:t(L.k)})+'</div><div class="small" style="color:#CBD5E1">'+t("leaguePos",{p:pos})+'</div></div><span class="small" style="font-weight:600;color:'+L.c2+'">'+t("leagueDays",{d:FK.daysLeftInWeek()})+'</span></button>'+
    '<div class="card-hero" style="background:linear-gradient(135deg,#16A34A,#0D9488);box-shadow:0 14px 30px rgba(22,163,74,.35)">'+FK.bgBall(170)+
     '<div class="label" style="color:#D1FAE5">'+t("challenge")+'</div><div class="h-display" style="font-size:34px;margin-top:4px">'+t("daily10")+'</div>'+
     '<div style="margin-top:6px;font-size:13px;color:#ECFDF5">'+(d10?t("daily10Done",{s:'<b>'+FK.fmtNum(s.daily10.score)+'</b>'}):t("daily10s"))+'</div>'+
     '<div class="row" style="margin-top:14px;justify-content:space-between"><button class="btn btn-sm" data-mode="daily" style="background:#fff;color:#065F46;padding:0 22px">'+(d10?FK.ic("check",18,2.6)+t("completed"):t("start"))+'</button><span class="row small" style="font-weight:600;color:#ECFDF5;gap:6px">'+FK.ic("clock",14)+'<span data-cd>'+t("newSet",{t:FK.fmtHMS(FK.msToMidnight())})+'</span></span></div></div>'+
-   '<div class="grid2"><button class="btn btn-orange" data-go="games" style="height:62px;justify-content:flex-start">'+FK.ic("bolt",24,2.2)+'<span style="font-family:var(--display);font-weight:900;font-style:italic;font-size:20px;line-height:1;text-align:left;white-space:pre-line">'+t("playNow")+'</span></button>'+
-   '<button class="btn btn-purple" data-duel style="height:62px;justify-content:flex-start">'+FK.ic("swords",24,2)+'<span style="font-family:var(--display);font-weight:900;font-style:italic;font-size:20px;line-height:1;text-align:left;white-space:pre-line">'+t("duelStart")+'</span></button></div>'+
    (FK.isPro()?'':'<button class="pro-card" data-pro><span class="pro-crown-s">👑</span><div class="grow" style="text-align:left"><div class="h-display" style="font-size:22px">'+t("proT")+'</div><div class="small" style="font-weight:600;color:#422006">'+t("proCard")+'</div></div>'+FK.ic("right",20,2.6)+'</button>')+FK.shopCard()+'<div class="card stack" style="gap:12px"><div class="row" style="justify-content:space-between"><span class="sec-title">'+t("dailyMissions")+'</span><button class="small muted" data-go="missions" style="font-weight:600">'+t("nDone",{a:doneN,b:ms.length})+' ›</button></div>'+ms.map(missionRow).join("")+'</div>'+
    (recent.length?'<div class="card"><div class="row" style="justify-content:space-between;margin-bottom:10px"><span class="sec-title">'+t("recentAch")+'</span><button class="small muted" data-go="profile" style="font-weight:600">'+t("seeAll")+' ›</button></div><div class="grid3">'+recent.map(achTile).join("")+'</div></div>':'')+
    '<div class="row card tight" style="gap:12px">'+'<span style="color:#F87171">'+FK.ic("flag",26)+'</span><div class="grow"><div style="font-weight:700;font-size:14px">'+t("fanWar")+(s.profile.club?' · '+FK.esc(s.profile.club):'')+'</div><div class="small muted">'+t("fanWarS")+'</div></div><span class="chip chip-soon">'+t("soon")+'</span></div>'+
@@ -121,7 +121,7 @@ function achTile(a){ const on=!!FK.state.ach[a.id]; return '<div class="ach'+(on
 function bindCommon(el){
   el.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{ FK.sfx("tap"); FK.go(b.dataset.go,{},{root:["games","rank","missions","profile","home"].indexOf(b.dataset.go)>=0}); });
   FK.energyTick&&FK.energyTick(el);
-  el.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{ FK.sfx("tap"); FK.go("intro",{mode:b.dataset.mode}); });
+  el.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{ FK.sfx("tap"); const m=b.dataset.mode; if(m==="word") FK.go("word"); else if(m==="ortak") FK.go("ortak"); else FK.go("intro",{mode:m}); });
   el.querySelectorAll("[data-duel]").forEach(b=>b.onclick=()=>{ FK.sfx("tap"); FK.go("duel"); });
 }
 
@@ -135,7 +135,7 @@ S.games = el => {
       : m==="word" ? (wd?'<span class="mode-best" style="color:'+M.fg+'">'+FK.ic("check",16,2.8)+'</span>':'<span class="chip chip-new">'+t("newTag")+'</span>')
       : m==="ortak"||m==="kadro" ? '<span class="chip chip-new">'+t("newTag")+'</span>'
       : (m==="more"||m==="tf")&&!bst ? '<span class="chip chip-new">'+t("newTag")+'</span>' : (bst?'<span class="mode-best" style="color:'+M.fg+'">'+t("best",{s:FK.fmtNum(bst)})+'</span>':'');
-    return '<button class="mode" data-mode="'+m+'"><div class="mode-top" style="background:linear-gradient(135deg,'+M.g[0]+','+M.g[1]+');color:'+M.fg+'">'+FK.ic(M.icon,34,2)+tag+'</div><div class="mode-body"><div class="mode-name">'+FK.modeName(m)+'</div><div class="mode-desc">'+t("m_"+m+"S")+'</div></div></button>'; };
+    return '<button class="mode" data-mode="'+m+'"><div class="mode-top" style="background:linear-gradient(135deg,'+M.g[0]+','+M.g[1]+');color:'+M.fg+'">'+FK.ic(M.icon,34,2)+tag+'</div><div class="mode-body"><div class="mode-name">'+FK.modeName(m)+'</div><div class="mode-desc">'+t("m_"+m+"S")+'</div></div>'+(FK.modeArt?'<div class="mode-art">'+FK.modeArt(m)+'</div>':'')+'</button>'; };
   el.classList.add("has-nav");
   el.innerHTML='<div class="scroll"><div class="stack">'+
    '<div class="row" style="justify-content:space-between;align-items:flex-end"><div><h1 class="h-display h1">'+t("games")+'</h1><div class="small muted" style="margin-top:4px;font-size:13px">'+t("gamesS")+'</div></div><span class="pill">'+FK.gemIc()+FK.fmtNum(s.gems)+'</span></div>'+
