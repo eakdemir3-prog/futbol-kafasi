@@ -37,8 +37,10 @@ FK.buildRoute = (pool,x,count,seedKey) => {
   const Y=window.FK_CYEARS||{};
   return FK.pickBy("career",pool,x,count,c=>c.name).map(c=>{
     const p=all.find(z=>z.name===c.name)||{clubs:[]};
-    const seq=p.clubs.filter((cc,i)=>i===0||cc!==p.clubs[i-1]).slice(-7);
-    const yrs=(Y[c.name]||[]).slice(-seq.length);
+    /* yıllar kulüp dönemine bağlı: yalnızca kayıt tam kulüp dizisiyle birebir aynı uzunluktaysa kullanılır, yoksa boş */
+    let full=p.clubs.filter((cc,i)=>i===0||cc!==p.clubs[i-1]), Yp=Y[c.name]||[], yrs0=Yp.length===full.length?Yp.slice():[];
+    const ln=(window.FK_LOANNOW||{})[c.name]; if(ln&&full.length>=2&&full[full.length-1]===ln){ full=full.slice(0,-1); if(yrs0.length) yrs0.pop(); }
+    const seq=full.slice(-7), yrs=yrs0.slice(-seq.length);
     const nh = x<.3?0 : x<.6?1 : 2, hide={};
     if(nh&&seq.length>=4){ const mids=FK.shuffle(seq.map((_,i)=>i).slice(1,-1)).slice(0,Math.min(nh,seq.length-3)); mids.forEach(i=>hide[i]=1); }
     /* yanlış şıklar: aynı kulüplerde oynamış, benzer dönem/ün */
@@ -47,7 +49,10 @@ FK.buildRoute = (pool,x,count,seedKey) => {
     let cand=Object.values(near).filter(o=>sp(o)&&Math.abs((o.by||0)-(p.by||0))<=8&&Math.abs((o.fame||2)-(p.fame||2))<=1);
     const c1=cand.filter(o=>o.pos===p.pos); if(c1.length>=3) cand=c1;
     if(cand.length<3) cand=cand.concat(FK.shuffle(all.filter(o=>o.name!==c.name&&o.pos===p.pos&&Math.abs((o.by||0)-(p.by||0))<=6&&Math.abs(o.sc-p.sc)<.3)));
-    const wrong=[]; FK.shuffle(cand).forEach(o=>{ if(wrong.length<3&&wrong.indexOf(o.name)<0) wrong.push(o.name); });
+    /* gösterilen rota başka bir şıkkı da doğru yapıyorsa o şık kullanılmaz */
+    const fits=o=>{ const f=o.clubs.filter((cc,i)=>i===0||cc!==o.clubs[i-1]); if(f.length<seq.length) return false; const t=f.slice(-seq.length), t2=f.slice(0,seq.length);
+      const m=a=>a.every((cc,i)=>hide[i]||cc===seq[i]); return m(t)||m(t2)||(f.length===seq.length+1&&m(f.slice(0,-1))); };
+    const wrong=[]; FK.shuffle(cand).forEach(o=>{ if(wrong.length<3&&wrong.indexOf(o.name)<0&&!fits(o)) wrong.push(o.name); });
     return { answer:c.name, clubs:seq, years:yrs.length===seq.length?yrs:null, hide, opts:FK.shuffle([c.name].concat(wrong)) };
   }).filter(q=>q.clubs.length>=2&&q.opts.length===4);
 };
@@ -57,13 +62,16 @@ const POS=[["GK",50,87],["DF",12,66],["DF",37,70],["DF",63,70],["DF",88,66],["MF
 let _kd=null;
 FK.kadroPool = () => { if(_kd) return _kd; const S=window.FK_SQUADS||{}, gp={}; FK.gpx().forEach(p=>gp[p.name]=p);
   const cp={}; FK.clubPool().forEach(c=>cp[c.code]=c);
-  _kd=Object.keys(S).filter(c=>FK_GCLUBS[c]).map(code=>{ const L=S[code].map(([n,pos],i)=>({n,pos,sc:gp[n]?gp[n].sc:1+i*.01}));
+  const inSq={}; Object.keys(S).forEach(c=>S[c].forEach(([n,pos])=>{ (inSq[n+"|"+pos]=inSq[n+"|"+pos]||[]).push(c); }));
+  const cur=n=>{ const p=gp[n]; return p&&p.act?p.clubs[p.clubs.length-1]:null; };
+  const stale=(n,pos,code)=>{ const k=inSq[n+"|"+pos]; if(!k||k.length<2) return false; const p=gp[n]; if(!p||p.pos!==pos) return false; const c=cur(n); return !!c && c!==code && k.indexOf(c)>=0; };
+  FK.kadroStale=0;
+  _kd=Object.keys(S).filter(c=>FK_GCLUBS[c]).map(code=>{ const L=S[code].filter(([n,pos])=>{ if(stale(n,pos,code)){ FK.kadroStale++; return false; } return true; }).map(([n,pos],i)=>({n,pos,sc:gp[n]&&gp[n].pos===pos?gp[n].sc:1+i*.01}));
     const by=k=>L.filter(p=>p.pos===k).sort((a,b)=>a.sc-b.sc);
     /* Wikipedia kanatları çoğu zaman OS yazar: OS+FV içinden en bilinen 6 kişi; FV etiketliler öne, kalan forvet yerleri kanat OS'lerle dolar */
-    const xi={GK:L.filter(p=>p.pos==="GK").slice(0,1),DF:by("DF").slice(0,4)}, att=L.filter(p=>p.pos==="MF"||p.pos==="FW").sort((a,b)=>a.sc-b.sc).slice(0,6);
-    if(xi.GK.length<1||xi.DF.length<4||att.length<6) return null;
-    const fw=att.filter(p=>p.pos==="FW").slice(0,3); att.filter(p=>p.pos==="MF"&&fw.length<3&&fw.indexOf(p)<0).slice(0,3-fw.length).forEach(p=>fw.push(p));
-    xi.FW=fw; xi.MF=att.filter(p=>fw.indexOf(p)<0);
+    /* v1.6: her slot yalnızca kadroda o mevkiyle kayıtlı oyuncudan dolar (OS forvete yazılmaz). 4-3-3 kurulamazsa kulüp kullanılmaz */
+    const xi={GK:by("GK").slice(0,1),DF:by("DF").slice(0,4),MF:by("MF").slice(0,3),FW:by("FW").slice(0,3)};
+    if(xi.GK.length<1||xi.DF.length<4||xi.MF.length<3||xi.FW.length<3) return null;
     const c=cp[code]; return {code,name:FK_GCLUBS[code][0],lg:FK_GCLUBS[code][2],xi,sc:c?c.sc:.7}; }).filter(Boolean);
   return _kd; };
 const COMMON=new Set(["Silva","Santos","Martínez","Fernández","Fernandes","García","González","Rodríguez","López","Pérez","Gómez","Sánchez","Díaz","Hernández","Costa","Souza","Pereira","Oliveira","Alves","Gomes","Ramos","Lopes","Yılmaz","Kim","Lee","Park","Mendy","Diallo","Traoré","Koné","Touré","Diop","Camara","Sow","Jones","Williams","Johnson","Martin","Thomas","Fofana","Cissé","Doumbia","Mendes","Ndiaye"]);
@@ -81,7 +89,8 @@ FK.buildKadro = (x,count,seed) => { const P=FK.kadroPool(), r=FK.rng(seed);
     const cand=slots.map((s,i)=>i).filter(i=>slots[i].k!=="GK"); cand.sort((a,b)=>slots[a].sc-slots[b].sc);
     const mi=x<.35?cand[Math.floor(r()*Math.min(4,cand.length))]:cand[Math.floor(r()*cand.length)], miss=slots[mi];
     const others=[]; P.forEach(o=>{ if(o.code===c.code) return; if(x>=.35&&o.lg!==c.lg) return; (o.xi[miss.k]||[]).forEach(pp=>{ if(Math.abs(pp.sc-miss.sc)<.45) others.push(pp.n); }); });
-    const wrong=[]; FK.shuffle(others.length>=2?others:P.flatMap(o=>(o.xi[miss.k]||[]).map(pp=>pp.n)),r).forEach(n=>{ if(wrong.length<2&&n!==miss.n&&wrong.indexOf(n)<0&&!slots.some(s=>s.n===n)) wrong.push(n); });
+    const wrong=[]; const own=new Set(((window.FK_SQUADS||{})[c.code]||[]).map(x=>x[0]));
+    FK.shuffle(others.length>=2?others:P.flatMap(o=>(o.xi[miss.k]||[]).map(pp=>pp.n)),r).forEach(n=>{ if(wrong.length<2&&n!==miss.n&&wrong.indexOf(n)<0&&!own.has(n)&&!slots.some(s=>s.n===n)) wrong.push(n); });
     if(wrong.length<2) continue;
     out.push({ answer:miss.n, club:c.code, clubName:c.name, pos:miss.k, slots, miss:mi, opts:FK.shuffle([miss.n].concat(wrong),r) }); }
   return out; };

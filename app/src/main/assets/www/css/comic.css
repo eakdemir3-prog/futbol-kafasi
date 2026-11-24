@@ -625,3 +625,14 @@ html[data-theme=light] .rv-sub{color:var(--ink)}
 .rv-flag{width:54px;height:auto;border:2px solid var(--ink);border-radius:4px}
 .rv-route{font-size:12px;font-weight:800;color:#4C1D95}
 .rv-m .cbadge.sh{width:34px!important;height:34px!important}
+/* alt menü B2 (koyu) / B (açık): çizgi roman, seçili sekme eğik kutu */
+#app .nav.nav3{background:#1C1650!important;border-top:4px solid #130A2E!important;box-shadow:0 -3px 0 #B79DFF!important;height:auto!important;padding:8px 10px calc(8px + env(safe-area-inset-bottom))!important;display:flex!important;gap:8px}
+#app .nav.nav3 .nav-item{flex:1;color:#B7AEE6!important;border-radius:16px;padding:6px 0!important;height:60px;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+#app .nav.nav3 .nav-item span{font-family:var(--display);font-style:italic;font-weight:900;font-size:15px!important;color:inherit!important}
+#app .nav.nav3 .nav-item.active{background:#C6FF3D!important;color:#130A2E!important;border:3px solid #130A2E;box-shadow:0 4px 0 #130A2E;transform:translateY(-10px) rotate(-2deg)}
+html[data-theme=light] #app .nav.nav3{background:#FDF1D6!important;border-top:4px solid #130A2E!important;box-shadow:0 -4px 0 rgba(19,10,46,.25)!important;height:auto!important;padding:8px 10px calc(8px + env(safe-area-inset-bottom))!important;display:flex!important;gap:8px}
+html[data-theme=light] #app .nav.nav3 .nav-item{flex:1;color:#5B4B8A!important;border-radius:16px;padding:6px 0!important;height:60px;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+html[data-theme=light] #app .nav.nav3 .nav-item span{font-family:var(--display);font-style:italic;font-weight:900;font-size:15px!important;color:inherit!important}
+html[data-theme=light] #app .nav.nav3 .nav-item.active{background:#B79DFF!important;color:#130A2E!important;border:3px solid #130A2E;box-shadow:0 4px 0 #130A2E;transform:translateY(-10px) rotate(-2deg)}
+#app .nav.nav3 .nav-item .dot{top:6px;right:28%}
+.gm-c .gm-art{z-index:1;opacity:.95}.gm-c b{z-index:3;text-shadow:0 0 6px rgba(255,255,255,.6)}

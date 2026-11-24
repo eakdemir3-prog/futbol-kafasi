@@ -118,6 +118,11 @@ FK.clubPool = () => {
     if(!r && pl.length<2) sc+=.15;
     return {code,name:g[0],lg,cc:LG[0],lgName:[LG[2],LG[3]],short:LG[1],pl,rich:r,sc:Math.max(0,Math.min(1,sc+(hash(code)-.5)*.08))};
   }).filter(c=>c.cc&&(c.rich||c.pl.length>=3));
+  /* aynı adlı farklı kodlar (ör. Barcelona = BAR ve başka bir Barcelona): aynı kulüp olduğu doğrulanmadığı için birleştirilmez;
+     soru üretiminde yalnızca asıl kod (w ile başlamayan, yoksa en çok oyunculu) kullanılır */
+  const byN={}; _clubs.forEach(c=>(byN[c.name]=byN[c.name]||[]).push(c)); FK.dupClub=new Set();
+  Object.values(byN).forEach(L=>{ if(L.length<2) return; L.sort((a,b)=>((a.code[0]==="w")-(b.code[0]==="w"))||(b.pl.length-a.pl.length)); L.slice(1).forEach(c=>FK.dupClub.add(c.code)); });
+  _clubs=_clubs.filter(c=>!FK.dupClub.has(c.code));
   return _clubs;
 };
 function buildClubLv(n){
