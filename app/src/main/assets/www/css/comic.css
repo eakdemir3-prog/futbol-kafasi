@@ -636,3 +636,11 @@ html[data-theme=light] #app .nav.nav3 .nav-item span{font-family:var(--display);
 html[data-theme=light] #app .nav.nav3 .nav-item.active{background:#B79DFF!important;color:#130A2E!important;border:3px solid #130A2E;box-shadow:0 4px 0 #130A2E;transform:translateY(-10px) rotate(-2deg)}
 #app .nav.nav3 .nav-item .dot{top:6px;right:28%}
 .gm-c .gm-art{z-index:1;opacity:.95}.gm-c b{z-index:3;text-shadow:0 0 6px rgba(255,255,255,.6)}
+.ach-cat{display:flex;align-items:center;justify-content:space-between;margin:6px 4px -4px;font-family:var(--display);font-style:italic;font-weight:900;font-size:21px;color:#fff}
+.ach-cat em{font-style:normal;font-family:inherit;font-size:15px;color:var(--lime)}
+html[data-theme=light] .ach-cat{color:var(--ink)}html[data-theme=light] .ach-cat em{color:#4C1D95}
+.ach-pg{display:block;position:relative;height:16px;margin-top:6px;border-radius:9px;background:#E4DAFF;border:2px solid var(--ink);overflow:hidden;font-style:normal}
+.ach-pg u{position:absolute;left:0;top:0;bottom:0;background:var(--lime)}
+.ach-pg em{position:relative;font-style:normal;font-size:10px;font-weight:900;color:var(--ink);line-height:12px;display:block;text-align:center}
+.ach.off .ach-pg{opacity:1}
+.ach .ach-pg{width:100%;align-self:stretch;box-sizing:border-box}

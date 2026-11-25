@@ -86,3 +86,70 @@ S.review=(el,{mode,items})=>{ items=items||[];
    '</div></div>';
   el.querySelector("[data-back]").onclick=()=>FK.back(); };
 })();
+/* v1.6 başarımlar: 12 → 36 */
+(function(){ const FK=window.FK, t=FK.t;
+const tr={ achSecret:"Gizli başarım", gm_acat_p:"İlerleme", gm_acat_m:"Mod Ustalığı", gm_acat_l:"Harita", gm_acat_d:"Düello", gm_acat_s:"Gizli",
+ ach_allModesD:"Bütün modları en az bir kez oyna",
+ ach_g100:"Maç Bağımlısı", ach_g100D:"100 oyun tamamla", ach_c2000:"Futbol Ansiklopedisi", ach_c2000D:"Toplam 2.000 doğru cevap",
+ ach_days30:"Alev Alev", ach_days30D:"30 gün üst üste giriş", ach_lv25:"Kürsüde", ach_lv25D:"25. seviyeye ulaş",
+ ach_guess25:"Baş Dedektif", ach_guess25D:"Oyuncuyu Tahmin Et'te 25 oyuncu bul", ach_route50:"Transfer Uzmanı", ach_route50D:"Transfer Rotası'nda 50 futbolcu bul",
+ ach_flag100:"Bayrak Atlası", ach_flag100D:"Bayrak modunda 100 doğru", ach_clubP:"Arma Kâşifi", ach_clubPD:"Kulübü Tanı'da 10/10",
+ ach_kadro25:"Teknik Direktör", ach_kadro25D:"Kadroyu Tamamla'da 25 eksik oyuncu bul", ach_ortak50:"Bağlantı Ustası", ach_ortak50D:"Ortak Futbolcu'da 50 doğru",
+ ach_tf20:"Yalan Dedektörü", ach_tf20D:"Doğru mu Yanlış mı'da 20 kombo", ach_more15:"Terazi", ach_more15D:"Hangisi Daha Fazla'da 15 seri",
+ ach_word2:"Kelime Avcısı", ach_word2D:"Günün Kelimesi'ni 2 denemede bil", ach_daily10:"Günün Yıldızı", ach_daily10D:"Günün 10'unda 10/10",
+ ach_league1:"Lig Fatihi", ach_league1D:"Herhangi bir modda bir ligi bitir", ach_league3:"Yıldızlar Ligi", ach_league3D:"Bir ligin tüm bölümlerini 3 yıldızla bitir",
+ ach_win1:"İlk Galibiyet", ach_win1D:"İlk düello galibiyetini al", ach_win10:"Düello Kurdu", ach_win10D:"10 düello kazan", ach_win50:"Düello Kralı", ach_win50D:"50 düello kazan",
+ ach_pk3:"Penaltı Ustası", ach_pk3D:"Penaltı Düellosu'nda 3 galibiyet", ach_bot:"Robot Avcısı", ach_botD:"Kafa Bot'u yen", ach_friend:"Dostluk Maçı", ach_friendD:"Bir arkadaşını kodlu düelloda yen",
+ ach_night:"Gece Kuşu", ach_nightD:"Gece 00:00–05:00 arası bir oyun bitir", ach_fast:"Şimşek", ach_fastD:"Bir soruyu 2 saniyeden kısa sürede doğru bil" };
+const en={ achSecret:"Secret achievement", gm_acat_p:"Progress", gm_acat_m:"Mode Mastery", gm_acat_l:"Map", gm_acat_d:"Duels", gm_acat_s:"Secret", ach_allModesD:"Play every mode at least once",
+ ach_g100:"Match Addict", ach_g100D:"Finish 100 games", ach_c2000:"Football Encyclopedia", ach_c2000D:"2,000 correct answers in total",
+ ach_days30:"On Fire", ach_days30D:"Log in 30 days in a row", ach_lv25:"On the Podium", ach_lv25D:"Reach level 25",
+ ach_guess25:"Chief Detective", ach_guess25D:"Find 25 players in Guess the Player", ach_route50:"Transfer Guru", ach_route50D:"Find 50 players in Transfer Route",
+ ach_flag100:"Flag Atlas", ach_flag100D:"100 correct in Flags", ach_clubP:"Crest Explorer", ach_clubPD:"10/10 in Name the Club",
+ ach_kadro25:"Head Coach", ach_kadro25D:"Find 25 missing players in Complete the XI", ach_ortak50:"Link Master", ach_ortak50D:"50 correct in Common Player",
+ ach_tf20:"Lie Detector", ach_tf20D:"20 combo in True or False", ach_more15:"Balance", ach_more15D:"15 streak in Higher or Lower",
+ ach_word2:"Word Hunter", ach_word2D:"Solve the Word of the Day in 2 tries", ach_daily10:"Star of the Day", ach_daily10D:"10/10 in the Daily 10",
+ ach_league1:"League Conqueror", ach_league1D:"Finish a league in any mode", ach_league3:"League of Stars", ach_league3D:"Finish every level of a league with 3 stars",
+ ach_win1:"First Win", ach_win1D:"Win your first duel", ach_win10:"Duel Wolf", ach_win10D:"Win 10 duels", ach_win50:"Duel King", ach_win50D:"Win 50 duels",
+ ach_pk3:"Penalty Master", ach_pk3D:"Win 3 Penalty Duels", ach_bot:"Bot Hunter", ach_botD:"Beat Kafa Bot", ach_friend:"Friendly Match", ach_friendD:"Beat a friend in a code duel",
+ ach_night:"Night Owl", ach_nightD:"Finish a game between 00:00 and 05:00", ach_fast:"Lightning", ach_fastD:"Answer correctly in under 2 seconds" };
+Object.assign(FK_I18N.tr,tr); Object.assign(FK_I18N.en,en);
+const ac=s=>(s.ac=s.ac||{});
+FK.acHit=(k,n)=>{ const s=FK.state, a=ac(s); a[k]=(a[k]||0)+(n||1); const got=FK.checkAch(); FK.save(); got.forEach(x=>setTimeout(()=>FK.toast("🏆 "+t("ach_"+x.id)+" · +"+x.gem+" 💎","trophy",3000),900)); };
+const bm=(s,m)=>s.stats.byMode[m]||{plays:0,best:0,correct:0};
+const lg=s=>{ let one=false,three=false; Object.keys(FK.LV||{}).forEach(m=>{ const L=FK.LV[m], st=FK.lvState(m), per=L.per||Math.floor(L.N/5); for(let k=0;k*per<L.N;k++){ const a=k*per+1,b=(k+1)*per; if(st.cur>b){ one=true; let all=true; for(let i=a;i<=b;i++) if((st.st[i]||0)<3){ all=false; break; } if(all) three=true; } } }); return {one,three}; };
+const old={first:1,c100:2,c500:7,streak10:12,perfect:4,legend:5,flag:3,career:15,days7:6,lv10:8,wordle:14,allModes:9};
+FK.ACH.forEach(a=>{ a.img=old[a.id]; a.cat= ["first","c100","c500","days7","lv10","streak10","perfect","legend"].indexOf(a.id)>=0?"p":"m"; });
+const am=FK.ACH.find(a=>a.id==="allModes"); if(am) am.test=s=>["player","club","flag","daily","career","guess","word","kadro","ortak","more","tf"].every(m=>s.stats.byMode[m]&&s.stats.byMode[m].plays>0);
+const c500=FK.ACH.find(a=>a.id==="c500"); if(c500) c500.prog=s=>[s.stats.correct,500];
+const c100=FK.ACH.find(a=>a.id==="c100"); if(c100) c100.prog=s=>[s.stats.correct,100];
+const car=FK.ACH.find(a=>a.id==="career"); if(car) car.prog=s=>[s.careerFirst||0,5];
+const d7=FK.ACH.find(a=>a.id==="days7"); if(d7) d7.prog=s=>[s.login.streak||0,7];
+[
+ {id:"g100",img:10,cat:"p",gem:20,prog:s=>[s.stats.games,100],test:s=>s.stats.games>=100},
+ {id:"c2000",img:11,cat:"p",gem:50,prog:s=>[s.stats.correct,2000],test:s=>s.stats.correct>=2000},
+ {id:"days30",img:12,cat:"p",gem:50,prog:s=>[s.login.streak||0,30],test:s=>(s.login.streak||0)>=30},
+ {id:"lv25",img:13,cat:"p",gem:40,prog:s=>[FK.levelInfo(s.xp).level,25],test:s=>FK.levelInfo(s.xp).level>=25},
+ {id:"guess25",img:14,cat:"m",gem:30,prog:s=>[bm(s,"guess").correct,25],test:s=>bm(s,"guess").correct>=25},
+ {id:"route50",img:15,cat:"m",gem:30,prog:s=>[s.careerFirst||0,50],test:s=>(s.careerFirst||0)>=50},
+ {id:"flag100",img:16,cat:"m",gem:20,prog:s=>[bm(s,"flag").correct,100],test:s=>bm(s,"flag").correct>=100},
+ {id:"clubP",img:17,cat:"m",gem:25,test:(s,g)=>g&&g.mode==="club"&&g.total>=10&&g.correct===g.total},
+ {id:"kadro25",img:18,cat:"m",gem:25,prog:s=>[bm(s,"kadro").correct,25],test:s=>bm(s,"kadro").correct>=25},
+ {id:"ortak50",img:19,cat:"m",gem:30,prog:s=>[bm(s,"ortak").correct,50],test:s=>bm(s,"ortak").correct>=50},
+ {id:"tf20",img:20,cat:"m",gem:25,test:(s,g)=>g&&g.mode==="tf"&&(g.bestStreak||0)>=20},
+ {id:"more15",img:21,cat:"m",gem:25,test:(s,g)=>g&&g.mode==="more"&&(g.correct||0)>=15},
+ {id:"word2",img:22,cat:"m",gem:25,test:(s,g)=>g&&g.mode==="word"&&g.correct===1&&(g.score||0)>=5},
+ {id:"daily10",img:23,cat:"m",gem:30,test:(s,g)=>g&&g.mode==="daily"&&g.total>=10&&g.correct===g.total},
+ {id:"league1",img:24,cat:"l",gem:30,test:s=>lg(s).one},
+ {id:"league3",img:25,cat:"l",gem:50,test:s=>lg(s).three},
+ {id:"win1",img:26,cat:"d",gem:15,test:s=>(s.stats.duelWins||0)>=1},
+ {id:"win10",img:27,cat:"d",gem:30,prog:s=>[s.stats.duelWins||0,10],test:s=>(s.stats.duelWins||0)>=10},
+ {id:"win50",img:28,cat:"d",gem:50,prog:s=>[s.stats.duelWins||0,50],test:s=>(s.stats.duelWins||0)>=50},
+ {id:"pk3",img:29,cat:"d",gem:25,prog:s=>[ac(s).pkw||0,3],test:s=>(ac(s).pkw||0)>=3},
+ {id:"bot",img:30,cat:"d",gem:15,test:s=>(ac(s).bot||0)>=1},
+ {id:"friend",img:31,cat:"d",gem:20,test:s=>(ac(s).friend||0)>=1},
+ {id:"night",img:32,cat:"s",gem:15,secret:1,test:(s,g)=>{ if(!g) return false; const h=new Date().getHours(); return h>=0&&h<5; }},
+ {id:"fast",img:33,cat:"s",gem:15,secret:1,test:(s,g)=>!!(g&&g.ut&&g.res&&g.ut.some((u,k)=>g.res[k]===true&&u>0&&u<2000))}
+].forEach(a=>{ a.ic="star"; a.c="#C6FF3D"; FK.ACH.push(a); });
+FK.ACH.forEach(a=>{ if(a.id==="allModes") a.cat="m"; });
+})();

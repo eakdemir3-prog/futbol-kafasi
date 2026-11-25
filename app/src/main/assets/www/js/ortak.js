@@ -177,6 +177,7 @@ FK.screens.orvs = (el,p) => { el.classList.add("mframe"); el.style.setProperty("
     const o=chs(); const res=quit?"l":oppLeft?"w":sMy>sOp?"w":sMy<sOp?"l":"d"; let dc=0,g=0;
     if(mode==="live"){ dc=quit?-15:res==="w"?25:res==="l"?-15:0; g=quit?0:res==="w"?15:res==="d"?5:0; o.cup=Math.max(0,o.cup+dc); o[res]=(o[res]||0)+1; }
     else g=res==="w"?3:res==="d"?1:0;
+    if(res==="w"&&FK.acHit) setTimeout(()=>FK.acHit(mode==="live"?"olw":"bot"),50);
     FK.state.gems+=g; if(res==="w"&&mode==="live") FK.state.stats.duelWins=(FK.state.stats.duelWins||0)+1; o.best=Math.max(o.best||0,sMy); FK.save();
     if(mode==="live"&&!quit) set({["f"+side]:1});
     if(quit){ FK.modeHome("ortak"); FK.toast(t("ol_res",{g,c:dc}),"gem",2600); return; }

@@ -190,7 +190,7 @@ FK.screens.ollive = (el,p) => { el.classList.add("mframe"); el.style.setProperty
   function finish(quit,oppLeft){ if(ended) return; cleanup(); FK.backHandler=null;
     const o=ol(); let res=quit?"l":oppLeft?"w":sMy>sOp?"w":sMy<sOp?"l":"d";
     /* kupa sadece gerçek online rakipte; rakip kaydı / bot: G 3 💎, B 1 💎, M 0. Gerçek: G 15, B 5, M 0. Çıkan: −15 kupa, 0 💎 */
-    const real=mode==="live";
+    const real=mode==="live"; if(!quit&&res==="w"&&FK.acHit) setTimeout(()=>FK.acHit(real?"olw":"bot"),50);
     const dc=quit?(real?-15:0):real?(res==="w"?25:res==="l"?-15:0):0, g=quit?0:real?(res==="w"?15:res==="d"?5:0):(res==="w"?3:res==="d"?1:0);
     o.cup=Math.max(0,o.cup+dc); if(real||quit) o[res]=(o[res]||0)+1; const s=FK.state; s.gems+=g; if(res==="w") s.stats.duelWins=(s.stats.duelWins||0)+1;
     try{ FK.finishGame({mode:"duel",diff:0,correct:cMy,total:Math.max(5,i),score:sMy,bestStreak:0,timeSum:0,extra:{}}); }catch(e){}

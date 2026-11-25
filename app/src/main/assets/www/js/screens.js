@@ -121,12 +121,13 @@ S.achs = el => { const s=FK.state, n=Object.keys(s.ach).length, N=FK.ACH.length;
   el.innerHTML='<div class="topbar"><button class="icon-btn" data-back aria-label="'+t("back")+'">'+FK.ic("left",22,2.4)+'</button><div class="grow"></div><span class="pill">'+FK.gemIc()+FK.fmtNum(s.gems)+'</span></div>'+
    '<div class="scroll"><div class="stack" style="gap:14px">'+FK.v6rib(t("achievements").toLocaleUpperCase("tr"),"#C6FF3D",34)+
    '<div class="ach-prog"><b>'+n+' / '+N+'</b><span>'+t("achOpened")+'</span><i><u style="width:'+Math.round(n/N*100)+'%"></u></i></div>'+
-   '<div class="grid3 ach-all">'+FK.ACH.map(a=>'<button class="ach-b" data-a="'+a.id+'">'+achTile(a)+'</button>').join("")+'</div></div></div>';
+   ["p","m","l","d","s"].map(c=>{ const L=FK.ACH.filter(a=>(a.cat||"m")===c); if(!L.length) return ''; const k=L.filter(a=>s.ach[a.id]).length;
+     return '<div class="ach-cat"><span>'+t("gm_acat_"+c)+'</span><em>'+k+' / '+L.length+'</em></div><div class="grid3 ach-all">'+L.map(a=>'<button class="ach-b" data-a="'+a.id+'">'+achTile(a)+'</button>').join("")+'</div>'; }).join("")+'</div></div>';
   el.querySelector("[data-back]").onclick=()=>FK.back();
-  el.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{ const a=FK.ACH.find(x=>x.id===b.dataset.a), on=!!s.ach[a.id]; FK.sfx("tap");
+  el.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{ const a=FK.ACH.find(x=>x.id===b.dataset.a), on=!!s.ach[a.id]; FK.sfx("tap"); if(a.secret&&!on){ FK.toast(t("achSecret")+" 🤫","lock",1800); return; }
     FK.modal('<div class="center stack" style="gap:10px">'+achTile(a)+'<div class="chip chip-gem" style="align-self:center">'+FK.gemIc(14)+'+'+a.gem+'</div><div class="small" style="font-weight:700">'+(on?t("achDone"):t("achTodo"))+'</div><button class="btn btn-primary" data-ok>'+t("done")+'</button></div>',w=>w.querySelector("[data-ok]").onclick=FK.closeModal); }); };
 const ACHIMG={first:1,c100:2,c500:7,streak10:8,perfect:4,legend:5,flag:3,career:2,days7:6,lv10:8,wordle:4,allModes:9};
-function achTile(a){ const on=!!FK.state.ach[a.id]; return '<div class="ach'+(on?"":" off")+'"><div class="badge bimg"><img src="img/ach_'+(ACHIMG[a.id]||9)+'.webp" alt="">'+(on?'<i class="ach-ok">✓</i>':'<i class="ach-lk">'+FK.ic("lock",14,2.6)+'</i>')+'</div><b>'+t("ach_"+a.id)+'</b><span>'+t("ach_"+a.id+"D")+'</span></div>'; }
+function achTile(a){ const on=!!FK.state.ach[a.id], sec=a.secret&&!on; return '<div class="ach'+(on?"":" off")+(a.tier?" t"+a.tier:"")+'"><div class="badge bimg"><img src="img/ach_'+(sec?9:(a.img||ACHIMG[a.id]||9))+'.webp" alt=""'+(sec?' style="filter:brightness(.25)"':'')+'>'+(on?'<i class="ach-ok">✓</i>':'<i class="ach-lk">'+FK.ic("lock",14,2.6)+'</i>')+'</div><b>'+(sec?"???":t("ach_"+a.id))+'</b><span>'+(sec?t("achSecret"):t("ach_"+a.id+"D"))+'</span>'+(!on&&a.prog?(()=>{ const pr=a.prog(FK.state), v=Math.min(pr[0],pr[1]); return '<i class="ach-pg"><u style="width:'+Math.round(v/pr[1]*100)+'%"></u><em>'+FK.fmtNum(v)+' / '+FK.fmtNum(pr[1])+'</em></i>'; })():'')+'</div>'; }
 function bindCommon(el){
   el.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{ FK.sfx("tap"); FK.go(b.dataset.go,{},{root:["games","rank","missions","profile","home"].indexOf(b.dataset.go)>=0}); });
   FK.energyTick&&FK.energyTick(el);

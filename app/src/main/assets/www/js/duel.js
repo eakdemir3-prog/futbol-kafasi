@@ -100,7 +100,7 @@ FK.screens.duelres = (el,{code}) => {
   const reward=doc=>{ const A=doc[side], B=doc[other]; if(!A||!B||!A.done||!B.done||rec.result) return;
     const pr=FK.pkResult(A.pk,B.pk); let w,dr;
     if(pr){ w=pr.r==="w"; dr=pr.r==="d"; } else { w = A.score>B.score || (A.score===B.score && (A.time||0)<(B.time||0)); dr = A.score===B.score && (A.time||0)===(B.time||0); }
-    rec.result = dr?"d":w?"w":"l"; const g=dr?5:w?15:0; const s=FK.state; s.gems+=g; if(w) s.stats.duelWins=(s.stats.duelWins||0)+1; FK.save();
+    rec.result = dr?"d":w?"w":"l"; const g=dr?5:w?15:0; const s=FK.state; s.gems+=g; if(w) s.stats.duelWins=(s.stats.duelWins||0)+1; FK.save(); if(w&&FK.acHit){ FK.acHit("pkw"); FK.acHit("friend"); }
     FK.sfx(w?"win":"gem"); if(w) FK.confetti(el); setTimeout(()=>FK.toast(t("du_reward",{g}),"gem",3200),600); };
   const pl=(p,lbl,isMe,hide)=>'<div class="du-p'+(isMe?" me":"")+'">'+(p?FK.avatar(p.av||0,64,null,isMe?FK.frameOf():"none"):'<div class="av" style="width:64px;height:64px;background:var(--card2);color:var(--muted)">?</div>')+
     '<b>'+FK.esc(p?p.name:"—")+'</b><span class="small muted">'+lbl+'</span>'+
