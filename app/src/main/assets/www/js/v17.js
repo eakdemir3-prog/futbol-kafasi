@@ -49,6 +49,7 @@ const fitOne=(host,sc)=>{ if(!sc||!sc.clientHeight) return; let lv=+host.dataset
 const jk=scr=>{ const jr=scr.querySelector(".joker-row"), bb=scr.querySelector(".boost-bar"); if(!jr||!bb) return; const b=jr.querySelector("button"); if(!b) return;
   b.classList.add("boost","jk"); bb.insertBefore(b,bb.firstChild); jr.remove(); };
 const run=()=>{ document.querySelectorAll("#app .screen.mframe").forEach(scr=>{ jk(scr); fitOne(scr,scr.querySelector(":scope>.scroll")); });
+  document.querySelectorAll("#app .screen.rframe").forEach(scr=>fitOne(scr,scr.querySelector(":scope>.scroll")));
   const w=document.querySelector(".v6-enw .modal"); if(w) fitOne(w,w); };
 const start=()=>{ const a=document.getElementById("app"); if(!a||!window.MutationObserver) return; let q=false;
   new MutationObserver(()=>{ if(!q){ q=true; requestAnimationFrame(()=>{ q=false; run(); }); } }).observe(document.body,{childList:true,subtree:true}); };
@@ -152,4 +153,12 @@ const d7=FK.ACH.find(a=>a.id==="days7"); if(d7) d7.prog=s=>[s.login.streak||0,7]
  {id:"fast",img:33,cat:"s",gem:15,secret:1,test:(s,g)=>!!(g&&g.ut&&g.res&&g.ut.some((u,k)=>g.res[k]===true&&u>0&&u<2000))}
 ].forEach(a=>{ a.ic="star"; a.c="#C6FF3D"; FK.ACH.push(a); });
 FK.ACH.forEach(a=>{ if(a.id==="allModes") a.cat="m"; });
+})();
+/* sonuç ekranı: tek ekran düzeni */
+(function(){ const FK=window.FK, S=FK.screens; const _r=S.result;
+S.result=(el,p)=>{ _r(el,p);
+  const ag=el.querySelector("[data-again].btn-ghost"), rv=el.querySelector(".rv-btn");
+  if(ag&&rv){ const row=document.createElement("div"); row.className="rs-pair"; ag.parentNode.insertBefore(row,ag); row.appendChild(ag); row.appendChild(rv); }
+  const card=el.querySelector(".scroll .card.stack"); if(card){ card.classList.add("rs-xpc"); const gem=card.querySelector(".chip-gem"), xp=card.querySelector(".chip-xp"); if(gem&&xp){ const r2=gem.parentNode; xp.parentNode.insertBefore(gem,xp.nextSibling); const tx=r2.querySelector(".small"); if(tx&&tx.textContent.trim()) { tx.classList.add("rs-mis"); card.appendChild(tx); } r2.remove(); } }
+};
 })();

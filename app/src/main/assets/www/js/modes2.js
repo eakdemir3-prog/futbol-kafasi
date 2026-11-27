@@ -131,6 +131,7 @@ FK.screens.guess = (el,{diff,era,level,target,max}) => {
          '<div class="ac gx-in"><div class="gx-inr"><input class="input" data-in placeholder="'+t("guessPh")+'" autocomplete="off" autocapitalize="words" spellcheck="false" value="'+FK.esc(query)+'"><button class="gx-go" data-go>'+t("gx_go")+'</button></div><div class="ac-list down hide" data-ac></div></div>')+
      '<button class="gx-how" data-how>'+FK.ic("info",18,2.4)+'<u>'+t("gx_how")+'</u></button>'+
     '</div></div>';
+    if(done){ const rc=el.querySelector(".gx-tbl+.card"); if(rc) requestAnimationFrame(()=>{ const sc=el.querySelector("[data-sc]"); if(sc) sc.scrollTop=Math.max(0,rc.offsetTop+rc.offsetHeight-sc.clientHeight+60); }); }
     el.querySelector("[data-how]").onclick=()=>FK.modal('<div class="stack" style="gap:12px"><div class="h-display h2 center">'+t("howTo")+'</div><div style="font-size:14px;line-height:1.55">'+t("rules_guess")+'</div><button class="btn btn-primary" data-ok>'+t("done")+'</button></div>',w=>w.querySelector("[data-ok]").onclick=FK.closeModal);
     el.querySelector("[data-quit]").onclick=()=>FK.backHandler();
     if(done){

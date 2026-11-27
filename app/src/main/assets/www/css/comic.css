@@ -644,3 +644,33 @@ html[data-theme=light] .ach-cat{color:var(--ink)}html[data-theme=light] .ach-cat
 .ach-pg em{position:relative;font-style:normal;font-size:10px;font-weight:900;color:var(--ink);line-height:12px;display:block;text-align:center}
 .ach.off .ach-pg{opacity:1}
 .ach .ach-pg{width:100%;align-self:stretch;box-sizing:border-box}
+/* ===== sonuç ekranı: derli toplu ===== */
+.rframe>.scroll{padding-top:10px!important}
+.rframe>.scroll>.stack{gap:10px!important}
+.rframe .v6-lvtop .v6i{height:96px!important;width:auto}
+.rframe .v6-lvtop{gap:4px!important}
+.rframe .v6-rib span{font-size:26px!important}
+.rframe .v6-st i{font-size:38px!important;line-height:1}
+.rframe .v6-okno{padding:6px 16px!important}
+.rframe .stat3{gap:8px!important}
+.rframe .stat3 .stat{padding:6px 4px!important;min-height:0!important}
+.rframe .stat3 .stat b{font-size:22px!important}
+.rframe .stat3 .stat span{font-size:11px!important}
+.rframe .rs-xpc{padding:10px 12px!important;gap:6px!important}
+.rframe .rs-xpc>.row:first-child{gap:8px;align-items:center}
+.rframe .rs-xpc .chip{font-size:13px!important;padding:4px 8px!important;flex:none}
+.rframe .rs-mis{font-size:12px}
+.rframe .btn-reward{min-height:44px!important;padding:6px 10px!important;font-size:15px!important}
+.rframe>div:last-child{gap:8px!important;padding-top:8px!important}
+.rframe>div:last-child .btn{min-height:48px;height:auto;padding-top:8px;padding-bottom:8px}
+.rs-pair{display:flex;gap:8px}
+.rs-pair>.btn{flex:1;min-width:0;font-size:15px!important;padding-left:6px!important;padding-right:6px!important;white-space:nowrap}
+.rs-pair .rv-btn{width:auto}
+.rframe.fit1 .v6-lvtop .v6i{height:64px!important}
+.rframe.fit1 .v6-st i{font-size:30px!important}
+.rframe.fit2 .v6-lvtop .v6i{display:none}
+.rframe.fit2 .stat3{display:none}
+.rframe.fit3 .btn-reward{min-height:38px!important;font-size:13px!important}
+.rframe.fit3 .v6-okno{font-size:15px}
+.screen.welcome img[src*="hero_welcome"]{max-height:34vh;width:auto;object-fit:contain}
+.screen.welcome .v6w-hero{max-height:27vh!important;height:auto!important;width:auto!important}
